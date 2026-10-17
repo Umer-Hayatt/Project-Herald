@@ -125,31 +125,39 @@ export async function getOrCreateDailyEdition(
     .single();
 
   if (insertError) {
-    // Check if another concurrent tab already created it
-    const { data: concurrentEdition } = await supabase
-      .from("editions")
-      .select("*")
-      .eq("reader_id", readerId)
-      .eq("edition_date", localDate)
-      .maybeSingle();
-
-    if (concurrentEdition) {
-      const { data: stories } = await supabase
-        .from("edition_stories")
+    // If another concurrent request created it (unique constraint violation code 23505),
+    // poll briefly to allow the winning request to finish inserting edition_stories.
+    for (let attempt = 0; attempt < 4; attempt++) {
+      if (attempt > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+      }
+      const { data: concurrentEdition } = await supabase
+        .from("editions")
         .select("*")
-        .eq("edition_id", concurrentEdition.id)
-        .order("position", { ascending: true });
+        .eq("reader_id", readerId)
+        .eq("edition_date", localDate)
+        .maybeSingle();
 
-      return {
-        success: true,
-        isNew: false,
-        preferredRegion: prefs.preferred_region,
-        readingLength: prefs.reading_length,
-        edition: {
-          ...concurrentEdition,
-          stories: (stories || []) as EditionStory[],
-        },
-      };
+      if (concurrentEdition) {
+        const { data: stories } = await supabase
+          .from("edition_stories")
+          .select("*")
+          .eq("edition_id", concurrentEdition.id)
+          .order("position", { ascending: true });
+
+        if (stories && stories.length > 0) {
+          return {
+            success: true,
+            isNew: false,
+            preferredRegion: prefs.preferred_region,
+            readingLength: prefs.reading_length,
+            edition: {
+              ...concurrentEdition,
+              stories: stories as EditionStory[],
+            },
+          };
+        }
+      }
     }
 
     return { success: false, error: "SERVER_ERROR" };
@@ -169,6 +177,7 @@ export async function getOrCreateDailyEdition(
     .order("position", { ascending: true });
 
   if (storyError) {
+    console.error("[Herald] edition_stories insert error:", JSON.stringify(storyError));
     // Cleanup failed edition so it can be safely retried
     await supabase.from("editions").delete().eq("id", createdEdition.id);
     return { success: false, error: "SERVER_ERROR" };

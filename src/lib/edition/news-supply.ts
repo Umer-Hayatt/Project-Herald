@@ -16,26 +16,8 @@ interface TheNewsAPIArticle {
 }
 
 const CACHE_TTL_MS = 60 * 60 * 1000; // 60 minutes cache window
-const MAX_DAILY_REQUESTS = 25; // Guard well below the 100/day free limit
-
-// All interest categories Herald supports. Sent to the provider so the shared
-// supply pool is category-diverse — this is what allows ranking to produce
-// meaningfully different editions for readers with different interests.
-const HERALD_CATEGORIES = [
-  "general",
-  "science",
-  "technology",
-  "sports",
-  "business",
-  "health",
-  "entertainment",
-  "politics",
-];
-
-// Pool size: large enough for personalization to produce different editions.
-// Free plan limit is 3 per call — we page 3 calls × categories to build the pool,
-// but a single call with categories filter already diversifies the pool well.
-const SUPPLY_POOL_LIMIT = 50;
+// Guard well below TheNewsAPI's 100/day free limit
+const MAX_DAILY_REQUESTS = 15;
 
 /**
  * Retrieves the shared reporting supply.
@@ -108,20 +90,27 @@ export async function getReportingSupply(
       const fetchedArticles = await fetchNewsFromProvider(token);
       if (fetchedArticles.length > 0) {
         // Upsert into public.source_articles
-        const recordsToInsert = fetchedArticles.map((item) => ({
-          external_id: item.uuid,
-          title: item.title,
-          description: item.description || null,
-          snippet: item.snippet || null,
-          url: item.url,
-          image_url: item.image_url || null,
-          publisher: item.source || "News Source",
-          published_at: item.published_at,
-          retrieved_at: now.toISOString(),
-          language: item.language || "en",
-          categories: Array.isArray(item.categories) ? item.categories : ["general"],
-          locale: item.locale || null,
-        }));
+        const recordsToInsert = fetchedArticles.map((item) => {
+          const rawCats = Array.isArray(item.categories) ? item.categories : ["general"];
+          const normalizedCats = new Set(rawCats.map((c) => c.toLowerCase()));
+          if (normalizedCats.has("tech")) normalizedCats.add("technology");
+          if (normalizedCats.has("technology")) normalizedCats.add("tech");
+
+          return {
+            external_id: item.uuid,
+            title: item.title,
+            description: item.description || null,
+            snippet: item.snippet || null,
+            url: item.url,
+            image_url: item.image_url || null,
+            publisher: item.source || "News Source",
+            published_at: item.published_at,
+            retrieved_at: now.toISOString(),
+            language: item.language || "en",
+            categories: Array.from(normalizedCats),
+            locale: item.locale || null,
+          };
+        });
 
         await supabase
           .from("source_articles")
@@ -161,24 +150,47 @@ export async function getReportingSupply(
 }
 
 async function fetchNewsFromProvider(token: string): Promise<TheNewsAPIArticle[]> {
-  // Fetch a large, category-diverse pool so the ranking layer can produce
-  // meaningfully different editions for readers with different interests.
-  // Without category diversity in the shared pool, all readers receive
-  // identical editions regardless of their saved preferences.
-  const url = new URL("https://api.thenewsapi.com/v1/news/all");
-  url.search = new URLSearchParams({
-    api_token: token,
-    language: "en",
-    categories: HERALD_CATEGORIES.join(","),
-    limit: String(SUPPLY_POOL_LIMIT),
-  }).toString();
+  // Query category groups in parallel so the shared supply pool contains
+  // diverse reporting across all Herald interest categories.
+  // TheNewsAPI free tier returns max 3 articles per request.
+  const groups = [
+    "tech,science",
+    "sports,travel",
+    "business,politics",
+    "health,food",
+    "general,entertainment",
+  ];
 
-  const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
-  if (!response.ok) return [];
+  const results = await Promise.allSettled(
+    groups.map(async (categories) => {
+      const url = new URL("https://api.thenewsapi.com/v1/news/all");
+      url.search = new URLSearchParams({
+        api_token: token,
+        language: "en",
+        categories,
+        limit: "3",
+      }).toString();
 
-  const body = await response.json();
-  if (Array.isArray(body?.data)) {
-    return body.data as TheNewsAPIArticle[];
+      const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      if (!response.ok) return [];
+      const body = await response.json();
+      return Array.isArray(body?.data) ? (body.data as TheNewsAPIArticle[]) : [];
+    }),
+  );
+
+  const seenUuids = new Set<string>();
+  const articles: TheNewsAPIArticle[] = [];
+
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      for (const item of result.value) {
+        if (!seenUuids.has(item.uuid)) {
+          seenUuids.add(item.uuid);
+          articles.push(item);
+        }
+      }
+    }
   }
-  return [];
+
+  return articles;
 }

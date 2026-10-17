@@ -61,7 +61,6 @@ export function OnboardingForm({ saved }: { saved: Preferences | null }) {
       }
       if (complete) {
         router.push("/paper");
-        router.refresh();
       } else setMessage("Progress saved. You can pick up here after a reload.");
     } catch {
       setFailed(true);
