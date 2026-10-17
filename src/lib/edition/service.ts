@@ -6,6 +6,7 @@ import { processGroupedStories } from "./story-processing";
 import {
   buildEditionStories,
   estimateReadingTime,
+  MAX_TOPIC_FEEDBACK_VOTES,
   selectEditionStories,
 } from "./ranking";
 import type { Edition, EditionStory, SourceArticle, ReaderPreferencesRecord, GroupedSourceArticle } from "./types";
@@ -72,7 +73,7 @@ async function loadTopicFeedback(
     }
   }
   for (const [topic, score] of Object.entries(scores)) {
-    scores[topic] = Math.max(-3, Math.min(3, score));
+    scores[topic] = Math.max(-MAX_TOPIC_FEEDBACK_VOTES, Math.min(MAX_TOPIC_FEEDBACK_VOTES, score));
   }
   return scores;
 }

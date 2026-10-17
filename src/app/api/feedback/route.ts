@@ -21,12 +21,12 @@ function feedbackStoryKey(story: {
   supporting_sources: unknown;
 }) {
   const sources = Array.isArray(story.supporting_sources) ? story.supporting_sources : [];
-  const identities = sources
-    .map((source: { id?: unknown; url?: unknown }) => String(source.id || source.url || ""))
+  const primarySourceUrl = sources
+    .map((source: { url?: unknown }) => String(source.url || ""))
     .filter(Boolean)
-    .sort();
-  if (!identities.length) identities.push(String(story.source_article_id || story.source_url || story.id));
-  return createHash("sha256").update(JSON.stringify(identities)).digest("hex");
+    .sort()[0];
+  const identity = story.source_article_id || primarySourceUrl || story.source_url || story.id;
+  return createHash("sha256").update(String(identity)).digest("hex");
 }
 
 export async function GET(request: NextRequest) {

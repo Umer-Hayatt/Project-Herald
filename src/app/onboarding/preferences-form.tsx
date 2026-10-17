@@ -147,22 +147,24 @@ export function OnboardingForm({ saved, mode = "onboarding" }: { saved: Preferen
           </select>
         </div>
       </fieldset>
-      <div>
-        <label htmlFor="time-zone">Your time zone</label>
-        <p id="zone-help" className="field-help">
-          We detect your browser’s time zone when you save. If detection fails,
-          we use Asia/Karachi. You can enter another IANA zone, such as
-          Europe/London.
-        </p>
-        <input
-          id="time-zone"
-          value={timeZone}
-          placeholder="Detect automatically"
-          onChange={(event) => setTimeZone(event.target.value)}
-          aria-describedby="zone-help"
-          disabled={pending}
-        />
-      </div>
+      {mode === "onboarding" && (
+        <div>
+          <label htmlFor="time-zone">Your time zone</label>
+          <p id="zone-help" className="field-help">
+            We detect your browser’s time zone when you save. If detection fails,
+            we use Asia/Karachi. You can enter another IANA zone, such as
+            Europe/London.
+          </p>
+          <input
+            id="time-zone"
+            value={timeZone}
+            placeholder="Detect automatically"
+            onChange={(event) => setTimeZone(event.target.value)}
+            aria-describedby="zone-help"
+            disabled={pending}
+          />
+        </div>
+      )}
       {message && (
         <p
           className={failed ? "notice error" : "notice"}

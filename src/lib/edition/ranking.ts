@@ -11,6 +11,8 @@ const BUDGETS: Record<number, { maxStories: number; maxWords: number }> = {
   10: { maxStories: 8, maxWords: 2000 },
   15: { maxStories: 12, maxWords: 3000 },
 };
+export const MAX_TOPIC_FEEDBACK_VOTES = 3;
+const TOPIC_FEEDBACK_POINTS_PER_VOTE = 20;
 
 export interface EditionSelection {
   main: GroupedSourceArticle[];
@@ -155,7 +157,7 @@ function rankGroupedStories(
         const ageHours = Math.max(0, (nowMs - Date.parse(article.published_at)) / 3600000);
         const freshnessScore = Math.max(0, 1 - ageHours / 48) * 5;
         const feedbackScore = article.categories.reduce(
-          (sum, category) => sum + (topicFeedback[category.toLowerCase()] || 0) * 20,
+          (sum, category) => sum + (topicFeedback[category.toLowerCase()] || 0) * TOPIC_FEEDBACK_POINTS_PER_VOTE,
           0,
         );
         return categoryScore + regionalScore + freshnessScore + feedbackScore;
