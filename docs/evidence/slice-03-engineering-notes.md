@@ -26,7 +26,7 @@ The edition selector accepts positively learned topics as a separate input for t
 ## Validation run
 
 - `npm run typecheck` passed.
-- The two edition-selection regression tests pass on desktop. They cover two discovery positions beyond the personalized story-count cap and include the rendered importance explanation in stored word totals.
+- The three edition-selection regression tests pass on desktop. They cover two discovery positions beyond the personalized story-count cap, include rendered importance explanations in stored word totals, and avoid reporting a false shortage when only one eligible discovery story exists.
 - Three additional desktop regression tests pass for a frozen multi-publisher grouping example, time/text disagreement leaving similar headlines separate, and rejection of a generated topic label unsupported by the source.
 - `tests/edition-ranking.spec.ts` passed on desktop and phone.
 - `tests/edition-browser.spec.ts` passed on desktop with the configured test backend. The phone journey reached the generation error state.

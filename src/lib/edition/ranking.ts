@@ -252,16 +252,22 @@ export function selectEditionStories(
     usedWords += words;
   }
 
+  const discoveryShortage = beyondBubble.length >= 2
+    ? null
+    : discoveryCandidates.length === 0
+      ? impactAndAttributionCandidates.length === 0
+        ? "no_eligible_story"
+        : "briefing_unavailable"
+      : beyondBubble.length >= discoveryCandidates.length
+        ? impactAndAttributionCandidates.length > discoveryCandidates.length
+          ? "briefing_unavailable"
+          : null
+        : "does_not_fit";
+
   return {
     main,
     beyondBubble,
-    discoveryShortage: beyondBubble.length >= 2
-      ? null
-      : discoveryCandidates.length === 0 && impactAndAttributionCandidates.length === 0
-        ? "no_eligible_story"
-        : discoveryCandidates.length === 0
-          ? "briefing_unavailable"
-          : "does_not_fit",
+    discoveryShortage,
   };
 }
 

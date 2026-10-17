@@ -63,3 +63,21 @@ test("stored story word count includes rendered importance explanation", () => {
 
   expect(editionStory.word_count).toBe(12);
 });
+
+test("does not report a shortage when one eligible discovery story is the only candidate", () => {
+  const onlyCandidate = story(
+    "only-discovery",
+    "Government orders flood safety review",
+    ["politics"],
+    { whyItMatters: "The review affects public safety." },
+  );
+
+  const selection = selectEditionStories([onlyCandidate], {
+    interests: ["science"],
+    preferred_region: "global",
+    reading_length: 5,
+  }, new Date("2026-10-17T12:00:00Z"));
+
+  expect(selection.beyondBubble).toHaveLength(1);
+  expect(selection.discoveryShortage).toBeNull();
+});
