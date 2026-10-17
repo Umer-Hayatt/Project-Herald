@@ -9,9 +9,22 @@ export function Header({ signedIn = false }: { signedIn?: boolean }) {
       </Link>
       <span className="masthead-note">A little perspective, daily.</span>
       {signedIn ? (
-        <form action={signOut}>
-          <SubmitButton pendingText="Signing out…">Sign out</SubmitButton>
-        </form>
+        <div className="masthead-user-nav">
+          <nav className="masthead-nav" aria-label="Main Navigation">
+            <Link className="header-nav-link" href="/paper">
+              Today’s Paper
+            </Link>
+            <Link className="header-nav-link" href="/archive">
+              Archive
+            </Link>
+            <Link className="header-nav-link" href="/onboarding">
+              Preferences
+            </Link>
+          </nav>
+          <form action={signOut}>
+            <SubmitButton pendingText="Signing out…">Sign out</SubmitButton>
+          </form>
+        </div>
       ) : (
         <Link className="text-link" href="/login">
           Sign in
