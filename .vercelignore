@@ -1,0 +1,10 @@
+.git/
+node_modules/
+.next/
+.env*
+test-results/
+playwright-report/
+.impeccable/
+tests/
+scripts/
+docs/

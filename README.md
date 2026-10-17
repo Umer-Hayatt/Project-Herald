@@ -2,26 +2,48 @@
 
 A personal daily paper that combines relevant reporting with important Stories beyond a reader's usual interests.
 
-## Project status
+## Current build
 
-Planning is approved and published. Application implementation has not begun. The target is a usable first release by 21:00 on 17 October 2026, Asia/Karachi, using free services. Runtime API access, Google OAuth and deployment remain build work rather than verified capabilities.
+Slice 01 (GitHub issue #2) implements Google OAuth through Supabase, private persisted onboarding, draft saves, server-side validation, IANA time-zone handling and an honest paper entry state. Real Editions arrive in slice 02. Final human-made artwork and animation remain the last build slice.
 
-## Start here
+The account code is implemented; production Google OAuth and live news/Gemini access require the setup and evidence in [slice 01 setup](docs/setup/slice-01.md). Missing credentials and provider terms are recorded as blockers, never as successful checks. Issue #2 stays open until live acceptance passes.
 
+## Run locally
+
+Use Node.js 24 and npm. From the project root:
+
+```powershell
+npm ci
+Copy-Item .env.example .env.local
+# Fill the Supabase URL/publishable key and set APP_URL=http://localhost:3000.
+npm run dev
+```
+
+Open http://localhost:3000. Configure Google in the dedicated Supabase allocation before signing in. Existing .env.local files should be preserved instead of overwritten.
+
+```powershell
+npm run typecheck
+npm run lint
+npm run test:account
+npm test
+npm run build
+npm start
+```
+
+The browser suite runs desktop and phone-sized Chromium against real Supabase. Disposable test reader credentials belong only in ignored .env.test.local; see setup instructions. Install the browser with `npx playwright install chromium`. The full persisted journey explicitly skips without those readers; the Google production smoke test is a separate human-assisted acceptance step.
+
+`npm run check:providers` performs bounded live probes with server-only keys and records a sanitized report. Do not deploy test/admin credentials or commit environment files. The app runtime uses only the public Supabase key and row-level ownership policies.
+
+## Project resources
+
+- [Selected public repository](https://github.com/Umer-Hayatt/Project-Herald)
+- [Herald deployment](https://project-herald-pink.vercel.app)
+- [Dedicated Supabase project](https://supabase.com/dashboard/project/hnzwraiojsftuncridsp)
 - [Release specification: issue #1](https://github.com/Umer-Hayatt/Project-Herald/issues/1)
-- [Nine-ticket index and blocking graph](docs/planning/ticket-index.md)
-- [First unblocked ticket: Google sign-in and onboarding](https://github.com/Umer-Hayatt/Project-Herald/issues/2)
-- [Deadline checkpoints and known access risks](docs/planning/release-plan.md)
-- [Confirmed product context](PRODUCT.md) and [domain vocabulary](GLOSSARY.md)
+- [Current slice: issue #2](https://github.com/Umer-Hayatt/Project-Herald/issues/2)
+- [Ticket index and blockers](docs/planning/ticket-index.md)
+- [Product context](PRODUCT.md), [domain vocabulary](GLOSSARY.md), [interface foundation](DESIGN.md)
 
-## Agreed approach
+The agreed stack is Next.js, TypeScript, Tailwind CSS, Supabase and Vercel. TheNewsAPI and Gemini remain selected candidates, subject to verified access and suitability. Gemini's published audience/geography restrictions conflict with the current broad-audience/free-service plan; resolve this before AI rollout without silently changing provider or product scope.
 
-Next.js, TypeScript, Tailwind CSS, Supabase and Vercel; Google sign-in; TheNewsAPI as the first reporting candidate; Gemini free-tier API for grounded Briefings and topic labels, subject to live access verification. Preserve one reader-local daily Edition across web, archive and downloadable newspaper-inspired PDF. Feedback improves future Editions.
-
-The final build slice, issue #9, covers human-authored comic artwork, user-supplied animation references and frontend finishing. Earlier screens must be usable with replaceable artwork/motion areas. The combined Briefings/grouping/discovery slice is issue #4. Issue #10 packages the architecture diagram and final product video after the build.
-
-## Planning records
-
-The [specification snapshot](docs/planning/release-spec.md), [confirmed decision record](docs/planning/product-decisions.md) and [design brief](docs/planning/design-brief.md) preserve the discovery work. References in original discovery records to local outputs or design assets refer to that earlier workspace. They are not claims that those assets or integrations exist in this repository. GitHub Issues are authoritative for current ticket status and dependencies.
-
-Read [AGENTS.md](AGENTS.md) before agent work. Tracker, status-label and domain-document conventions are under docs/agents. Keep meaningful regular commits and record actual acceptance evidence. Setup/run commands and deployed-product instructions will be added as the build slices complete; no app launch command exists yet.
+Read [AGENTS.md](AGENTS.md) before agent work. GitHub Issues are authoritative for live status and dependencies. Planning documents preserve approved decisions and original schedule context.
