@@ -1,11 +1,51 @@
 {
-  "checkedAt": "2026-10-17T08:14:49.717Z",
+  "checkedAt": "2026-10-17T09:06:05.547Z",
   "news": {
-    "status": "blocked",
-    "reason": "THENEWSAPI_TOKEN missing"
+    "status": "passed",
+    "httpStatus": 200,
+    "fields": [
+      "uuid",
+      "title",
+      "description",
+      "keywords",
+      "snippet",
+      "url",
+      "image_url",
+      "language",
+      "published_at",
+      "source",
+      "categories",
+      "relevance_score"
+    ],
+    "localesObserved": [
+      null
+    ],
+    "categoriesObserved": [
+      "general"
+    ],
+    "articleCount": 3,
+    "quotaHeaders": {
+      "x-ratelimit-limit": "30",
+      "x-ratelimit-remaining": "29"
+    }
   },
   "gemini": {
-    "status": "blocked",
-    "reason": "GEMINI_API_KEY or GEMINI_MODEL missing"
+    "status": "passed",
+    "httpStatus": 200,
+    "model": "gemini-3.8-flash",
+    "returnedText": true,
+    "usage": {
+      "promptTokenCount": 7,
+      "candidatesTokenCount": 1,
+      "totalTokenCount": 67,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 7
+        }
+      ],
+      "thoughtsTokenCount": 59,
+      "serviceTier": "standard"
+    }
   }
 }
