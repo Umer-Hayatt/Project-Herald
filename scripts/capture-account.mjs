@@ -1,6 +1,5 @@
 import { chromium } from "@playwright/test";
 import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 import { mkdirSync, writeFileSync } from "node:fs";
 process.loadEnvFile(".env.local");
 process.loadEnvFile(".env.test.local");
@@ -23,6 +22,7 @@ try {
     page.on("pageerror", () => pageErrors++);
     async function capture(route, suffix) {
       await page.goto(base + route);
+      await page.locator("main h1").waitFor();
       await page.evaluate(async () => {
         await document.fonts.ready;
       });

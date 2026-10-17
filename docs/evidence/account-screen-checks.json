@@ -1,0 +1,50 @@
+[
+  {
+    "viewport": "desktop",
+    "surface": "landing",
+    "overflow": false,
+    "pageErrors": 0
+  },
+  {
+    "viewport": "desktop",
+    "surface": "login",
+    "overflow": false,
+    "pageErrors": 0
+  },
+  {
+    "viewport": "desktop",
+    "surface": "onboarding",
+    "overflow": false,
+    "pageErrors": 0
+  },
+  {
+    "viewport": "desktop",
+    "surface": "paper",
+    "overflow": false,
+    "pageErrors": 0
+  },
+  {
+    "viewport": "mobile",
+    "surface": "landing",
+    "overflow": false,
+    "pageErrors": 0
+  },
+  {
+    "viewport": "mobile",
+    "surface": "login",
+    "overflow": false,
+    "pageErrors": 0
+  },
+  {
+    "viewport": "mobile",
+    "surface": "onboarding",
+    "overflow": false,
+    "pageErrors": 0
+  },
+  {
+    "viewport": "mobile",
+    "surface": "paper",
+    "overflow": false,
+    "pageErrors": 0
+  }
+]

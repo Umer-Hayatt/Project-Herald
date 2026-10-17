@@ -5,6 +5,7 @@
   --lilac: #dcd2ee;
   --orange: #b34322;
   --line: #b1ada7;
+  --control-line: #727780;
   --muted: #535c65;
 }
 * {
@@ -296,7 +297,7 @@ label[for] {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  border: 1px solid var(--line);
+  border: 1px solid var(--control-line);
   border-radius: 4px;
   padding: 0.65rem 0.8rem;
   cursor: pointer;
@@ -321,7 +322,7 @@ label[for] {
 select,
 input[type="text"],
 input:not([type]) {
-  border: 1px solid var(--line);
+  border: 1px solid var(--control-line);
   border-radius: 4px;
   padding: 0.7rem;
   background: transparent;
