@@ -17,7 +17,7 @@ export function Header({ signedIn = false }: { signedIn?: boolean }) {
             <Link className="header-nav-link" href="/archive">
               Archive
             </Link>
-            <Link className="header-nav-link" href="/onboarding">
+            <Link className="header-nav-link" href="/settings">
               Preferences
             </Link>
           </nav>

@@ -335,6 +335,47 @@ label[for] {
   height: 17px;
   margin: 0;
 }
+
+.story-feedback {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.feedback-button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+.feedback-button:hover:not(:disabled) {
+  border-color: var(--orange);
+  background: color-mix(in srgb, var(--orange) 10%, white);
+}
+.feedback-button:focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 2px;
+}
+.feedback-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+.feedback-message {
+  flex-basis: 100%;
+  color: var(--ink);
+}
+.feedback-message.error {
+  color: #9b2c24;
+}
+.settings-page .preferences-form {
+  max-width: 48rem;
+}
 .preference-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

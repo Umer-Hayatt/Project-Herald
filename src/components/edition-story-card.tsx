@@ -1,4 +1,5 @@
 import type { EditionStory } from "@/lib/edition/types";
+import { StoryFeedbackControls } from "@/components/story-feedback-controls";
 
 function formatRelativeTime(publishedAt: string): string {
   const publishedMs = Date.parse(publishedAt);
@@ -83,6 +84,7 @@ export function EditionStoryCard({
           {skipLabel} ↓
         </a>
       </div>
+      <StoryFeedbackControls storyId={story.id || ""} />
     </article>
   );
 }

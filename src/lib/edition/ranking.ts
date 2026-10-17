@@ -133,6 +133,7 @@ function rankGroupedStories(
   articles: GroupedSourceArticle[],
   preferences: SelectionPreferences,
   referenceDate: Date,
+  topicFeedback: Record<string, number>,
 ): GroupedSourceArticle[] {
   const normalizedInterests = new Set(preferences.interests.map((interest) => interest.toLowerCase()));
   const nowMs = referenceDate.getTime();
@@ -153,7 +154,11 @@ function rankGroupedStories(
           article.locale?.toLowerCase() === preferences.preferred_region.toLowerCase() ? 5 : 0;
         const ageHours = Math.max(0, (nowMs - Date.parse(article.published_at)) / 3600000);
         const freshnessScore = Math.max(0, 1 - ageHours / 48) * 5;
-        return categoryScore + regionalScore + freshnessScore;
+        const feedbackScore = article.categories.reduce(
+          (sum, category) => sum + (topicFeedback[category.toLowerCase()] || 0) * 20,
+          0,
+        );
+        return categoryScore + regionalScore + freshnessScore + feedbackScore;
       };
       return score(right) - score(left) ||
         Date.parse(right.published_at) - Date.parse(left.published_at) ||
@@ -208,15 +213,17 @@ export function selectEditionStories(
   preferences: SelectionPreferences,
   referenceDate: Date = new Date(),
   positivelyLearnedTopics: string[] = [],
+  topicFeedback: Record<string, number> = {},
 ): EditionSelection {
   const budget = BUDGETS[preferences.reading_length] || BUDGETS[10];
   const ranked = rankGroupedStories(articles, {
     ...preferences,
     interests: [...new Set([...preferences.interests, ...positivelyLearnedTopics])],
-  }, referenceDate);
+  }, referenceDate, topicFeedback);
   const outsideTopics = new Set([
     ...preferences.interests,
     ...positivelyLearnedTopics,
+    ...Object.entries(topicFeedback).filter(([, score]) => score < 0).map(([topic]) => topic),
   ].map((topic) => topic.toLowerCase()));
   const outsideInterestCandidates = ranked.filter((article) => !hasInterestOverlap(article, outsideTopics));
   const impactAndAttributionCandidates = outsideInterestCandidates.filter((article) =>

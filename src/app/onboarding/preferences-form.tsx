@@ -8,7 +8,7 @@ import {
   isTimeZone,
   type Preferences,
 } from "@/lib/preferences";
-export function OnboardingForm({ saved }: { saved: Preferences | null }) {
+export function OnboardingForm({ saved, mode = "onboarding" }: { saved: Preferences | null; mode?: "onboarding" | "settings" }) {
   const router = useRouter();
   const [selected, setSelected] = useState<string[]>(saved?.interests ?? []);
   const [region, setRegion] = useState(saved?.preferred_region ?? "global");
@@ -59,7 +59,9 @@ export function OnboardingForm({ saved }: { saved: Preferences | null }) {
         if (response.status === 401) router.push("/login");
         return;
       }
-      if (complete) {
+      if (mode === "settings") {
+        setMessage("Saved for your next Edition. Completed Editions stay as they are.");
+      } else if (complete) {
         router.push("/paper");
       } else setMessage("Progress saved. You can pick up here after a reload.");
     } catch {
@@ -176,16 +178,16 @@ export function OnboardingForm({ saved }: { saved: Preferences | null }) {
           disabled={pending}
           aria-busy={pending}
         >
-          {pending ? "Saving…" : "Save and continue"}
+          {pending ? "Saving…" : mode === "settings" ? "Save settings" : "Save and continue"}
         </button>
-        <button
+        {mode === "onboarding" && <button
           className="secondary-button"
           type="button"
           disabled={pending}
           onClick={() => void save(false)}
         >
           Save progress
-        </button>
+        </button>}
       </div>
       <p className="small-note">Your choices stay private to your account.</p>
     </form>

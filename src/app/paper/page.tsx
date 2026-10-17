@@ -179,7 +179,7 @@ export default async function PaperPage({
           <p style={{ color: "var(--muted)", margin: "0 0 1.5rem" }}>
             Your next edition will arrive tomorrow morning based on your saved reading length and interests.
           </p>
-          <Link href="/onboarding" className="text-link">
+          <Link href="/settings" className="text-link">
             Adjust preferences for tomorrow →
           </Link>
         </footer>

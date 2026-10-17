@@ -53,6 +53,30 @@ async function loadLatestSavedEdition(
   return { ...data, stories } as Edition;
 }
 
+async function loadTopicFeedback(
+  supabase: SupabaseClient,
+  readerId: string,
+): Promise<Record<string, number>> {
+  const { data, error } = await supabase
+    .from("story_feedback")
+    .select("feedback,topics")
+    .eq("reader_id", readerId);
+  if (error || !data) return {};
+
+  const scores: Record<string, number> = {};
+  for (const entry of data) {
+    const amount = entry.feedback === "more" ? 1 : -1;
+    for (const topic of entry.topics || []) {
+      const normalized = String(topic).toLowerCase();
+      scores[normalized] = (scores[normalized] || 0) + amount;
+    }
+  }
+  for (const [topic, score] of Object.entries(scores)) {
+    scores[topic] = Math.max(-3, Math.min(3, score));
+  }
+  return scores;
+}
+
 /**
  * Gets the reader's preserved Edition for today, or generates and saves a new one atomically.
  */
@@ -64,6 +88,7 @@ export async function getOrCreateDailyEdition(
     referenceDate?: Date;
     controlledSupply?: SourceArticle[];
     positivelyLearnedTopics?: string[];
+    controlledTopicFeedback?: Record<string, number>;
     forceRefresh?: boolean;
   },
 ): Promise<EditionResult> {
@@ -193,11 +218,16 @@ export async function getOrCreateDailyEdition(
     preferred_region: prefs.preferred_region,
     reading_length: prefs.reading_length,
   };
+  const topicFeedback = options?.controlledTopicFeedback || await loadTopicFeedback(supabase, readerId);
+  const positivelyLearnedTopics = [
+    ...new Set(Object.entries(topicFeedback).filter(([, score]) => score > 0).map(([topic]) => topic)),
+  ];
   const selection = selectEditionStories(
     readyStories,
     preferencesForSelection,
     now,
-    options?.positivelyLearnedTopics || [],
+    [...new Set([...(options?.positivelyLearnedTopics || []), ...positivelyLearnedTopics])],
+    topicFeedback,
   );
   const selectedArticles = [...selection.main, ...selection.beyondBubble];
   if (selectedArticles.length === 0) {
