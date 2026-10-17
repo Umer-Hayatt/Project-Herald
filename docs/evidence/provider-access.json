@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-10-17T08:14:49.717Z",
+  "news": {
+    "status": "blocked",
+    "reason": "THENEWSAPI_TOKEN missing"
+  },
+  "gemini": {
+    "status": "blocked",
+    "reason": "GEMINI_API_KEY or GEMINI_MODEL missing"
+  }
+}

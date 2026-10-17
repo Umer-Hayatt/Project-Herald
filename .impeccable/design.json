@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "colors": {
+    "paper": "#f7f5ef",
+    "ink": "#293744",
+    "lilac": "#dcd2ee",
+    "orange": "#b34322",
+    "muted": "#535c65",
+    "line": "#b1ada7"
+  },
+  "typography": {
+    "display": "Fraunces",
+    "body": "DM Sans"
+  },
+  "surfaces": {
+    "landing": {
+      "mode": "Persuade"
+    },
+    "account": {
+      "mode": "Operate"
+    },
+    "paper": {
+      "mode": "Read"
+    }
+  }
+}
