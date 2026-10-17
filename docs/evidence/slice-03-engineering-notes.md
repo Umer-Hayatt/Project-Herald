@@ -26,6 +26,7 @@ The edition selector accepts positively learned topics as a separate input for t
 ## Validation run
 
 - `npm run typecheck` passed.
+- The two edition-selection regression tests pass on desktop. They cover two discovery positions beyond the personalized story-count cap and include the rendered importance explanation in stored word totals.
 - `tests/edition-ranking.spec.ts` passed on desktop and phone.
 - `tests/edition-browser.spec.ts` passed on desktop with the configured test backend. The phone journey reached the generation error state.
 - `tests/edition-service.spec.ts` passed its reader-isolation check, but the generation/preservation check returned `SERVER_ERROR`. The test backend does not yet have this slice's migration, which adds `editions.discovery_note` and the preserved Story Briefing fields.

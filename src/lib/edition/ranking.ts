@@ -163,7 +163,7 @@ function rankGroupedStories(
 
 function storyWordCount(article: GroupedSourceArticle): number {
   const text = article.briefing || article.snippet || article.description || article.title;
-  return countWords(article.title) + countWords(text);
+  return countWords(article.title) + countWords(text) + countWords(article.whyItMatters || "");
 }
 
 function hasInterestOverlap(article: GroupedSourceArticle, topics: Set<string>): boolean {
@@ -202,7 +202,7 @@ function discoveryOrder(left: GroupedSourceArticle, right: GroupedSourceArticle,
     left.title.localeCompare(right.title);
 }
 
-/** Selects main-paper and outside-interest Stories under one shared reading budget. */
+/** Selects the personalized story cap plus up to two discovery Stories under one word budget. */
 export function selectEditionStories(
   articles: GroupedSourceArticle[],
   preferences: SelectionPreferences,
@@ -228,7 +228,7 @@ export function selectEditionStories(
   const beyondBubble: GroupedSourceArticle[] = [];
   let usedWords = 0;
   for (const candidate of discoveryCandidates) {
-    if (beyondBubble.length >= 2 || beyondBubble.length >= budget.maxStories) break;
+    if (beyondBubble.length >= 2) break;
     const words = storyWordCount(candidate);
     if (usedWords + words > budget.maxWords) continue;
     beyondBubble.push(candidate);
@@ -245,7 +245,7 @@ export function selectEditionStories(
     });
   const main: GroupedSourceArticle[] = [];
   for (const candidate of mainCandidates) {
-    if (main.length + beyondBubble.length >= budget.maxStories) break;
+    if (main.length >= budget.maxStories) break;
     const words = storyWordCount(candidate);
     if (usedWords + words > budget.maxWords) continue;
     main.push(candidate);
@@ -275,7 +275,8 @@ export function buildEditionStories(
 ): Omit<EditionStory, "edition_id" | "reader_id">[] {
   return articles.map((article, index) => {
     const excerpt = (article.briefing || article.snippet || article.description || article.title).trim();
-    const wordCount = countWords(article.title) + countWords(excerpt);
+    const wordCount = countWords(article.title) + countWords(excerpt) +
+      countWords(article.whyItMatters || "");
     const category = article.topics?.[0] || article.categories[0] || "general";
     const supportingArticles = article.supportingArticles.length
       ? article.supportingArticles
