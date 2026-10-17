@@ -15,6 +15,7 @@ export type EditionResult =
       success: true;
       edition: Edition;
       isNew: boolean;
+      isFallback?: boolean;
       preferredRegion: string;
       readingLength: number;
     }
@@ -34,6 +35,24 @@ async function loadEditionStories(
   return error || !data ? null : data as EditionStory[];
 }
 
+async function loadLatestSavedEdition(
+  supabase: SupabaseClient,
+  readerId: string,
+): Promise<Edition | null> {
+  const { data, error } = await supabase
+    .from("editions")
+    .select("*")
+    .eq("reader_id", readerId)
+    .eq("status", "completed")
+    .order("edition_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  const stories = await loadEditionStories(supabase, data.id, readerId);
+  if (!stories?.length) return null;
+  return { ...data, stories } as Edition;
+}
+
 /**
  * Gets the reader's preserved Edition for today, or generates and saves a new one atomically.
  */
@@ -45,6 +64,7 @@ export async function getOrCreateDailyEdition(
     referenceDate?: Date;
     controlledSupply?: SourceArticle[];
     positivelyLearnedTopics?: string[];
+    forceRefresh?: boolean;
   },
 ): Promise<EditionResult> {
   if (!readerId) {
@@ -130,13 +150,27 @@ export async function getOrCreateDailyEdition(
 
   // 4. No edition exists yet -> Generate from reporting supply
   const supply = await getReportingSupply(supabase, {
+    forceRefresh: options?.forceRefresh,
     controlledSupply: options?.controlledSupply,
     referenceDate: now,
   });
 
   const sourceGroups = groupSourceArticles(supply);
   if (sourceGroups.length === 0) {
-    // Honest unavailable state: no eligible fresh reporting
+    // A previous Edition remains useful when fresh supply is unavailable.
+    // Its preserved date is returned unchanged and the UI labels it as a fallback.
+    const latestEdition = await loadLatestSavedEdition(supabase, readerId);
+    if (latestEdition) {
+      return {
+        success: true,
+        isNew: false,
+        isFallback: true,
+        preferredRegion: prefs.preferred_region,
+        readingLength: prefs.reading_length,
+        edition: latestEdition,
+      };
+    }
+    // Honest unavailable state: no eligible fresh reporting and no saved Edition.
     return { success: false, error: "NO_REPORTING" };
   }
 

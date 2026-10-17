@@ -22,7 +22,13 @@ function formatDisplayDate(dateStr: string): string {
   }
 }
 
-export default async function PaperPage() {
+export default async function PaperPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ retry?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const forceRefresh = params.retry === "1";
   const supabase = await createClient();
   const {
     data: { user },
@@ -32,7 +38,7 @@ export default async function PaperPage() {
     redirect("/login");
   }
 
-  const result = await getOrCreateDailyEdition(supabase, user.id);
+  const result = await getOrCreateDailyEdition(supabase, user.id, { forceRefresh });
 
   if (!result.success) {
     if (result.error === "NOT_ONBOARDED") {
@@ -51,7 +57,7 @@ export default async function PaperPage() {
                 Herald refuses to pad your paper with fabricated content or stale reporting.
               </p>
               <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-                <Link href="/paper" className="button">
+                <Link href="/paper?retry=1" className="button">
                   Retry loading paper
                 </Link>
                 <Link href="/onboarding" className="secondary-button">
@@ -72,7 +78,7 @@ export default async function PaperPage() {
           <div className="edition-empty-state">
             <h1>We couldn’t open your paper</h1>
             <p>An unexpected error occurred while generating today’s Edition. Please try again.</p>
-            <Link href="/paper" className="button">
+            <Link href="/paper?retry=1" className="button">
               Retry
             </Link>
           </div>
@@ -89,6 +95,15 @@ export default async function PaperPage() {
     <>
       <Header signedIn />
       <main id="main" className="edition-container">
+        {result.isFallback && (
+          <div className="edition-fallback-banner" role="status">
+            <p>
+              Fresh reporting is unavailable. This is your most recent saved Edition from {displayDate};
+              its original date and contents are preserved.
+            </p>
+            <Link href="/paper?retry=1" className="button">Retry for fresh reporting</Link>
+          </div>
+        )}
         <header className="edition-masthead-sub">
           <div>
             <h1 className="edition-date-headline">{displayDate}</h1>

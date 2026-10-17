@@ -4,9 +4,9 @@ A personal daily paper that combines relevant reporting with important Stories b
 
 ## Current build
 
-Slice 01 (GitHub issue #2) implements Google OAuth through Supabase, private persisted onboarding, draft saves, server-side validation, IANA time-zone handling and an honest paper entry state. Real Editions arrive in slice 02. Final human-made artwork and animation remain the last build slice.
+Slices 01–06 cover account/onboarding, preserved Editions, grounded Stories and discovery, feedback/settings, archive, and matching PDF exports. Slice 07 hardens provider failures and free-tier limits. Final human-made artwork and animation remain the last build slice.
 
-The account code is implemented; production Google OAuth and live news/Gemini access require the setup and evidence in [slice 01 setup](docs/setup/slice-01.md). Missing credentials and provider terms are recorded as blockers, never as successful checks. Issue #2 stays open until live acceptance passes.
+Production Google OAuth and live news/Gemini access require the setup and evidence in [slice 01 setup](docs/setup/slice-01.md). Missing credentials and provider terms are recorded as blockers, never as successful checks. See the [architecture outline](docs/evidence/architecture-overview.md), [slice 07 operations](docs/setup/slice-07.md), and [smoke-demo outline](docs/evidence/slice-07-smoke-outline.md).
 
 ## Run locally
 
@@ -40,7 +40,7 @@ The browser suite runs desktop and phone-sized Chromium against real Supabase. D
 - [Herald deployment](https://project-herald-pink.vercel.app)
 - [Dedicated Supabase project](https://supabase.com/dashboard/project/hnzwraiojsftuncridsp)
 - [Release specification: issue #1](https://github.com/Umer-Hayatt/Project-Herald/issues/1)
-- [Current slice: issue #2](https://github.com/Umer-Hayatt/Project-Herald/issues/2)
+- [Resilience slice: issue #8](https://github.com/Umer-Hayatt/Project-Herald/issues/8)
 - [Ticket index and blockers](docs/planning/ticket-index.md)
 - [Product context](PRODUCT.md), [domain vocabulary](GLOSSARY.md), [interface foundation](DESIGN.md)
 

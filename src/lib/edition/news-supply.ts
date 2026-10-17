@@ -15,10 +15,6 @@ interface TheNewsAPIArticle {
   locale?: string;
 }
 
-const CACHE_TTL_MS = 60 * 60 * 1000; // 60 minutes cache window
-// Guard well below TheNewsAPI's 100/day free limit
-const MAX_DAILY_REQUESTS = 15;
-
 /**
  * Retrieves the shared reporting supply.
  * Reuses server-cached articles within 60 minutes to protect provider rate limits.
@@ -32,7 +28,8 @@ export async function getReportingSupply(
   },
 ): Promise<SourceArticle[]> {
   // If controlled supply is supplied (for tests/fixtures), persist it so foreign keys are valid
-  if (options?.controlledSupply && options.controlledSupply.length > 0) {
+  if (options?.controlledSupply !== undefined) {
+    if (options.controlledSupply.length === 0) return [];
     const records = options.controlledSupply.map((s) => ({
       id: s.id,
       external_id: s.external_id,
@@ -56,90 +53,65 @@ export async function getReportingSupply(
   }
 
   const now = options?.referenceDate || new Date();
-  const todayDateStr = now.toISOString().slice(0, 10);
   const maxAgeIso = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString();
-
-  // 1. Check reporting cache metadata
-  let shouldFetchLive = false;
   const token = process.env.THENEWSAPI_TOKEN;
-
   if (token) {
-    const { data: cacheMeta } = await supabase
-      .from("reporting_cache_meta")
-      .select("*")
-      .eq("id", "news_supply")
-      .maybeSingle();
+    // The database reserves five HTTP calls against its fixed daily budget of fifteen.
+    const { data: lockToken } = await supabase.rpc("claim_reporting_refresh", {
+      p_force_refresh: options?.forceRefresh || false,
+    });
 
-    if (!cacheMeta) {
-      shouldFetchLive = true;
-    } else {
-      const isDifferentDay = cacheMeta.day_date !== todayDateStr;
-      const requestCount = isDifferentDay ? 0 : cacheMeta.daily_request_count;
-      const lastFetchedMs = new Date(cacheMeta.last_fetched_at).getTime();
-      const isStale = now.getTime() - lastFetchedMs > CACHE_TTL_MS;
+    // A null token means a fresh cache, another active refresh, or an exhausted budget.
+    if (lockToken) {
+      let succeeded = false;
+      try {
+        const { articles, validResponse } = await fetchNewsFromProvider(token);
+        if (validResponse) {
+          const freshestAllowedAt = now.getTime() - 48 * 60 * 60 * 1000;
+          const eligibleArticles = articles.filter((item) => {
+            const publishedAt = Date.parse(item.published_at);
+            return publishedAt >= freshestAllowedAt && publishedAt <= now.getTime();
+          });
+          if (eligibleArticles.length) {
+            const recordsToInsert = eligibleArticles.map((item) => {
+              const normalizedCats = new Set((item.categories || ["general"]).map((c) => c.toLowerCase()));
+              if (normalizedCats.has("tech")) normalizedCats.add("technology");
+              if (normalizedCats.has("technology")) normalizedCats.add("tech");
 
-      if ((isStale || options?.forceRefresh) && requestCount < MAX_DAILY_REQUESTS) {
-        shouldFetchLive = true;
+              return {
+                external_id: item.uuid,
+                title: item.title,
+                description: item.description || null,
+                snippet: item.snippet || null,
+                url: item.url,
+                image_url: item.image_url || null,
+                publisher: item.source,
+                published_at: item.published_at,
+                retrieved_at: now.toISOString(),
+                language: item.language || "en",
+                categories: Array.from(normalizedCats),
+                locale: item.locale || null,
+              };
+            });
+            const { error } = await supabase.from("source_articles")
+              .upsert(recordsToInsert, { onConflict: "external_id" });
+            if (error) throw error;
+          }
+          // Empty or stale-only responses must not suppress a reader's Retry for an hour.
+          succeeded = eligibleArticles.length > 0;
+        }
+      } catch {
+        // The request reservation is retained even when a provider call fails.
+      } finally {
+        await supabase.rpc("finish_reporting_refresh", {
+          p_lock_token: lockToken,
+          p_succeeded: succeeded,
+        });
       }
     }
   }
 
-  // 2. Fetch live if required and permitted
-  if (shouldFetchLive && token) {
-    try {
-      const fetchedArticles = await fetchNewsFromProvider(token);
-      if (fetchedArticles.length > 0) {
-        // Upsert into public.source_articles
-        const recordsToInsert = fetchedArticles.map((item) => {
-          const rawCats = Array.isArray(item.categories) ? item.categories : ["general"];
-          const normalizedCats = new Set(rawCats.map((c) => c.toLowerCase()));
-          if (normalizedCats.has("tech")) normalizedCats.add("technology");
-          if (normalizedCats.has("technology")) normalizedCats.add("tech");
-
-          return {
-            external_id: item.uuid,
-            title: item.title,
-            description: item.description || null,
-            snippet: item.snippet || null,
-            url: item.url,
-            image_url: item.image_url || null,
-            publisher: item.source || "News Source",
-            published_at: item.published_at,
-            retrieved_at: now.toISOString(),
-            language: item.language || "en",
-            categories: Array.from(normalizedCats),
-            locale: item.locale || null,
-          };
-        });
-
-        await supabase
-          .from("source_articles")
-          .upsert(recordsToInsert, { onConflict: "external_id" });
-
-        // Update cache metadata
-        const { data: existingMeta } = await supabase
-          .from("reporting_cache_meta")
-          .select("*")
-          .eq("id", "news_supply")
-          .maybeSingle();
-
-        const isNewDay = !existingMeta || existingMeta.day_date !== todayDateStr;
-        const currentCount = isNewDay ? 1 : existingMeta.daily_request_count + 1;
-
-        await supabase.from("reporting_cache_meta").upsert({
-          id: "news_supply",
-          last_fetched_at: now.toISOString(),
-          daily_request_count: currentCount,
-          day_date: todayDateStr,
-          is_fetching: false,
-        });
-      }
-    } catch {
-      // If live retrieval fails, we fall back gracefully to already stored supply
-    }
-  }
-
-  // 3. Query all fresh source articles from database
+  // Read a bounded fresh cache even when live retrieval is unavailable or capped.
   const { data: cachedArticles } = await supabase
     .from("source_articles")
     .select("*")
@@ -149,10 +121,24 @@ export async function getReportingSupply(
   return (cachedArticles || []) as SourceArticle[];
 }
 
-async function fetchNewsFromProvider(token: string): Promise<TheNewsAPIArticle[]> {
-  // Query category groups in parallel so the shared supply pool contains
-  // diverse reporting across all Herald interest categories.
-  // TheNewsAPI free tier returns max 3 articles per request.
+function isTheNewsApiArticle(value: unknown): value is TheNewsAPIArticle {
+  if (typeof value !== "object" || value === null) return false;
+  const article = value as Record<string, unknown>;
+  return typeof article.uuid === "string" && article.uuid.length > 0 &&
+    typeof article.title === "string" && article.title.length > 0 &&
+    typeof article.url === "string" && /^https?:\/\//i.test(article.url) &&
+    typeof article.published_at === "string" && Number.isFinite(Date.parse(article.published_at)) &&
+    typeof article.source === "string" && article.source.length > 0 &&
+    typeof article.language === "string" &&
+    [article.description, article.snippet, article.image_url, article.locale]
+      .every((field) => field === undefined || typeof field === "string") &&
+    (article.categories === undefined || (Array.isArray(article.categories) &&
+      article.categories.every((category) => typeof category === "string")));
+}
+
+async function fetchNewsFromProvider(
+  token: string,
+): Promise<{ articles: TheNewsAPIArticle[]; validResponse: boolean }> {
   const groups = [
     "tech,science",
     "sports,travel",
@@ -160,7 +146,6 @@ async function fetchNewsFromProvider(token: string): Promise<TheNewsAPIArticle[]
     "health,food",
     "general,entertainment",
   ];
-
   const results = await Promise.allSettled(
     groups.map(async (categories) => {
       const url = new URL("https://api.thenewsapi.com/v1/news/all");
@@ -172,25 +157,29 @@ async function fetchNewsFromProvider(token: string): Promise<TheNewsAPIArticle[]
       }).toString();
 
       const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
-      if (!response.ok) return [];
-      const body = await response.json();
-      return Array.isArray(body?.data) ? (body.data as TheNewsAPIArticle[]) : [];
+      if (!response.ok) return { articles: [], validResponse: false };
+      const body: unknown = await response.json();
+      if (typeof body !== "object" || body === null || !Array.isArray((body as { data?: unknown }).data)) {
+        return { articles: [], validResponse: false };
+      }
+      const entries = (body as { data: unknown[] }).data;
+      const articles = entries.filter(isTheNewsApiArticle);
+      return { articles, validResponse: articles.length === entries.length };
     }),
   );
 
   const seenUuids = new Set<string>();
   const articles: TheNewsAPIArticle[] = [];
-
+  let validResponse = false;
   for (const result of results) {
-    if (result.status === "fulfilled") {
-      for (const item of result.value) {
-        if (!seenUuids.has(item.uuid)) {
-          seenUuids.add(item.uuid);
-          articles.push(item);
-        }
+    if (result.status !== "fulfilled") continue;
+    validResponse ||= result.value.validResponse;
+    for (const item of result.value.articles) {
+      if (!seenUuids.has(item.uuid)) {
+        seenUuids.add(item.uuid);
+        articles.push(item);
       }
     }
   }
-
-  return articles;
+  return { articles, validResponse };
 }
