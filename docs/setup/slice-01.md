@@ -25,7 +25,7 @@ Project moved with Git history to E:/Project Herald. Implementation continues on
 .env.example lists required keys; .env.local and .env.test.local are ignored.
 NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY are public client configuration, protected by RLS.
 APP_URL is a trusted canonical origin used for OAuth and same-origin preference writes. Set http://localhost:3000 locally, and the production alias in Vercel.
-THENEWSAPI_TOKEN, GEMINI_API_KEY and GEMINI_MODEL are server-only. No app route calls a news/AI provider in this slice.
+THENEWSAPI_TOKEN, GEMINI_API_KEY, GEMINI_MODEL and GEMINI_PUBLIC_BRIEFINGS_ENABLED are server-only. The Slice 03 Briefings adapter calls Gemini only when the enable flag is exactly `true`; keep it `false` until Herald's audience/provider-terms blocker below is resolved. No app route called a provider in Slice 01.
 Do not overwrite an existing .env.local using vercel env pull after adding private keys; pull to a separate ignored file and merge only intended keys.
 
 ## Provider access: pending credentials and product constraints
@@ -40,7 +40,7 @@ Official sources checked on 17 October 2026:
 - https://www.thenewsapi.com/pricing advertises Free: 100 requests/day, 3 articles/request. https://www.thenewsapi.com/documentation documents the all endpoint, English, general/science/sports/business/health/entertainment/tech/politics/food/travel categories and country locale codes including pk/us/gb/in/ca/au. A locale describes publisher location, not guaranteed event geography. Empty regional supply needs honest handling in later slices.
 - Source fields documented: uuid, title, description, keywords, snippet, url, image_url, language, published_at, source, categories, locale. Full article text is not promised. Headlines endpoint is documented as Standard and above; pricing markup and documentation differ, so probe /v1/news/all and establish actual plan entitlement.
 - https://ai.google.dev/gemini-api/docs/pricing lists model-specific free access; https://ai.google.dev/gemini-api/docs/rate-limits says actual limits depend on model/project/tier and are visible in AI Studio. Exact usable model and quota remain unverified until actual credentials work.
-- BLOCKER: https://ai.google.dev/gemini-api/terms restricts API Clients likely to be accessed by under-18s and requires Paid Services for API Clients offered in EEA, Switzerland or UK. This conflicts with Herald's confirmed broad younger-inclusive audience and unrestricted free-service goal. Do not silently change audience, enable billing or swap provider. Resolve with the product owner before public AI rollout. The account slice can be verified independently.
+- BLOCKER: https://ai.google.dev/gemini-api/terms (effective 23 March 2026) restricts API Clients likely to be accessed by under-18s, says the API is for developer professional/business purposes rather than consumer use, and requires Paid Services for API Clients offered in the EEA, Switzerland or UK. This conflicts with Herald's confirmed broad younger-inclusive consumer audience and unrestricted free-service goal. Do not silently change audience, enable billing or swap provider. Resolve with the product owner before public AI rollout. The account slice can be verified independently.
 - Supabase changelog reviewed: https://supabase.com/changelog.md. TLS cipher retirement is irrelevant to Node 24/current browsers; existing deprecated server-framework adapters are not used.
 
 ## Tests

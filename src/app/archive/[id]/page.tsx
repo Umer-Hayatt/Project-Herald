@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Header } from "@/components/header";
 import { createClient } from "@/lib/supabase/server";
 import { getArchivedEditionById } from "@/lib/edition/archive";
+import { EditionStoryCard } from "@/components/edition-story-card";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -16,20 +17,6 @@ function formatDisplayDate(dateStr: string): string {
     }).format(date);
   } catch {
     return dateStr;
-  }
-}
-
-function formatRelativeTime(publishedAt: string): string {
-  try {
-    const pubMs = new Date(publishedAt).getTime();
-    const diffHours = Math.round((Date.now() - pubMs) / (60 * 60 * 1000));
-    if (diffHours <= 0) return "Just now";
-    if (diffHours === 1) return "1 hour ago";
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    const days = Math.floor(diffHours / 24);
-    return days === 1 ? "Yesterday" : `${days} days ago`;
-  } catch {
-    return "";
   }
 }
 
@@ -110,59 +97,25 @@ export default async function ArchivedEditionPage({
         </header>
 
         <section className="story-feed" aria-label={`Stories from ${displayDate}`}>
-          {stories.map((story) => {
-            const nextStoryPos = story.position + 1;
-            const hasNextStory = nextStoryPos <= stories.length;
-            const skipHref = hasNextStory
-              ? `#story-${nextStoryPos}`
-              : "#edition-end";
-            const skipLabel = hasNextStory
-              ? `Skip to story ${nextStoryPos}`
-              : "Finish reading";
-            const relativeTime = formatRelativeTime(story.published_at);
+          <h2 className="edition-section-title">Your stories</h2>
+          {stories.filter((story) => story.section === "main").map((story) => (
+            <EditionStoryCard key={story.id || story.position} story={story} totalStories={stories.length} />
+          ))}
+        </section>
 
-            return (
-              <article
-                key={story.id || story.position}
-                id={`story-${story.position}`}
-                className="story-card"
-                aria-label={`Story ${story.position}: ${story.title}`}
-              >
-                <div className="story-meta-row">
-                  <span className="story-pos-badge" aria-hidden="true">
-                    {story.position}
-                  </span>
-                  <span className="story-category-pill">{story.category}</span>
-                  <span aria-hidden="true">·</span>
-                  <span className="story-publisher">{story.publisher}</span>
-                  {relativeTime && (
-                    <>
-                      <span aria-hidden="true">·</span>
-                      <span>{relativeTime}</span>
-                    </>
-                  )}
-                </div>
-
-                <h2 className="story-title">{story.title}</h2>
-                <p className="story-excerpt">{story.excerpt}</p>
-
-                <div className="story-actions">
-                  <a
-                    href={story.source_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="source-link"
-                    aria-label={`Read full reporting on ${story.publisher} (opens in new tab)`}
-                  >
-                    Read original reporting ↗
-                  </a>
-                  <a href={skipHref} className="skip-btn" aria-label={skipLabel}>
-                    {skipLabel} ↓
-                  </a>
-                </div>
-              </article>
-            );
-          })}
+        <section className="story-feed discovery-section" aria-labelledby="beyond-bubble-title">
+          <div>
+            <h2 id="beyond-bubble-title" className="edition-section-title">Beyond Your Bubble</h2>
+            <p className="discovery-description">Important reporting outside your usual interests, preserved with this Edition.</p>
+          </div>
+          {stories.filter((story) => story.section === "beyond_bubble").map((story) => (
+            <EditionStoryCard key={story.id || story.position} story={story} totalStories={stories.length} />
+          ))}
+          {stories.every((story) => story.section !== "beyond_bubble") && (
+            <p className="discovery-note" role="status">
+              {edition.discovery_note || "No distinct outside-interest Stories were preserved in this Edition."}
+            </p>
+          )}
         </section>
 
         {/* Reserved art/motion region for Slice 8 */}

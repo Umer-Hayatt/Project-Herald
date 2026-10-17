@@ -15,6 +15,16 @@ export interface SourceArticle {
   raw_data?: Record<string, unknown> | null;
 }
 
+export interface GroupedSourceArticle extends SourceArticle {
+  supportingArticles: SourceArticle[];
+  briefing?: string;
+  whyItMatters?: string | null;
+  topics?: string[];
+  briefingSource?: BriefingSource;
+}
+
+export type BriefingSource = "gemini" | "publisher_excerpt" | "publisher_headline";
+
 export interface EditionStory {
   id?: string;
   edition_id?: string;
@@ -22,6 +32,10 @@ export interface EditionStory {
   position: number;
   title: string;
   excerpt: string;
+  briefing?: string;
+  why_it_matters?: string | null;
+  topics?: string[];
+  briefing_source?: BriefingSource;
   publisher: string;
   source_url: string;
   published_at: string;
@@ -30,7 +44,7 @@ export interface EditionStory {
   word_count: number;
   section: "main" | "beyond_bubble";
   source_article_id?: string | null;
-  supporting_sources?: { title: string; url: string; publisher: string }[];
+  supporting_sources?: { id?: string; title: string; url: string; publisher: string }[];
 }
 
 export interface Edition {
@@ -42,6 +56,7 @@ export interface Edition {
   estimated_reading_minutes: number;
   word_count: number;
   selection_version: string;
+  discovery_note?: string | null;
   status: "generating" | "completed" | "failed";
   created_at: string;
   stories: EditionStory[];

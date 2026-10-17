@@ -429,6 +429,58 @@ dd {
   flex-direction: column;
   gap: 3.5rem;
 }
+.edition-section-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-editorial), serif;
+  font-size: clamp(1.7rem, 3vw, 2.25rem);
+}
+.discovery-section {
+  margin-top: 4rem;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--orange);
+  border-radius: 8px;
+  background: #f3efe6;
+  gap: 2.5rem;
+}
+.discovery-description,
+.discovery-note {
+  max-width: 70ch;
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.story-importance {
+  max-width: 70ch;
+  margin: -0.5rem 0 1.5rem;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.story-source-badge {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.supporting-sources summary {
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.supporting-sources ul {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+}
+.supporting-sources a {
+  color: var(--ink);
+  line-height: 1.5;
+}
 .story-card {
   padding-bottom: 3rem;
   border-bottom: 1px solid var(--line);
