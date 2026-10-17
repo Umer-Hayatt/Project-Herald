@@ -7,9 +7,9 @@ export interface SelectionPreferences {
 }
 
 const BUDGETS: Record<number, { maxStories: number; maxWords: number }> = {
-  5: { maxStories: 4, maxWords: 1000 },
-  10: { maxStories: 8, maxWords: 2000 },
-  15: { maxStories: 12, maxWords: 3000 },
+  5: { maxStories: 4, maxWords: 1200 },
+  10: { maxStories: 10, maxWords: 2800 },
+  15: { maxStories: 14, maxWords: 4000 },
 };
 export const MAX_TOPIC_FEEDBACK_VOTES = 3;
 const TOPIC_FEEDBACK_POINTS_PER_VOTE = 20;
@@ -307,6 +307,7 @@ export function buildEditionStories(
       briefing_source: article.briefingSource || "publisher_excerpt",
       publisher: article.publisher,
       source_url: article.url,
+      image_url: article.image_url || null,
       published_at: article.published_at,
       category,
       locale: article.locale,

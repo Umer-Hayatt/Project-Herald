@@ -158,8 +158,11 @@ export function groupSourceArticles(articles: SourceArticle[]): GroupedSourceArt
       .map((source) => source.published_at)
       .filter((value) => Number.isFinite(Date.parse(value)))
       .sort((a, b) => Date.parse(b) - Date.parse(a))[0] || representative.published_at;
+    const imageUrl = representative.image_url ||
+      sources.find((source) => Boolean(source.image_url))?.image_url || null;
     return {
       ...representative,
+      image_url: imageUrl,
       categories,
       published_at: publishedAt,
       supportingArticles: [...sources].sort(articleOrder),

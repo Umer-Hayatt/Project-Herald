@@ -38,6 +38,7 @@ export interface EditionStory {
   briefing_source?: BriefingSource;
   publisher: string;
   source_url: string;
+  image_url?: string | null;
   published_at: string;
   category: string;
   locale: string | null;
