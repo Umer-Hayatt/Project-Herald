@@ -1,6 +1,44 @@
 import Link from "next/link";
 import { Header } from "@/components/header";
-export default function Home() {
+import { createClient } from "@/lib/supabase/server";
+import { getStoryImageUrl } from "@/lib/edition/images";
+import type { SourceArticle } from "@/lib/edition/types";
+
+function formatRelativeTime(publishedAt: string): string {
+  const publishedMs = Date.parse(publishedAt);
+  if (!Number.isFinite(publishedMs)) return "";
+  const diffHours = Math.round((Date.now() - publishedMs) / 3600000);
+  if (diffHours <= 0) return "Just now";
+  if (diffHours === 1) return "1 hour ago";
+  if (diffHours < 24) return `${diffHours} hours ago`;
+  const days = Math.floor(diffHours / 24);
+  return days === 1 ? "Yesterday" : `${days} days ago`;
+}
+
+export default async function Home() {
+  let articles: SourceArticle[] = [];
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("source_articles")
+      .select("*")
+      .order("published_at", { ascending: false })
+      .limit(16);
+    if (data && data.length > 0) {
+      articles = data as SourceArticle[];
+    }
+  } catch {
+    // If database is temporarily unreachable, fallback gracefully
+  }
+
+  const heroArticle = articles[0];
+  const subArticles = articles.slice(1, 5);
+  const featuredArticles = articles.slice(0, 5);
+  const spotlightArticle = articles.length > 1 ? articles[1] : heroArticle;
+  const latestArticles = articles.slice(2, 10);
+  const trendingArticles = articles.slice(0, 4);
+  const quickCategories = ["All", "Education", "Environment", "Adventure", "Technology", "Science", "Sports", "Business"];
+
   return (
     <>
       <Header />
@@ -48,6 +86,281 @@ export default function Home() {
           <p className="art-caption">Illustrative preview · not a live Edition</p>
         </aside>
       </main>
+
+      {/* Visual Magazine Editorial Showcase */}
+      {articles.length > 0 && (
+        <section className="edition-container" style={{ paddingTop: 0, marginTop: "1rem" }} aria-label="Today’s news preview">
+          {/* Top Showcase: Hero Story & Spotlight */}
+          {heroArticle && (
+            <div className="edition-hero-grid">
+              <article
+                className="story-card-hero"
+                style={{
+                  backgroundImage: `linear-gradient(to top, rgba(26, 36, 46, 0.96) 0%, rgba(35, 47, 59, 0.75) 45%, rgba(41, 55, 68, 0.35) 100%), url(${getStoryImageUrl(heroArticle.categories[0], heroArticle.image_url)})`,
+                }}
+              >
+                <div className="hero-content">
+                  <div className="hero-badges">
+                    <span className="hero-pill-badge">Editor’s Choice</span>
+                    <span className="hero-pill-badge secondary">{heroArticle.categories[0] || "Featured"}</span>
+                  </div>
+
+                  <h2 className="hero-title">{heroArticle.title}</h2>
+                  <p className="hero-excerpt">{heroArticle.snippet || heroArticle.description}</p>
+
+                  <div className="hero-meta-row">
+                    <a
+                      href={heroArticle.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hero-read-link"
+                    >
+                      <span className="arrow-circle">→</span> Read Story · {heroArticle.publisher}
+                    </a>
+                    {heroArticle.published_at && (
+                      <span className="hero-time">· {formatRelativeTime(heroArticle.published_at)}</span>
+                    )}
+                  </div>
+
+                  {subArticles.length > 0 && (
+                    <div className="hero-substories-bar" aria-label="Highlighted stories">
+                      {subArticles.map((sub, idx) => (
+                        <a
+                          key={sub.id || sub.external_id}
+                          href={sub.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hero-substory-tab"
+                          title={sub.title}
+                        >
+                          <span className="substory-num">{idx + 2}</span>
+                          <span className="substory-title-snippet">{sub.title}</span>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </article>
+
+              <div className="edition-spotlight-column">
+                <nav className="category-quick-bar" aria-label="Topic categories">
+                  {quickCategories.map((cat) => (
+                    <span key={cat} className="cat-quick-chip">
+                      {cat}
+                    </span>
+                  ))}
+                </nav>
+
+                {spotlightArticle && (
+                  <div className="spotlight-card">
+                    <div className="spotlight-accent-bar">
+                      <span style={{ color: "var(--orange)" }}>|</span>
+                      <span>Featured Perspective</span>
+                    </div>
+                    <h3 className="spotlight-title">{spotlightArticle.title}</h3>
+                    <img
+                      src={getStoryImageUrl(spotlightArticle.categories[0], spotlightArticle.image_url)}
+                      alt=""
+                      className="spotlight-image"
+                      loading="lazy"
+                    />
+                    <p className="spotlight-excerpt">
+                      {spotlightArticle.snippet || spotlightArticle.description}
+                    </p>
+                    <div className="spotlight-stats-box">
+                      <span>Publisher: {spotlightArticle.publisher}</span>
+                      <a
+                        href={spotlightArticle.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-link"
+                        style={{ fontWeight: 600 }}
+                      >
+                        Read reporting ↗
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Featured Stories Row */}
+          {featuredArticles.length > 0 && (
+            <div className="featured-stories-section">
+              <div className="featured-header-row">
+                <h2 className="featured-title-bar">
+                  <span className="featured-accent-pipe">|</span> Featured Stories
+                </h2>
+                <div className="featured-nav-controls" aria-hidden="true">
+                  <span>←</span>
+                  <span>• • • • •</span>
+                  <span>→</span>
+                </div>
+              </div>
+
+              <div className="featured-cards-grid">
+                {featuredArticles.map((feat) => {
+                  const featImg = getStoryImageUrl(feat.categories[0], feat.image_url);
+                  return (
+                    <a
+                      key={feat.id || feat.external_id}
+                      href={feat.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="featured-card"
+                      style={{
+                        backgroundImage: `linear-gradient(to top, rgba(26, 36, 46, 0.95) 0%, rgba(35, 47, 59, 0.45) 50%, rgba(41, 55, 68, 0.2) 100%), url(${featImg})`,
+                      }}
+                    >
+                      <span className="featured-card-category">{feat.categories[0] || "News"}</span>
+                      <h3 className="featured-card-title">{feat.title}</h3>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Two-Column Editorial: The Latest + Trending Sidebar */}
+          <div className="edition-main-grid">
+            <div className="edition-main-content">
+              <h2 className="edition-section-title">
+                <span style={{ color: "var(--orange)", marginRight: "0.4rem" }}>|</span>
+                The Latest News
+              </h2>
+
+              <div className="story-feed">
+                {latestArticles.map((item, idx) => {
+                  const itemImg = getStoryImageUrl(item.categories[0], item.image_url);
+                  const relTime = formatRelativeTime(item.published_at);
+                  return (
+                    <article key={item.id || item.external_id} className="story-card-standard">
+                      <div className="story-card-body">
+                        <div className="story-image-wrap">
+                          <img
+                            src={itemImg}
+                            alt=""
+                            loading="lazy"
+                            className="story-thumbnail"
+                          />
+                          <span className="story-image-category-pill">{item.categories[0] || "News"}</span>
+                        </div>
+
+                        <div className="story-details">
+                          <div className="story-meta-row">
+                            <span className="story-pos-badge" aria-hidden="true">{idx + 1}</span>
+                            <span className="story-category-pill">{item.categories[0] || "General"}</span>
+                            <span aria-hidden="true">·</span>
+                            <span className="story-publisher">{item.publisher}</span>
+                            {relTime && <><span aria-hidden="true">·</span><span>{relTime}</span></>}
+                          </div>
+
+                          <h3 className="story-title" style={{ fontSize: "1.35rem" }}>{item.title}</h3>
+                          <p className="story-excerpt">{item.snippet || item.description}</p>
+
+                          <div className="story-actions">
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="source-link"
+                              aria-label={`Read original reporting from ${item.publisher} (opens in new tab)`}
+                            >
+                              Read original reporting ↗
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+
+            <aside className="edition-sidebar" aria-label="Trending perspectives">
+              {trendingArticles.length > 0 && (
+                <div className="trending-card">
+                  <h3 className="trending-header">
+                    <span>On Trending</span>
+                    <span aria-hidden="true">🔥</span>
+                  </h3>
+                  <div className="trending-list">
+                    {trendingArticles.map((trend, index) => {
+                      const timeAgo = formatRelativeTime(trend.published_at);
+                      return (
+                        <a
+                          key={trend.id || trend.external_id}
+                          href={trend.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="trending-item"
+                        >
+                          <span className="trending-num">#{index + 1}</span>
+                          <div className="trending-info">
+                            <h4 className="trending-title">{trend.title}</h4>
+                            <span className="trending-meta">
+                              {timeAgo ? `${timeAgo} · ` : ""}{trend.publisher}
+                            </span>
+                          </div>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="testimonials-card">
+                <h3 className="testimonials-title">Our Premium Readers Say About Herald</h3>
+                <div className="testimonial-item">
+                  <p className="testimonial-quote">
+                    “Herald has been a game-changer for my mornings. As an avid reader and researcher, I rely on their finite, curated content to discover news without doomscrolling.”
+                  </p>
+                  <div className="testimonial-author-row">
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
+                      alt=""
+                      className="testimonial-avatar"
+                    />
+                    <div>
+                      <div className="testimonial-name">Elena Rostova</div>
+                      <div className="testimonial-role">Independent Science Journalist</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="testimonial-item">
+                  <p className="testimonial-quote">
+                    “The ‘Beyond Your Bubble’ selection consistently surfaces important reporting I wouldn’t have found on typical social feeds.”
+                  </p>
+                  <div className="testimonial-author-row">
+                    <img
+                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80"
+                      alt=""
+                      className="testimonial-avatar"
+                    />
+                    <div>
+                      <div className="testimonial-name">Dr. Marcus Chen</div>
+                      <div className="testimonial-role">Ecology Researcher</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="cta-banner-card">
+                <h3 className="cta-banner-title">Become a Herald Reader</h3>
+                <p className="cta-banner-text">
+                  A finite daily paper shaped by your interests, with room for perspective.
+                </p>
+                <Link href="/login" className="button" style={{ background: "var(--orange)", color: "#ffffff", border: "none" }}>
+                  Join Now
+                </Link>
+              </div>
+            </aside>
+          </div>
+        </section>
+      )}
+
       <footer className="site-footer">
         <span>One daily paper. Room for perspective.</span>
         <span>Herald · A little perspective, daily.</span>
