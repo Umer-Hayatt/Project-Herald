@@ -1,3 +1,5 @@
+export const metadata = { title: "Your archive | Herald" };
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Header } from "@/components/header";

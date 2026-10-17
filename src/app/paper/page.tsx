@@ -1,3 +1,5 @@
+export const metadata = { title: "Today’s paper | Herald" };
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Header } from "@/components/header";
@@ -56,7 +58,7 @@ export default async function PaperPage({
                 We couldn’t retrieve eligible English news reporting within the 48-hour freshness window right now.
                 Herald refuses to pad your paper with fabricated content or stale reporting.
               </p>
-              <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+              <div className="empty-state-actions">
                 <Link href="/paper?retry=1" className="button">
                   Retry loading paper
                 </Link>

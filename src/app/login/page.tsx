@@ -1,3 +1,5 @@
+export const metadata = { title: "Sign in | Herald" };
+
 import { redirect } from "next/navigation";
 import { Header } from "@/components/header";
 import { SubmitButton } from "@/components/submit-button";

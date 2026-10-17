@@ -1,3 +1,5 @@
+export const metadata = { title: "Create your paper | Herald" };
+
 import { Header } from "@/components/header";
 import { OnboardingForm } from "./preferences-form";
 import { loadReaderPreferences } from "@/lib/account";

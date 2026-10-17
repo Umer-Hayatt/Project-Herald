@@ -1,3 +1,5 @@
+export const metadata = { title: "Reading preferences | Herald" };
+
 import { redirect } from "next/navigation";
 import { Header } from "@/components/header";
 import { OnboardingForm } from "@/app/onboarding/preferences-form";

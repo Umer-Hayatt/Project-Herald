@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
 import { SubmitButton } from "./submit-button";
+import { ReaderNavigation } from "./reader-navigation";
 export function Header({ signedIn = false }: { signedIn?: boolean }) {
   return (
     <header className="masthead">
@@ -10,17 +11,7 @@ export function Header({ signedIn = false }: { signedIn?: boolean }) {
       <span className="masthead-note">A little perspective, daily.</span>
       {signedIn ? (
         <div className="masthead-user-nav">
-          <nav className="masthead-nav" aria-label="Main Navigation">
-            <Link className="header-nav-link" href="/paper">
-              Today’s Paper
-            </Link>
-            <Link className="header-nav-link" href="/archive">
-              Archive
-            </Link>
-            <Link className="header-nav-link" href="/settings">
-              Preferences
-            </Link>
-          </nav>
+          <ReaderNavigation />
           <form action={signOut}>
             <SubmitButton pendingText="Signing out…">Sign out</SubmitButton>
           </form>

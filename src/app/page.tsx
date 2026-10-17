@@ -30,7 +30,7 @@ export default function Home() {
             Start with Google. Make it yours in a minute.
           </p>
         </div>
-        <aside className="art-space" aria-label="Herald illustration space">
+        <aside className="art-space" aria-label="Illustrative paper preview">
           <div className="paper-object">
             <span className="paper-masthead">Herald.</span>
             <div className="paper-rule" />
@@ -45,12 +45,12 @@ export default function Home() {
             <div className="paper-rule" />
             <span className="small-note">Your daily reading ritual</span>
           </div>
-          <p className="art-caption">Space reserved for human-made artwork.</p>
+          <p className="art-caption">Illustrative preview · not a live Edition</p>
         </aside>
       </main>
       <footer className="site-footer">
         <span>One daily paper. Room for perspective.</span>
-        <span>Herald · First release in progress</span>
+        <span>Herald · A little perspective, daily.</span>
       </footer>
     </>
   );

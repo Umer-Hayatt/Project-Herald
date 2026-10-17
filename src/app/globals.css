@@ -848,3 +848,78 @@ dd {
   }
 }
 
+
+/* Reading and recovery controls stay usable at narrow widths and high zoom. */
+html {
+  scrollbar-color: var(--muted) var(--paper);
+}
+main, section, article, .archive-card, .account-panel {
+  min-width: 0;
+}
+.story-title, .story-excerpt, .story-publisher, .supporting-sources a {
+  overflow-wrap: anywhere;
+}
+.story-meta-row {
+  flex-wrap: wrap;
+  row-gap: 0.4rem;
+}
+.story-pos-badge {
+  flex-shrink: 0;
+}
+.header-nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.header-nav-link[aria-current="page"] {
+  color: var(--orange);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.45em;
+}
+.feedback-button, .skip-btn, .retry-link, .supporting-sources summary {
+  min-height: 44px;
+}
+.skip-btn {
+  border-color: var(--control-line);
+}
+.feedback-button {
+  border-color: var(--control-line);
+}
+.feedback-button[aria-pressed="true"] {
+  background: var(--lilac);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.empty-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+.edition-date-headline, .archive-card-date {
+  font-variant-numeric: lining-nums;
+}
+@media (max-width: 760px) {
+  .masthead > .text-link {
+    margin-left: auto;
+    padding-block: 0.65rem;
+  }
+  .masthead-nav {
+    flex-wrap: wrap;
+  }
+  .paper-object {
+    width: min(100%, 330px);
+    transform: none;
+  }
+  .paper-object h2 {
+    font-size: clamp(1.8rem, 8vw, 2.5rem);
+  }
+  .edition-empty-state {
+    padding: 1.75rem 1rem;
+    margin-block: 2rem;
+  }
+  .edition-footer-note {
+    padding: 1.5rem 1rem;
+  }
+}
