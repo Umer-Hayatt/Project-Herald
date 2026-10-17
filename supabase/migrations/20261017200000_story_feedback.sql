@@ -1,6 +1,7 @@
 create table public.story_feedback (
   reader_id uuid not null references auth.users(id) on delete cascade,
   story_key text not null check (length(story_key) = 64),
+  source_identities text[] not null default '{}',
   feedback text not null check (feedback in ('more', 'less')),
   topics text[] not null default '{}',
   updated_at timestamptz not null default now(),
@@ -9,6 +10,9 @@ create table public.story_feedback (
     topics <@ array['general','science','technology','business','health','sports','entertainment','politics','travel','food']::text[]
   )
 );
+
+create index story_feedback_source_identities_idx
+  on public.story_feedback using gin (source_identities);
 
 alter table public.story_feedback enable row level security;
 revoke all on public.story_feedback from anon, authenticated;

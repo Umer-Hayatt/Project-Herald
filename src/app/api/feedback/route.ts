@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { interests } from "@/lib/preferences";
+import { feedbackSourceIdentities } from "@/lib/edition/feedback-identity";
 import { authConfigured, createClient } from "@/lib/supabase/server";
 
 const requestSchema = z.object({
@@ -14,19 +15,8 @@ const json = (body: unknown, status = 200) => NextResponse.json(body, {
   headers: { "Cache-Control": "private, no-store" },
 });
 
-function feedbackStoryKey(story: {
-  id: string;
-  source_article_id: string | null;
-  source_url: string;
-  supporting_sources: unknown;
-}) {
-  const sources = Array.isArray(story.supporting_sources) ? story.supporting_sources : [];
-  const primarySourceUrl = sources
-    .map((source: { url?: unknown }) => String(source.url || ""))
-    .filter(Boolean)
-    .sort()[0];
-  const identity = story.source_article_id || primarySourceUrl || story.source_url || story.id;
-  return createHash("sha256").update(String(identity)).digest("hex");
+function feedbackStoryKey(identities: string[]) {
+  return createHash("sha256").update(identities[0]).digest("hex");
 }
 
 export async function GET(request: NextRequest) {
@@ -46,11 +36,14 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
     if (storyError || !story) return json({ error: "This Story is unavailable in your Editions." }, 404);
 
+    const identities = feedbackSourceIdentities(story);
     const { data, error } = await supabase
       .from("story_feedback")
       .select("feedback")
       .eq("reader_id", user.id)
-      .eq("story_key", feedbackStoryKey(story))
+      .overlaps("source_identities", identities)
+      .order("updated_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
     if (error) return json({ error: "We couldn’t load your saved feedback." }, 503);
     return json({ feedback: data?.feedback || null });
@@ -94,7 +87,21 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
     if (editionError || edition?.status !== "completed") return json({ error: "This Edition is not ready for feedback." }, 404);
 
-    const storyKey = feedbackStoryKey(story);
+    const sourceIdentities = feedbackSourceIdentities(story);
+    const { data: matchingFeedback, error: lookupError } = await supabase
+      .from("story_feedback")
+      .select("story_key,source_identities,updated_at")
+      .eq("reader_id", user.id)
+      .overlaps("source_identities", sourceIdentities)
+      .order("updated_at", { ascending: false });
+    if (lookupError) return json({ error: "Your feedback wasn’t saved. Please retry." }, 503);
+
+    const matchingRows = matchingFeedback || [];
+    const storyKey = matchingRows[0]?.story_key || feedbackStoryKey(sourceIdentities);
+    const mergedSourceIdentities = [...new Set([
+      ...sourceIdentities,
+      ...matchingRows.flatMap((row) => row.source_identities || []),
+    ])].sort();
     const rawTopics: string[] = Array.isArray(story.topics) ? story.topics : [];
     const topics = [...new Set(rawTopics.filter((topic) => interests.includes(topic as (typeof interests)[number])))];
     if (topics.length === 0 && interests.includes(story.category as (typeof interests)[number])) topics.push(story.category);
@@ -102,10 +109,23 @@ export async function POST(request: NextRequest) {
     const { error } = await supabase.from("story_feedback").upsert({
       reader_id: user.id,
       story_key: storyKey,
+      source_identities: mergedSourceIdentities,
       feedback: input.data.feedback,
       topics,
     }, { onConflict: "reader_id,story_key" });
     if (error) return json({ error: "Your feedback wasn’t saved. Please retry." }, 503);
+
+    const duplicateKeys = matchingRows
+      .map((row) => row.story_key)
+      .filter((key) => key !== storyKey);
+    if (duplicateKeys.length) {
+      const { error: deleteError } = await supabase
+        .from("story_feedback")
+        .delete()
+        .eq("reader_id", user.id)
+        .in("story_key", duplicateKeys);
+      if (deleteError) return json({ error: "Your feedback was saved. Please retry to finish updating it." }, 503);
+    }
     return json({ feedback: input.data.feedback, message: "Saved for a future Edition." });
   } catch {
     return json({ error: "We couldn’t save your feedback. Please retry." }, 503);

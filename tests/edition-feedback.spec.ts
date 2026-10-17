@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { selectEditionStories } from "../src/lib/edition/ranking";
 import type { GroupedSourceArticle } from "../src/lib/edition/types";
+import { feedbackSourceIdentities } from "../src/lib/edition/feedback-identity";
 
 const stories: GroupedSourceArticle[] = [
   {
@@ -50,4 +51,29 @@ test("explicit More and Less feedback changes only future ranking and leaves Ski
   expect(moreSports.main[0].id).toBe("sports-story");
   expect(lessScience.main[0].id).toBe("sports-story");
   expect(skip.main.map((story) => story.id)).toEqual(baseline.main.map((story) => story.id));
+});
+
+test("feedback identity follows a Story when its representative source changes", () => {
+  const previousSupportingSources = [
+    { id: "article-a", url: "https://example.com/a" },
+    { id: "article-b", url: "https://example.com/b" },
+  ];
+  const nextSupportingSources = [
+    { id: "article-b", url: "https://example.com/b" },
+    { id: "article-c", url: "https://example.com/c" },
+  ];
+  const previousEdition = feedbackSourceIdentities({
+    id: "edition-story-a",
+    source_article_id: "article-a",
+    source_url: "https://example.com/a",
+    supporting_sources: previousSupportingSources,
+  });
+  const nextEdition = feedbackSourceIdentities({
+    id: "edition-story-b",
+    source_article_id: "article-b",
+    source_url: "https://example.com/b",
+    supporting_sources: nextSupportingSources,
+  });
+
+  expect(nextEdition.some((identity) => previousEdition.includes(identity))).toBe(true);
 });
