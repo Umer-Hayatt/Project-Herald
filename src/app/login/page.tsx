@@ -6,8 +6,7 @@ import { authConfigured, createClient } from "@/lib/supabase/server";
 const messages: Record<string, string> = {
   cancelled:
     "Google sign-in was cancelled. You can try again whenever you’re ready.",
-  callback:
-    "We couldn’t finish signing you in. Please try Google sign-in again.",
+  callback: "Google sign-in failed. Please try again in a moment.",
   signin: "Google sign-in is unavailable right now. Please try again.",
   setup: "Sign-in is being configured. Please try again soon.",
   signout: "We couldn’t sign you out. Please retry using the button below.",
