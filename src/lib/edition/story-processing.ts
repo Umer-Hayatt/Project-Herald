@@ -34,8 +34,21 @@ interface StoryInput {
   id: string;
   cacheKey: string;
   articles: GroupedSourceArticle["supportingArticles"];
+  categories: string[];
   evidence: string;
 }
+
+const TOPIC_EVIDENCE_TERMS: Record<string, string[]> = {
+  science: ["science", "scientist", "research", "study", "discovery", "experiment"],
+  technology: ["technology", "tech", "software", "computer", "digital", "internet", "chip", "robot", "artificial intelligence"],
+  business: ["business", "company", "market", "economy", "finance", "trade", "earnings", "jobs"],
+  health: ["health", "hospital", "medical", "disease", "doctor", "patient", "vaccine", "safety"],
+  sports: ["sport", "team", "match", "game", "tournament", "league", "coach", "athlete"],
+  entertainment: ["film", "movie", "music", "television", "actor", "artist", "show", "streaming"],
+  politics: ["politic", "election", "vote", "parliament", "congress", "government", "minister", "president", "court", "law"],
+  travel: ["travel", "tourism", "tourist", "flight", "airline", "airport", "holiday", "visitor"],
+  food: ["food", "restaurant", "meal", "recipe", "cooking", "ingredient", "chef"],
+};
 
 const inFlightBatches = new Map<string, Promise<unknown>>();
 const MAX_STORIES_PER_GENERATION = 16;
@@ -70,6 +83,24 @@ function isSupportedBySources(text: string, evidence: string): boolean {
   });
 }
 
+function areTopicsSupported(topics: string[], input: StoryInput): boolean {
+  const sourceCategories = new Set(input.categories.map((category) =>
+    category.toLowerCase() === "tech" ? "technology" : category.toLowerCase(),
+  ));
+  const evidenceTokens = new Set(
+    input.evidence.toLowerCase().match(/[\p{L}\p{N}]+/gu) || [],
+  );
+  return topics.every((topic) => {
+    if (sourceCategories.has(topic)) return true;
+    if (topic === "general") return false;
+    const terms = TOPIC_EVIDENCE_TERMS[topic] || [];
+    return terms.some((term) => {
+      if (term.includes(" ")) return input.evidence.toLowerCase().includes(term);
+      return [...evidenceTokens].some((token) => token === term || token.startsWith(term));
+    });
+  });
+}
+
 function makeStoryInput(story: GroupedSourceArticle): StoryInput {
   const articles = [...story.supportingArticles].sort((a, b) =>
     (canonicalizeSourceUrl(a.url) || a.url).localeCompare(canonicalizeSourceUrl(b.url) || b.url) ||
@@ -87,7 +118,13 @@ function makeStoryInput(story: GroupedSourceArticle): StoryInput {
   const evidence = content.map((article) =>
     [article.title, article.description, article.snippet].filter(Boolean).join(". "),
   ).join("\n");
-  return { id: `story-${cacheKey.slice(0, 16)}`, cacheKey, articles, evidence };
+  return {
+    id: `story-${cacheKey.slice(0, 16)}`,
+    cacheKey,
+    articles,
+    categories: story.categories,
+    evidence,
+  };
 }
 
 function parseAndValidate(payload: unknown, input: StoryInput): ProcessedStory | null {
@@ -95,6 +132,7 @@ function parseAndValidate(payload: unknown, input: StoryInput): ProcessedStory |
   if (!parsed.success || parsed.data.id !== input.id) return null;
   const sourceIds = new Set(input.articles.map((article) => article.id || article.external_id));
   if (parsed.data.source_ids.some((id) => !sourceIds.has(id))) return null;
+  if (!areTopicsSupported(parsed.data.topics, input)) return null;
   if (!isSupportedBySources(parsed.data.briefing, input.evidence)) return null;
   if (!isSupportedBySources(parsed.data.why_it_matters, input.evidence)) return null;
   return {
@@ -283,6 +321,7 @@ export async function processGroupedStories(
     if (!input) continue;
     const parsed = cachedStorySchema.safeParse(row.payload);
     const value = parsed.success &&
+      areTopicsSupported(parsed.data.topics, input) &&
       isSupportedBySources(parsed.data.briefing, input.evidence) &&
       (!parsed.data.why_it_matters || isSupportedBySources(parsed.data.why_it_matters, input.evidence))
       ? {

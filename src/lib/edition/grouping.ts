@@ -10,6 +10,13 @@ const TITLE_STOP_WORDS = new Set([
 const TRACKING_PARAMETERS = new Set([
   "fbclid", "gclid", "mc_cid", "mc_eid", "ref", "source", "campaign",
 ]);
+const EVENT_EVIDENCE_STOP_WORDS = new Set([
+  ...TITLE_STOP_WORDS,
+  "official", "officials", "government", "announced", "announcement", "plan",
+  "policy", "climate", "development", "developments", "according", "statement",
+  "statements", "today", "yesterday", "newspaper", "publisher",
+]);
+const EVENT_WINDOW_MS = 36 * 60 * 60 * 1000;
 
 export function canonicalizeSourceUrl(rawUrl: string): string | null {
   try {
@@ -58,6 +65,43 @@ function sameEventTitle(left: string, right: string): boolean {
   return shared.length / unionSize >= 0.5;
 }
 
+function articleEvidenceTokens(article: SourceArticle): Set<string> {
+  return new Set(
+    [...titleTokens([article.description, article.snippet].filter(Boolean).join(" "))]
+      .filter((token) => !EVENT_EVIDENCE_STOP_WORDS.has(token)),
+  );
+}
+
+function namedEntityTokens(article: SourceArticle): Set<string> {
+  const content = [article.title, article.description, article.snippet]
+    .filter(Boolean)
+    .join(" ");
+  return new Set(
+    content.match(/\b[A-Z][\p{Ll}]{2,}\b/gu)
+      ?.map((entity) => entity.toLowerCase())
+      .filter((entity) => !EVENT_EVIDENCE_STOP_WORDS.has(entity)) || [],
+  );
+}
+
+function hasSharedEventEvidence(left: SourceArticle, right: SourceArticle): boolean {
+  const leftEntities = namedEntityTokens(left);
+  const rightEntities = namedEntityTokens(right);
+  if ([...leftEntities].some((entity) => rightEntities.has(entity))) return true;
+
+  const leftEvidence = articleEvidenceTokens(left);
+  const rightEvidence = articleEvidenceTokens(right);
+  const sharedEvidence = [...leftEvidence].filter((token) => rightEvidence.has(token));
+  return sharedEvidence.length >= 2;
+}
+
+function sameEvent(left: SourceArticle, right: SourceArticle): boolean {
+  const leftPublishedAt = Date.parse(left.published_at);
+  const rightPublishedAt = Date.parse(right.published_at);
+  if (!Number.isFinite(leftPublishedAt) || !Number.isFinite(rightPublishedAt)) return false;
+  if (Math.abs(leftPublishedAt - rightPublishedAt) > EVENT_WINDOW_MS) return false;
+  return sameEventTitle(left.title, right.title) && hasSharedEventEvidence(left, right);
+}
+
 function articleOrder(left: SourceArticle, right: SourceArticle): number {
   const publishedDiff = Date.parse(right.published_at) - Date.parse(left.published_at);
   if (Number.isFinite(publishedDiff) && publishedDiff !== 0) return publishedDiff;
@@ -76,8 +120,9 @@ function normalizeCategory(category: string): string {
 }
 
 /**
- * Groups only identical canonical URLs or titles with at least three shared
- * specific terms and 50% overlap. Uncertain cross-publisher matches stay apart.
+ * Groups identical canonical URLs or reports within 36 hours whose headlines
+ * overlap strongly and share named-entity or body-text evidence. Uncertain
+ * cross-publisher matches stay apart.
  */
 export function groupSourceArticles(articles: SourceArticle[]): GroupedSourceArticle[] {
   const groups: SourceArticle[][] = [];
@@ -97,7 +142,7 @@ export function groupSourceArticles(articles: SourceArticle[]): GroupedSourceArt
       if (canonicalUrl && group.some((member) => canonicalizeSourceUrl(member.url) === canonicalUrl)) {
         return true;
       }
-      return group.every((member) => sameEventTitle(article.title, member.title));
+      return group.every((member) => sameEvent(article, member));
     });
     const matchingGroup = matchingGroups.length === 1 ? matchingGroups[0] : null;
     if (matchingGroup) matchingGroup.push(article);
