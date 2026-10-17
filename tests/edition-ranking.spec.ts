@@ -107,4 +107,67 @@ test.describe("selectAndRankStories", () => {
     // 0 words = 1 minute minimum
     expect(estimateReadingTime(0)).toBe(1);
   });
+
+  test("REGRESSION: two readers with different interests receive different top stories from the same shared supply pool", () => {
+    // This test locks down the core personalization contract.
+    // Bug: when the shared pool was homogeneous (3 generic articles, no category diversity),
+    // both readers received identical editions regardless of their saved interests.
+    const diversePool: SourceArticle[] = [
+      {
+        id: "r1", external_id: "reg-1",
+        title: "Cricket Final Victory", description: "National team wins the cup.",
+        snippet: "Pakistan clinches the trophy in a dramatic final over.",
+        url: "https://example.com/cricket", image_url: null,
+        publisher: "Sports Wire", published_at: "2026-10-17T10:00:00Z",
+        language: "en", categories: ["sports"], locale: "pk",
+      },
+      {
+        id: "r2", external_id: "reg-2",
+        title: "AI Chip Breakthrough", description: "New neural processing unit announced.",
+        snippet: "Researchers unveiled a chip ten times faster than current GPUs.",
+        url: "https://example.com/ai-chip", image_url: null,
+        publisher: "Tech Daily", published_at: "2026-10-17T10:00:00Z",
+        language: "en", categories: ["technology", "science"], locale: "us",
+      },
+      {
+        id: "r3", external_id: "reg-3",
+        title: "Global Climate Summit", description: "World leaders meet.",
+        snippet: "Fifty nations agreed to new carbon limits.",
+        url: "https://example.com/climate", image_url: null,
+        publisher: "World Post", published_at: "2026-10-17T08:00:00Z",
+        language: "en", categories: ["general", "science"], locale: null,
+      },
+      {
+        id: "r4", external_id: "reg-4",
+        title: "Stock Market Rally", description: "Business index surges.",
+        snippet: "Markets reached an all-time high driven by tech earnings.",
+        url: "https://example.com/stocks", image_url: null,
+        publisher: "Finance Post", published_at: "2026-10-17T09:00:00Z",
+        language: "en", categories: ["business"], locale: "us",
+      },
+    ];
+
+    // Reader A cares about sports
+    const sportsFan = selectAndRankStories(
+      diversePool,
+      { interests: ["sports"], preferred_region: "pk", reading_length: 5 },
+      baseDate,
+    );
+
+    // Reader B cares about technology
+    const techReader = selectAndRankStories(
+      diversePool,
+      { interests: ["technology"], preferred_region: "us", reading_length: 5 },
+      baseDate,
+    );
+
+    // Their top stories MUST differ — personalization must produce different results
+    expect(sportsFan[0].external_id).not.toBe(techReader[0].external_id);
+
+    // Sports fan's top story must be the cricket article (category + region boost)
+    expect(sportsFan[0].external_id).toBe("reg-1");
+
+    // Tech reader's top story must be the AI chip article (category + region boost)
+    expect(techReader[0].external_id).toBe("reg-2");
+  });
 });

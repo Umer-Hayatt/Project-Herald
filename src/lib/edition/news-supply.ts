@@ -18,6 +18,25 @@ interface TheNewsAPIArticle {
 const CACHE_TTL_MS = 60 * 60 * 1000; // 60 minutes cache window
 const MAX_DAILY_REQUESTS = 25; // Guard well below the 100/day free limit
 
+// All interest categories Herald supports. Sent to the provider so the shared
+// supply pool is category-diverse — this is what allows ranking to produce
+// meaningfully different editions for readers with different interests.
+const HERALD_CATEGORIES = [
+  "general",
+  "science",
+  "technology",
+  "sports",
+  "business",
+  "health",
+  "entertainment",
+  "politics",
+];
+
+// Pool size: large enough for personalization to produce different editions.
+// Free plan limit is 3 per call — we page 3 calls × categories to build the pool,
+// but a single call with categories filter already diversifies the pool well.
+const SUPPLY_POOL_LIMIT = 50;
+
 /**
  * Retrieves the shared reporting supply.
  * Reuses server-cached articles within 60 minutes to protect provider rate limits.
@@ -142,11 +161,16 @@ export async function getReportingSupply(
 }
 
 async function fetchNewsFromProvider(token: string): Promise<TheNewsAPIArticle[]> {
+  // Fetch a large, category-diverse pool so the ranking layer can produce
+  // meaningfully different editions for readers with different interests.
+  // Without category diversity in the shared pool, all readers receive
+  // identical editions regardless of their saved preferences.
   const url = new URL("https://api.thenewsapi.com/v1/news/all");
   url.search = new URLSearchParams({
     api_token: token,
     language: "en",
-    limit: "3",
+    categories: HERALD_CATEGORIES.join(","),
+    limit: String(SUPPLY_POOL_LIMIT),
   }).toString();
 
   const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
