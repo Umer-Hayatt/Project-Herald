@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Header } from "@/components/header";
 import { createClient } from "@/lib/supabase/server";
 import { getReaderArchiveEditions } from "@/lib/edition/archive";
+import { PdfDownloadButton } from "@/components/pdf-download-button";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -86,6 +87,11 @@ export default async function ArchivePage() {
                     >
                       Read edition →
                     </Link>
+                    <PdfDownloadButton
+                      editionId={edition.id}
+                      editionDate={edition.edition_date}
+                      variant="secondary"
+                    />
                   </div>
                 </article>
               );

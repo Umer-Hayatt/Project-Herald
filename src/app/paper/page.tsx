@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getOrCreateDailyEdition } from "@/lib/edition/service";
 import { regions } from "@/lib/preferences";
 import { EditionStoryCard } from "@/components/edition-story-card";
+import { PdfDownloadButton } from "@/components/pdf-download-button";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -107,6 +108,13 @@ export default async function PaperPage() {
             <span className="meta-chip">
               {regions[result.preferredRegion as keyof typeof regions] || result.preferredRegion}
             </span>
+          </div>
+          <div className="edition-masthead-actions">
+            <PdfDownloadButton
+              editionId={edition.id}
+              editionDate={edition.edition_date}
+              variant="secondary"
+            />
           </div>
         </header>
 

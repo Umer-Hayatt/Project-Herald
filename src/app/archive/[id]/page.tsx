@@ -4,6 +4,7 @@ import { Header } from "@/components/header";
 import { createClient } from "@/lib/supabase/server";
 import { getArchivedEditionById } from "@/lib/edition/archive";
 import { EditionStoryCard } from "@/components/edition-story-card";
+import { PdfDownloadButton } from "@/components/pdf-download-button";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -93,6 +94,13 @@ export default async function ArchivedEditionPage({
             <span className="meta-chip">{stories.length} stories</span>
             <span className="meta-chip">{edition.word_count} words</span>
             <span className="meta-chip">{edition.reading_length} minutes</span>
+          </div>
+          <div className="edition-masthead-actions">
+            <PdfDownloadButton
+              editionId={edition.id}
+              editionDate={edition.edition_date}
+              variant="secondary"
+            />
           </div>
         </header>
 
