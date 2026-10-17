@@ -1,0 +1,81 @@
+{
+  "repository": "Umer-Hayatt/Project-Herald",
+  "parent_number": 1,
+  "tickets": [
+    {
+      "number": 2,
+      "planning_number": 1,
+      "blocked_by": [],
+      "verified": true
+    },
+    {
+      "number": 3,
+      "planning_number": 2,
+      "blocked_by": [
+        2
+      ],
+      "verified": true
+    },
+    {
+      "number": 4,
+      "planning_number": 3,
+      "blocked_by": [
+        3
+      ],
+      "verified": true
+    },
+    {
+      "number": 5,
+      "planning_number": 4,
+      "blocked_by": [
+        3
+      ],
+      "verified": true
+    },
+    {
+      "number": 6,
+      "planning_number": 5,
+      "blocked_by": [
+        3
+      ],
+      "verified": true
+    },
+    {
+      "number": 7,
+      "planning_number": 6,
+      "blocked_by": [
+        3
+      ],
+      "verified": true
+    },
+    {
+      "number": 8,
+      "planning_number": 7,
+      "blocked_by": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "verified": true
+    },
+    {
+      "number": 9,
+      "planning_number": 8,
+      "blocked_by": [
+        8
+      ],
+      "verified": true
+    },
+    {
+      "number": 10,
+      "planning_number": 9,
+      "blocked_by": [
+        9
+      ],
+      "verified": true
+    }
+  ],
+  "native_parent_links_verified": 9,
+  "native_blocking_edges_verified": 11
+}
