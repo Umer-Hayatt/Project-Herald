@@ -1,26 +1,325 @@
 {
-  "version": 1,
-  "colors": {
-    "paper": "#f7f5ef",
-    "ink": "#293744",
-    "lilac": "#dcd2ee",
-    "orange": "#b34322",
-    "muted": "#535c65",
-    "line": "#b1ada7"
-  },
-  "typography": {
-    "display": "Fraunces",
-    "body": "DM Sans"
-  },
-  "surfaces": {
-    "landing": {
-      "mode": "Persuade"
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-17T08:38:41.029Z",
+  "title": "Design System: Herald",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Warm paper",
+        "tonalRamp": [
+          "oklch(15% 0.0082 91.48)",
+          "oklch(26.4% 0.0082 91.48)",
+          "oklch(37.9% 0.0082 91.48)",
+          "oklch(49.3% 0.0082 91.48)",
+          "oklch(60.7% 0.0082 91.48)",
+          "oklch(72.1% 0.0082 91.48)",
+          "oklch(83.6% 0.0082 91.48)",
+          "oklch(95% 0.0082 91.48)"
+        ]
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Slate ink",
+        "tonalRamp": [
+          "oklch(15% 0.0297 246.83)",
+          "oklch(26.4% 0.0297 246.83)",
+          "oklch(37.9% 0.0297 246.83)",
+          "oklch(49.3% 0.0297 246.83)",
+          "oklch(60.7% 0.0297 246.83)",
+          "oklch(72.1% 0.0297 246.83)",
+          "oklch(83.6% 0.0297 246.83)",
+          "oklch(95% 0.0297 246.83)"
+        ]
+      },
+      "lilac": {
+        "role": "secondary",
+        "displayName": "Lilac",
+        "tonalRamp": [
+          "oklch(15% 0.0395 301.82)",
+          "oklch(26.4% 0.0395 301.82)",
+          "oklch(37.9% 0.0395 301.82)",
+          "oklch(49.3% 0.0395 301.82)",
+          "oklch(60.7% 0.0395 301.82)",
+          "oklch(72.1% 0.0395 301.82)",
+          "oklch(83.6% 0.0395 301.82)",
+          "oklch(95% 0.0395 301.82)"
+        ]
+      },
+      "orange": {
+        "role": "primary",
+        "displayName": "Orange",
+        "tonalRamp": [
+          "oklch(15% 0.1530 36.63)",
+          "oklch(26.4% 0.1530 36.63)",
+          "oklch(37.9% 0.1530 36.63)",
+          "oklch(49.3% 0.1530 36.63)",
+          "oklch(60.7% 0.1530 36.63)",
+          "oklch(72.1% 0.1530 36.63)",
+          "oklch(83.6% 0.1530 36.63)",
+          "oklch(95% 0.1530 36.63)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted slate",
+        "tonalRamp": [
+          "oklch(15% 0.0185 248.22)",
+          "oklch(26.4% 0.0185 248.22)",
+          "oklch(37.9% 0.0185 248.22)",
+          "oklch(49.3% 0.0185 248.22)",
+          "oklch(60.7% 0.0185 248.22)",
+          "oklch(72.1% 0.0185 248.22)",
+          "oklch(83.6% 0.0185 248.22)",
+          "oklch(95% 0.0185 248.22)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Decorative line",
+        "tonalRamp": [
+          "oklch(15% 0.0096 78.27)",
+          "oklch(26.4% 0.0096 78.27)",
+          "oklch(37.9% 0.0096 78.27)",
+          "oklch(49.3% 0.0096 78.27)",
+          "oklch(60.7% 0.0096 78.27)",
+          "oklch(72.1% 0.0096 78.27)",
+          "oklch(83.6% 0.0096 78.27)",
+          "oklch(95% 0.0096 78.27)"
+        ]
+      },
+      "control-line": {
+        "role": "neutral",
+        "displayName": "Control line",
+        "tonalRamp": [
+          "oklch(15% 0.0151 262.35)",
+          "oklch(26.4% 0.0151 262.35)",
+          "oklch(37.9% 0.0151 262.35)",
+          "oklch(49.3% 0.0151 262.35)",
+          "oklch(60.7% 0.0151 262.35)",
+          "oklch(72.1% 0.0151 262.35)",
+          "oklch(83.6% 0.0151 262.35)",
+          "oklch(95% 0.0151 262.35)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26.4% 0.0000 89.88)",
+          "oklch(37.9% 0.0000 89.88)",
+          "oklch(49.3% 0.0000 89.88)",
+          "oklch(60.7% 0.0000 89.88)",
+          "oklch(72.1% 0.0000 89.88)",
+          "oklch(83.6% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "button-hover": {
+        "role": "primary",
+        "displayName": "Primary hover",
+        "tonalRamp": [
+          "oklch(15% 0.0340 247.04)",
+          "oklch(26.4% 0.0340 247.04)",
+          "oklch(37.9% 0.0340 247.04)",
+          "oklch(49.3% 0.0340 247.04)",
+          "oklch(60.7% 0.0340 247.04)",
+          "oklch(72.1% 0.0340 247.04)",
+          "oklch(83.6% 0.0340 247.04)",
+          "oklch(95% 0.0340 247.04)"
+        ]
+      },
+      "secondary-hover": {
+        "role": "secondary",
+        "displayName": "Secondary hover",
+        "tonalRamp": [
+          "oklch(15% 0.0202 308.22)",
+          "oklch(26.4% 0.0202 308.22)",
+          "oklch(37.9% 0.0202 308.22)",
+          "oklch(49.3% 0.0202 308.22)",
+          "oklch(60.7% 0.0202 308.22)",
+          "oklch(72.1% 0.0202 308.22)",
+          "oklch(83.6% 0.0202 308.22)",
+          "oklch(95% 0.0202 308.22)"
+        ]
+      },
+      "notice": {
+        "role": "secondary",
+        "displayName": "Status notice",
+        "tonalRamp": [
+          "oklch(15% 0.0198 305.25)",
+          "oklch(26.4% 0.0198 305.25)",
+          "oklch(37.9% 0.0198 305.25)",
+          "oklch(49.3% 0.0198 305.25)",
+          "oklch(60.7% 0.0198 305.25)",
+          "oklch(72.1% 0.0198 305.25)",
+          "oklch(83.6% 0.0198 305.25)",
+          "oklch(95% 0.0198 305.25)"
+        ]
+      },
+      "error-surface": {
+        "role": "tertiary",
+        "displayName": "Error surface",
+        "tonalRamp": [
+          "oklch(15% 0.0262 44.71)",
+          "oklch(26.4% 0.0262 44.71)",
+          "oklch(37.9% 0.0262 44.71)",
+          "oklch(49.3% 0.0262 44.71)",
+          "oklch(60.7% 0.0262 44.71)",
+          "oklch(72.1% 0.0262 44.71)",
+          "oklch(83.6% 0.0262 44.71)",
+          "oklch(95% 0.0262 44.71)"
+        ]
+      },
+      "error-ink": {
+        "role": "tertiary",
+        "displayName": "Error ink",
+        "tonalRamp": [
+          "oklch(15% 0.1121 34.51)",
+          "oklch(26.4% 0.1121 34.51)",
+          "oklch(37.9% 0.1121 34.51)",
+          "oklch(49.3% 0.1121 34.51)",
+          "oklch(60.7% 0.1121 34.51)",
+          "oklch(72.1% 0.1121 34.51)",
+          "oklch(83.6% 0.1121 34.51)",
+          "oklch(95% 0.1121 34.51)"
+        ]
+      }
     },
-    "account": {
-      "mode": "Operate"
+    "typographyMeta": {
+      "display": {
+        "displayName": "Editorial display",
+        "purpose": "Landing heading; local ramps serve account and paper entry."
+      },
+      "headline": {
+        "displayName": "Editorial headline",
+        "purpose": "Secondary headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading copy and inherited native-control text."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "Introductory support copy."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Persistent labels, legends, and text actions."
+      }
     },
-    "paper": {
-      "mode": "Read"
+    "shadows": [
+      {
+        "name": "paper-object",
+        "value": "0 15px 35px #29374424",
+        "purpose": "Only the replaceable illustrative landing paper object."
+      }
+    ],
+    "motion": [
+      {
+        "name": "primary-hover",
+        "value": "background-color 0.15s ease",
+        "purpose": "Primary action background transition; removed with prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow",
+        "value": "760px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Stable account or navigation action with pending support.",
+      "html": "<button class=\"ds-primary\">Save and continue</button>",
+      "css": ".ds-primary { font-family: var(--font-body, 'DM Sans'), sans-serif; font-size: 1rem; line-height: 1.6; display:inline-flex; justify-content:center; align-items:center; gap:2rem; min-height:52px; padding:.9rem 1.5rem; border:1px solid transparent; border-radius:4px; background:var(--ink, #293744); color:white; font-weight:600; cursor:pointer; transition:background-color .15s; } .ds-primary:hover { background:#425363; } .ds-primary:focus-visible { outline: 3px solid var(--orange, #b34322); outline-offset: 5px; } .ds-primary:disabled { opacity:.65; cursor:wait; } @media(prefers-reduced-motion:reduce) { .ds-primary { transition:none; } }"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Save-progress action alongside the primary action.",
+      "html": "<button class=\"ds-secondary\">Save progress</button>",
+      "css": ".ds-secondary { font-family: var(--font-body, 'DM Sans'), sans-serif; font-size: 1rem; line-height: 1.6; background:transparent; color:var(--ink, #293744); border:1px solid var(--ink, #293744); border-radius:4px; padding:.9rem 1.25rem; min-height:52px; font-weight:600; cursor:pointer; } .ds-secondary:hover { background:#e7e0ee; } .ds-secondary:focus-visible { outline: 3px solid var(--orange, #b34322); outline-offset: 5px; } .ds-secondary:disabled { opacity:.65; cursor:wait; }"
+    },
+    {
+      "name": "Text field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Persistent label and connected help accompany a native field.",
+      "html": "<label class=\"ds-label\" for=\"ds-zone\">Your time zone</label><p class=\"ds-help\" id=\"ds-zone-help\">Enter an IANA time zone.</p><input class=\"ds-field\" id=\"ds-zone\" aria-describedby=\"ds-zone-help\" placeholder=\"Detect automatically\">",
+      "css": ".ds-label { font-family: var(--font-body, 'DM Sans'), sans-serif; font-size: 1rem; line-height: 1.6; display:block; color:var(--ink, #293744); font-weight:650; } .ds-help { font-family: var(--font-body, 'DM Sans'), sans-serif; font-size: 1rem; line-height: 1.6; color:var(--muted, #535c65); font-size:.85rem; margin:.35rem 0 1rem; } .ds-field { font-family: var(--font-body, 'DM Sans'), sans-serif; font-size: 1rem; line-height: 1.6; border:1px solid var(--control-line, #727780); border-radius:4px; padding:.7rem; background:transparent; color:var(--ink, #293744); width:100%; min-height:48px; caret-color:var(--orange, #b34322); } .ds-field::placeholder { color:var(--muted, #535c65); } .ds-field:focus-visible { outline: 3px solid var(--orange, #b34322); outline-offset: 5px; }"
+    },
+    {
+      "name": "Interest choice",
+      "kind": "chip",
+      "refersTo": "interest-option",
+      "description": "Native checkbox inside a visible clickable label.",
+      "html": "<label class=\"ds-interest\"><input type=\"checkbox\"><span>Science</span></label>",
+      "css": ".ds-interest { font-family: var(--font-body, 'DM Sans'), sans-serif; font-size: 1rem; line-height: 1.6; display:inline-flex; align-items:center; gap:.55rem; color:var(--ink, #293744); border:1px solid var(--control-line, #727780); border-radius:4px; padding:.65rem .8rem; cursor:pointer; } .ds-interest:has(:checked) { background:var(--lilac, #dcd2ee); border-color:var(--ink, #293744); } .ds-interest:hover { border-color:var(--ink, #293744); } .ds-interest input { width:17px; height:17px; margin:0; accent-color:var(--ink, #293744); } .ds-interest input:focus-visible { outline: 3px solid var(--orange, #b34322); outline-offset: 5px; }"
+    },
+    {
+      "name": "Masthead",
+      "kind": "nav",
+      "description": "Home identity and a persistent account action.",
+      "html": "<header class=\"ds-masthead\"><a class=\"ds-wordmark\" href=\"/\" aria-label=\"Herald home\">Herald<span aria-hidden=\"true\">.</span></a><span class=\"ds-masthead-note\">A little perspective, daily.</span><a class=\"ds-text-link\" href=\"/login\">Sign in</a></header>",
+      "css": ".ds-masthead { font-family: var(--font-body, 'DM Sans'), sans-serif; font-size: 1rem; line-height: 1.6; min-height:100px; padding:1.4rem 5vw; display:flex; align-items:center; gap:2rem; color:var(--ink, #293744); border-bottom:1px solid var(--ink, #293744); } .ds-wordmark { font-family:var(--font-editorial, Fraunces),serif; font-size:2.65rem; font-weight:550; letter-spacing:-.035em; line-height:1.06; text-decoration:none; color:inherit; } .ds-wordmark span { color:var(--orange, #b34322); } .ds-masthead-note { flex:1; font-size:.85rem; color:var(--muted, #535c65); } .ds-text-link { margin-left:auto; color:inherit; font-weight:650; text-underline-offset:.25em; } .ds-masthead a:focus-visible { outline: 3px solid var(--orange, #b34322); outline-offset: 5px; } @media(max-width:760px) { .ds-masthead { min-height:82px; padding:1rem 6vw; } .ds-wordmark { font-size:2.2rem; } .ds-masthead-note { display:none; } }"
+    },
+    {
+      "name": "Save notice",
+      "kind": "custom",
+      "refersTo": "notice",
+      "description": "Visible and announced confirmation after saving progress.",
+      "html": "<p class=\"ds-notice\" role=\"status\">Progress saved. You can pick up here after a reload.</p>",
+      "css": ".ds-notice { font-family: var(--font-body, 'DM Sans'), sans-serif; font-size: 1rem; line-height: 1.6; font-size:.95rem; color:var(--ink, #293744); background:#e8e2f0; padding:1rem; border-radius:4px; }"
+    },
+    {
+      "name": "Error notice",
+      "kind": "custom",
+      "refersTo": "notice-error",
+      "description": "Announced failure with a recovery instruction; entered choices remain.",
+      "html": "<p class=\"ds-error\" role=\"alert\">We couldn’t connect. Your choices are still here; please retry.</p>",
+      "css": ".ds-error { font-family: var(--font-body, 'DM Sans'), sans-serif; font-size: 1rem; line-height: 1.6; font-size:.95rem; color:#782b19; background:#f5e0d7; padding:1rem; border-radius:4px; }"
+    },
+    {
+      "name": "Illustrative paper object",
+      "kind": "card",
+      "description": "Replaceable landing demonstration; never a real Edition.",
+      "html": "<div class=\"ds-paper\"><span class=\"ds-paper-title\">Herald.</span><div class=\"ds-rule\"></div><p>A wider view. A little more you.</p></div>",
+      "css": ".ds-paper { font-family: var(--font-body, 'DM Sans'), sans-serif; font-size: 1rem; line-height: 1.6; color:var(--ink, #293744); width:min(100%,330px); padding:1.75rem; background:var(--paper, #f7f5ef); transform:rotate(5deg); box-shadow:0 15px 35px #29374424; } .ds-paper-title { font-family:var(--font-editorial, Fraunces),serif; font-weight:550; font-size:2.7rem; letter-spacing:-.035em; line-height:1.06; } .ds-rule { border-top:1px solid var(--ink, #293744); margin:1.25rem 0; } @media(max-width:760px) { .ds-paper { width:280px; } }"
     }
+  ],
+  "narrative": {
+    "overview": "Warm paper, slate text, lilac fields, and small orange accents carry the confirmed editorial direction. Landing uses Persuade; login combines Persuade in its introduction with Operate in its sign-in panel; onboarding uses Operate; paper entry uses Read. The current paper entry confirms saved preferences and explicitly states that no Edition is available yet.\n\nFinal human-made comic-style person artwork, user-provided animation direction, and visual finishing remain deferred to issue #9. Preserve replaceable illustration areas and stable account actions. No person asset, final composition, or entrance animation is approved.",
+    "keyCharacteristics": [
+      "Editorial Fraunces headings paired with DM Sans reading and controls.",
+      "Paper surfaces, lilac introductory regions, and slate structure.",
+      "Native labeled controls with visible pending, recovery, and save states.",
+      "Calm paper-entry hierarchy without fabricated news."
+    ],
+    "rules": [
+      {
+        "name": "The Control Boundary Rule",
+        "body": "Use control-line for boundaries needed to identify editable or selectable controls. Keep line for decorative summary separators; the two roles are distinct.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do keep keyboard focus visible and preserve native control semantics.",
+      "Do use control-line for field and interest boundaries, and line for summary separators.",
+      "Do keep account actions usable while the illustration areas remain replaceable.",
+      "Do preserve error recovery, pending labels, and visible save confirmation."
+    ],
+    "donts": [
+      "Don't introduce generated person artwork or treat unapproved examples as final assets.",
+      "Don't resolve final composition or motion ahead of the deferred issue #9 work.",
+      "Don't present an illustrative paper object or placeholder as a real Edition.",
+      "Don't apply the landing paper object's rotation and shadow to operational forms."
+    ]
   }
 }

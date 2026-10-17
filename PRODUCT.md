@@ -46,7 +46,7 @@ Turn scattered reporting into a reader's daily edition, combining personalized s
 - User-supplied two-page problem statement: E:/NaSCon'26 Problem Statement.pdf.
 - Confirmed interview decisions and feasibility findings: outputs/product-decisions.md.
 - Domain terms: GLOSSARY.md.
-- GitHub, Supabase, and Vercel connector authentication has been verified. No application or live integration exists yet.
+- The slice 01 account application is deployed at https://project-herald-pink.vercel.app with a dedicated free Herald Supabase allocation. Persisted onboarding and two-reader isolation pass local and deployed browser checks. Real Google OAuth callback and live news/Gemini access remain pending user configuration; provider suitability constraints are recorded in docs/setup/slice-01.md.
 - Three user-supplied visual references are preserved in work/design-references/: editorial-content-layout.png, lo-news-layout.png, and youth-illustration-palette.png. The user also supplied https://dribbble.com/shots/7519181-Lilium-Homepage-Prototype as a motion/presentation reference.
 - The user values the supplied poster's person illustration, composition, and color contrast, while retaining a broad audience. Herald is a suggested working name. Logo, final composition, illustration, and motion remain to be resolved with Impeccable.
 
@@ -66,4 +66,3 @@ Turn scattered reporting into a reader's daily edition, combining personalized s
 - Ground every briefing in available reporting and preserve attribution.
 - Preserve each edition consistently across reading, download, and archive.
 - Improve future selection through understandable reader feedback.
-

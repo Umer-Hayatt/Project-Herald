@@ -10,7 +10,7 @@ Date: 17 October 2026. Account implementation; issue #2 remains open for live se
 - Typecheck passes. Lint passes after verification-script cleanup.
 - Full browser suite: **14 passed**, desktop and phone-sized Chromium, run against the local production server with real Supabase and two disposable reader accounts. No auth mocks or runtime admin credentials.
 - Behaviors: anonymous app/database access denied; saved drafts survive reload; >=1 interest on completion; supported regions and5/10/15 reading-length validation; default10; explicit invalid zone correction; detected-zone fallback; completed paper entry; sign-out protection; cross-origin and forged ownership rejected; second reader cannot read/change/insert/take ownership of preferences.
-- Final screenshots: eight loaded surfaces at1440x1000 and390x844, zero horizontal overflow and zero browser page errors. Capture tooling waits for streamed page content before saving. Keyboard skip link checked; native labeled controls and visible focus styles retained.
+- Final screenshots: eight loaded surfaces at 1440×1000 and 390×844, zero horizontal overflow and zero browser page errors. Capture tooling waits for streamed page content before saving. Keyboard skip link checked; native labeled controls and visible focus styles retained.
 - Frontend review: scoped **ship** verdict after stronger control boundaries; --control-line #727780 reaches4.13:1 against paper. Final art/motion remains issue#9.
 - Code review: separate Standards and Spec passes. Invalid time-zone fallback fixed with observed failing then passing browser regression; duplicated guarded page loading consolidated. See slice-01-review.md.
 - npm audit --omit=dev: zero known vulnerabilities. Five high audit entries remain in the development ESLint/fast-glob/micromatch/braces chain; no patched braces release was available. Avoided an unrelated forced downgrade. PostCSS was updated/overridden to8.5.30.
@@ -26,3 +26,12 @@ Date: 17 October 2026. Account implementation; issue #2 remains open for live se
 - Final frontend art/motion is outside this slice. Real Editions remain slice02.
 
 Source history is committed locally on main; no claim of pushing commits or closing issue#2 is made here.
+
+## Final deployed checks
+- Final application commit: 90ded86. Deployment: dpl_5YDYJHKh9K75zrooDiNQ7XsFTviY (READY, production, promoted).
+- Public URL: https://project-herald-pink.vercel.app.
+- Six focused deployed browser checks passed in 54.4 seconds: cancellation recovery, persisted onboarding/reload/sign-out, and two-reader isolation, each at desktop and phone widths. These use real Supabase disposable accounts; they do not establish real Google OAuth acceptance.
+- Final production build includes the reviewer-approved control-border correction. The scoped visual verdict scored that correction resolved and returned ship.
+- A five-minute runtime-error query for the final deployment returned zero records. This is a bounded smoke observation, not ongoing monitoring.
+- Interface documentation reconciled to actual source tokens and responsive behavior in DESIGN.md and schema-v2 .impeccable/design.json.
+- Final typecheck and lint pass. Documentation-only normalization follows these checks; no further application changes were made.
