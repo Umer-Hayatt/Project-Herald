@@ -231,7 +231,10 @@ export function selectEditionStories(
   const impactAndAttributionCandidates = outsideInterestCandidates.filter((article) =>
     publicImpactEvidence(article) > 0 && namedPublisherCount(article) > 0,
   );
-  const discoveryCandidates = impactAndAttributionCandidates
+  const discoveryPool = impactAndAttributionCandidates.length > 0
+    ? impactAndAttributionCandidates
+    : outsideInterestCandidates.filter((article) => namedPublisherCount(article) > 0);
+  const discoveryCandidates = discoveryPool
     .filter((article) => Boolean(article.whyItMatters))
     .sort((left, right) => discoveryOrder(left, right, referenceDate));
   const beyondBubble: GroupedSourceArticle[] = [];
@@ -264,11 +267,11 @@ export function selectEditionStories(
   const discoveryShortage = beyondBubble.length >= 2
     ? null
     : discoveryCandidates.length === 0
-      ? impactAndAttributionCandidates.length === 0
+      ? discoveryPool.length === 0
         ? "no_eligible_story"
         : "briefing_unavailable"
       : beyondBubble.length >= discoveryCandidates.length
-        ? impactAndAttributionCandidates.length > discoveryCandidates.length
+        ? discoveryPool.length > discoveryCandidates.length
           ? "briefing_unavailable"
           : null
         : "does_not_fit";

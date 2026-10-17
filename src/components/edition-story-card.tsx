@@ -19,7 +19,6 @@ export function EditionStoryCard({
   story,
   totalStories,
   variant = "standard",
-  subStories = [],
 }: {
   story: EditionStory;
   totalStories: number;
@@ -69,25 +68,6 @@ export function EditionStoryCard({
               {skipLabel} ↓
             </a>
           </div>
-
-          {subStories.length > 0 && (
-            <div className="hero-substories-bar" aria-label="Quick jump to other stories">
-              {subStories.slice(0, 4).map((sub) => (
-                <a
-                  key={sub.id || sub.position}
-                  href={`#story-${sub.position}`}
-                  className="hero-substory-tab"
-                  title={sub.title}
-                >
-                  <span className="substory-num">{sub.position}</span>
-                  <span className="substory-title-snippet">{sub.title}</span>
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
-        <div style={{ marginTop: "1rem" }}>
-          <StoryFeedbackControls storyId={story.id || ""} />
         </div>
       </article>
     );

@@ -427,9 +427,9 @@ dd {
   text-transform: capitalize;
 }
 .edition-container {
-  max-width: 960px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 3rem 5vw 6rem;
+  padding: 2rem 2rem 5rem;
 }
 .edition-masthead-sub {
   border-bottom: 2px solid var(--ink);
@@ -611,11 +611,54 @@ dd {
   background: #f0ece3;
 }
 .edition-footer-note {
-  margin-top: 4rem;
-  padding: 2.5rem;
-  background: #f0ece3;
-  border-radius: 8px;
+  margin-top: 5rem;
+  padding: 3.5rem 2rem;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  box-shadow: 0 4px 20px rgba(41, 55, 68, 0.04);
+}
+.edition-end-seal {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--lilac);
+  border: 2px solid var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-editorial), serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+}
+.edition-end-title {
+  font-family: var(--font-editorial), serif;
+  font-size: clamp(1.6rem, 2.5vw, 2.1rem);
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+.edition-end-subtitle {
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  max-width: 55ch;
+  margin: 0;
+}
+.edition-end-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 .edition-empty-state {
   max-width: 650px;
@@ -660,9 +703,11 @@ dd {
 .archive-header {
   border-bottom: 2px solid var(--ink);
   padding-bottom: 1.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 }
 .archive-title {
+  font-family: var(--font-editorial), serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
   margin: 0 0 0.5rem;
 }
 .archive-subtitle {
@@ -673,21 +718,25 @@ dd {
 .archive-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
+  gap: 1.75rem;
 }
 .archive-card {
-  background: #fdfcf9;
+  background: #ffffff;
   border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 1.75rem;
+  border-radius: 12px;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 240px;
+  box-shadow: 0 3px 12px rgba(41, 55, 68, 0.04);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
 }
 .archive-card:hover {
-  border-color: var(--ink);
-  box-shadow: 0 4px 12px rgba(41, 55, 68, 0.08);
+  border-color: var(--control-line);
+  box-shadow: 0 8px 24px rgba(41, 55, 68, 0.08);
+  transform: translateY(-2px);
 }
 .archive-card-header {
   display: flex;
@@ -696,17 +745,21 @@ dd {
 }
 .archive-badge {
   align-self: flex-start;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--orange);
+  background: #fdf0ec;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
 }
 .archive-card-date {
   font-family: var(--font-editorial), serif;
   font-size: 1.6rem;
   line-height: 1.2;
   margin: 0;
+  color: var(--ink);
 }
 .archive-card-actions {
   margin-top: auto;
@@ -1043,95 +1096,24 @@ main, section, article, .archive-card, .account-panel {
   background: rgba(255, 255, 255, 0.22) !important;
 }
 
-.hero-substories-bar {
-  display: flex;
-  gap: 0.65rem;
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.hero-substory-tab {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.5rem 0.85rem;
-  border-radius: 8px;
-  color: #ffffff;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.82rem;
-  white-space: nowrap;
-  max-width: 220px;
-  transition: all 0.15s ease;
-}
-
-.hero-substory-tab:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.substory-num {
-  font-weight: 700;
-  color: var(--lilac);
-  background: rgba(41, 55, 68, 0.5);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.72rem;
-}
-
-.substory-title-snippet {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Right side spotlight column */
 .edition-spotlight-column {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-}
-
-.category-quick-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.cat-quick-chip {
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  background: #ffffff;
-  border: 1px solid var(--line);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--ink);
-  text-decoration: none;
-  transition: background 0.15s;
-}
-
-.cat-quick-chip:hover {
-  background: var(--lilac);
-  border-color: var(--ink);
+  justify-content: stretch;
 }
 
 .spotlight-card {
   background: #ffffff;
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 1.5rem;
+  border-radius: 14px;
+  padding: 1.75rem;
   box-shadow: 0 4px 16px rgba(41, 55, 68, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 100%;
 }
 
 .spotlight-accent-bar {
@@ -1147,14 +1129,14 @@ main, section, article, .archive-card, .account-panel {
 
 .spotlight-image {
   width: 100%;
-  height: 160px;
+  height: 180px;
   object-fit: cover;
   border-radius: 8px;
 }
 
 .spotlight-title {
   font-family: var(--font-editorial), serif;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 600;
   line-height: 1.25;
   color: var(--ink);
@@ -1162,7 +1144,7 @@ main, section, article, .archive-card, .account-panel {
 }
 
 .spotlight-excerpt {
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   line-height: 1.5;
   color: var(--muted);
   margin: 0;
@@ -1172,18 +1154,19 @@ main, section, article, .archive-card, .account-panel {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 6px;
-  padding: 0.5rem 0.85rem;
+  padding: 0.6rem 0.95rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--ink);
+  margin-top: auto;
 }
 
 /* Featured Stories Section */
 .featured-stories-section {
-  margin: 3rem 0;
+  margin: 3.5rem 0;
 }
 
 .featured-header-row {
@@ -1219,8 +1202,8 @@ main, section, article, .archive-card, .account-panel {
 
 .featured-cards-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.25rem;
 }
 
 .featured-card {

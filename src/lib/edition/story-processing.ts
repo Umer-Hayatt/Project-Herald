@@ -151,9 +151,13 @@ function fallbackForStory(story: GroupedSourceArticle): ProcessedStory {
   })[0] || story;
   const publisherText = article.snippet || article.description;
   const excerpt = (publisherText || article.title).trim();
+  const primaryTopic = story.categories[0] || "general";
+  const whyItMatters = article.description && article.description !== article.snippet && article.description.length >= 20
+    ? article.description.slice(0, 360)
+    : `Key ${primaryTopic} reporting from ${article.publisher}, offering essential perspective outside routine coverage.`;
   return {
     briefing: excerpt.slice(0, 900),
-    whyItMatters: null,
+    whyItMatters,
     topics: story.categories.filter((category): category is (typeof interests)[number] =>
       interests.includes(category as (typeof interests)[number]),
     ).slice(0, 4),

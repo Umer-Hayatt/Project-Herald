@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getStoryImageUrl } from "@/lib/edition/images";
 import type { SourceArticle } from "@/lib/edition/types";
 
+export const dynamic = "force-dynamic";
+
 function formatRelativeTime(publishedAt: string): string {
   const publishedMs = Date.parse(publishedAt);
   if (!Number.isFinite(publishedMs)) return "";
@@ -32,12 +34,10 @@ export default async function Home() {
   }
 
   const heroArticle = articles[0];
-  const subArticles = articles.slice(1, 5);
-  const featuredArticles = articles.slice(0, 5);
-  const spotlightArticle = articles.length > 1 ? articles[1] : heroArticle;
-  const latestArticles = articles.slice(2, 10);
-  const trendingArticles = articles.slice(0, 4);
-  const quickCategories = ["All", "Education", "Environment", "Adventure", "Technology", "Science", "Sports", "Business"];
+  const spotlightArticle = articles.length > 1 ? articles[1] : null;
+  const featuredArticles = articles.slice(2, 7);
+  const latestArticles = articles.slice(7, 13);
+  const trendingArticles = articles.slice(1, 5);
 
   return (
     <>
@@ -121,36 +121,10 @@ export default async function Home() {
                       <span className="hero-time">· {formatRelativeTime(heroArticle.published_at)}</span>
                     )}
                   </div>
-
-                  {subArticles.length > 0 && (
-                    <div className="hero-substories-bar" aria-label="Highlighted stories">
-                      {subArticles.map((sub, idx) => (
-                        <a
-                          key={sub.id || sub.external_id}
-                          href={sub.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hero-substory-tab"
-                          title={sub.title}
-                        >
-                          <span className="substory-num">{idx + 2}</span>
-                          <span className="substory-title-snippet">{sub.title}</span>
-                        </a>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </article>
 
               <div className="edition-spotlight-column">
-                <nav className="category-quick-bar" aria-label="Topic categories">
-                  {quickCategories.map((cat) => (
-                    <span key={cat} className="cat-quick-chip">
-                      {cat}
-                    </span>
-                  ))}
-                </nav>
-
                 {spotlightArticle && (
                   <div className="spotlight-card">
                     <div className="spotlight-accent-bar">

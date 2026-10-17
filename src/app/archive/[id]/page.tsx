@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Saved Edition | Herald" };
 
 import Link from "next/link";
@@ -128,36 +129,27 @@ export default async function ArchivedEditionPage({
           )}
         </section>
 
-        {/* Reserved art/motion region for Slice 8 */}
-        <aside
-          style={{
-            margin: "4rem 0 2rem",
-            padding: "2rem",
-            background: "#f3efe6",
-            border: "1px dashed var(--line)",
-            borderRadius: "6px",
-            textAlign: "center",
-          }}
-          aria-label="Illustration placeholder"
-        >
-          <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>
-            Reserved for final human-made comic artwork & animation
-          </span>
-        </aside>
-
         <footer id="edition-end" className="edition-footer-note">
-          <p style={{ fontWeight: 600, fontSize: "1.2rem", margin: "0 0 0.5rem" }}>
-            Preserved Edition: {displayDate}
+          <div className="edition-end-seal" aria-hidden="true">
+            <span className="seal-emblem">H</span>
+          </div>
+          <h3 className="edition-end-title">
+            Preserved Edition · {displayDate}
+          </h3>
+          <p className="edition-end-subtitle">
+            This edition is archived exactly as it was published on {displayDate}.
           </p>
-          <p style={{ color: "var(--muted)", margin: "0 0 1.5rem" }}>
-            This paper is saved in your archive exactly as it appeared on the day it was published.
-          </p>
-          <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center" }}>
-            <Link href="/archive" className="text-link">
+          <div className="edition-end-actions">
+            <PdfDownloadButton
+              editionId={edition.id}
+              editionDate={edition.edition_date}
+              variant="primary"
+            />
+            <Link href="/archive" className="secondary-button" style={{ textDecoration: "none" }}>
               ← Return to archive
             </Link>
-            <Link href="/paper" className="text-link">
-              Today’s Paper →
+            <Link href="/paper" className="secondary-button" style={{ textDecoration: "none" }}>
+              Today’s paper →
             </Link>
           </div>
         </footer>

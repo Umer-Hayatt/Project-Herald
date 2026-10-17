@@ -1,4 +1,5 @@
 export const metadata = { title: "Today’s paper | Herald" };
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -107,12 +108,59 @@ export default async function PaperPage({
   const mainStories = stories.filter((story) => story.section === "main");
   const beyondBubbleStories = stories.filter((story) => story.section === "beyond_bubble");
 
-  const heroStory = mainStories[0];
-  const subStories = mainStories.slice(1, 5);
-  const featuredStories = stories.slice(0, 5);
-  const spotlightStory = beyondBubbleStories[0] || (mainStories.length > 1 ? mainStories[1] : heroStory);
-  const trendingStories = stories.slice(0, 4);
-  const quickCategories = ["All", "Science", "Technology", "Environment", "Business", "Sports", "Travel", "Health"];
+  // 1. Lead Hero Story (Story #1)
+  const heroStory = mainStories[0] || stories[0];
+
+  // 2. Spotlight Story: Beyond Your Bubble perspective if available, else second story
+  const spotlightStory = beyondBubbleStories[0] || (mainStories.length > 1 ? mainStories[1] : null);
+
+  // Set of already highlighted story positions to prevent repeating in featured cards
+  const highlightedPositions = new Set(
+    [heroStory?.position, spotlightStory?.position].filter(Boolean)
+  );
+
+  // 3. Featured Stories: Distinct remaining stories (never duplicates of hero or spotlight)
+  const distinctRemaining = stories.filter((s) => !highlightedPositions.has(s.position));
+  const featuredStories = distinctRemaining.length >= 2 ? distinctRemaining.slice(0, 5) : [];
+
+  // 4. Stories feed: Remaining main stories with full reading experience
+  const feedMainStories = heroStory ? mainStories.slice(1) : mainStories;
+
+  // 5. Sidebar Trending: Fetch fresh diverse stories from reporting supply to prevent duplicating edition stories
+  let trendingStories: Array<{ id: string; title: string; publisher: string; published_at: string; word_count: number; position?: number; url?: string }> = [];
+  try {
+    const { data: trendData } = await supabase
+      .from("source_articles")
+      .select("id, title, publisher, published_at, url")
+      .order("published_at", { ascending: false })
+      .limit(8);
+    if (trendData && trendData.length > 0) {
+      trendingStories = trendData
+        .filter((item) => item.title !== heroStory?.title)
+        .slice(0, 4)
+        .map((item) => ({
+          id: item.id,
+          title: item.title,
+          publisher: item.publisher,
+          published_at: item.published_at,
+          word_count: 200,
+          url: item.url,
+        }));
+    }
+  } catch {
+    // Graceful fallback
+  }
+  if (trendingStories.length === 0) {
+    trendingStories = distinctRemaining.slice(0, 4).map((s) => ({
+      id: s.id || String(s.position),
+      title: s.title,
+      publisher: s.publisher,
+      published_at: s.published_at,
+      word_count: s.word_count,
+      position: s.position,
+      url: `#story-${s.position}`,
+    }));
+  }
 
   return (
     <>
@@ -164,23 +212,14 @@ export default async function PaperPage({
               variant="hero"
               story={heroStory}
               totalStories={stories.length}
-              subStories={subStories}
             />
 
             <div className="edition-spotlight-column">
-              <nav className="category-quick-bar" aria-label="Topic categories">
-                {quickCategories.map((cat) => (
-                  <span key={cat} className="cat-quick-chip">
-                    {cat}
-                  </span>
-                ))}
-              </nav>
-
               {spotlightStory && (
                 <div className="spotlight-card">
                   <div className="spotlight-accent-bar">
                     <span style={{ color: "var(--orange)" }}>|</span>
-                    <span>{beyondBubbleStories.length > 0 ? "Beyond Your Bubble Spotlight" : "Upcoming Feature"}</span>
+                    <span>{spotlightStory.section === "beyond_bubble" ? "Beyond Your Bubble" : "Spotlight Feature"}</span>
                   </div>
                   <h3 className="spotlight-title">{spotlightStory.title}</h3>
                   <img
@@ -204,7 +243,7 @@ export default async function PaperPage({
           </section>
         )}
 
-        {/* Featured Stories Horizontal Carousel/Grid */}
+        {/* Featured Stories Horizontal Carousel/Grid (distinct, non-repeating stories) */}
         {featuredStories.length > 0 && (
           <section className="featured-stories-section" aria-label="Featured stories">
             <div className="featured-header-row">
@@ -360,33 +399,29 @@ export default async function PaperPage({
           </aside>
         </div>
 
-        {/* Reserved art/motion region for Slice 8 */}
-        <aside
-          style={{
-            margin: "4rem 0 2rem",
-            padding: "2rem",
-            background: "#f3efe6",
-            border: "1px dashed var(--line)",
-            borderRadius: "6px",
-            textAlign: "center",
-          }}
-          aria-label="Illustration placeholder"
-        >
-          <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>
-            Reserved for final human-made comic artwork & animation
-          </span>
-        </aside>
-
         <footer id="edition-end" className="edition-footer-note">
-          <p style={{ fontWeight: 600, fontSize: "1.2rem", margin: "0 0 0.5rem" }}>
-            You’ve reached the end of today’s paper.
+          <div className="edition-end-seal" aria-hidden="true">
+            <span className="seal-emblem">H</span>
+          </div>
+          <h3 className="edition-end-title">
+            You’ve finished today’s paper.
+          </h3>
+          <p className="edition-end-subtitle">
+            Your morning ritual is complete. Your next edition will arrive tomorrow morning tuned to your reading length and evolving interests.
           </p>
-          <p style={{ color: "var(--muted)", margin: "0 0 1.5rem" }}>
-            Your next edition will arrive tomorrow morning based on your saved reading length and interests.
-          </p>
-          <Link href="/settings" className="text-link">
-            Adjust preferences for tomorrow →
-          </Link>
+          <div className="edition-end-actions">
+            <PdfDownloadButton
+              editionId={edition.id}
+              editionDate={edition.edition_date}
+              variant="primary"
+            />
+            <Link href="/settings" className="secondary-button" style={{ textDecoration: "none" }}>
+              Tune preferences for tomorrow →
+            </Link>
+            <Link href="/archive" className="secondary-button" style={{ textDecoration: "none" }}>
+              View past editions
+            </Link>
+          </div>
         </footer>
       </main>
     </>

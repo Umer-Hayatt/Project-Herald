@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Sign in | Herald" };
 
 import { redirect } from "next/navigation";
