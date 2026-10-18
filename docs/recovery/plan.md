@@ -15,6 +15,10 @@ Updated 18 October 2026 with the agreed multi-source reporting and AI-editor app
 5. **Apply a bounded AI editor:** AI refines the selection, balances relevance and discovery, explains choices, and creates Briefings grounded in available reporting. If an interest is undercovered, it may request at most two additional provider calls per Edition attempt and one refinement afterward, within shared budgets. The backend executes validated searches; AI receives no credentials or account identity.
 6. **Preserve one Edition:** validate selected identities, evidence, permissions, uniqueness and reading budget; save the result for matching web reading, archive and newspaper PDF. Keep a deterministic fallback for model failure, but verify actual AI selection before claiming that capability works.
 
+## Ticket execution
+
+The owner merged former drafts R01+R02, R04+R05 and R10+R11 into eight tickets. See the [revised ticket index](TICKET-REVIEW.md). The five product phases remain; merged tickets contain ordered internal gates where they cross phase boundaries. The final ticket passes deployed verification before its seven-day pilot and closes only after both.
+
 ## The five delivery phases
 
 | Phase | Deliverable | Evidence required to finish |

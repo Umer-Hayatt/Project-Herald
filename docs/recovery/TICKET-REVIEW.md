@@ -1,29 +1,26 @@
-# Recovery ticket breakdown — awaiting approval
+# Recovery ticket breakdown — revised to eight, awaiting approval
 
-Parent: [specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). All 11 bodies are drafted locally; no recovery child issue has been published or claimed. The spec's testing boundary was approved earlier; ticket granularity and dependencies have not yet been approved.
+Parent: [specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). The owner requested combining former R01+R02, R04+R05 and R10+R11. All eight bodies are drafted on the recovery side branch; no recovery child issue has been published or claimed. The approved testing seam and all 64 existing acceptance criteria are preserved.
 
-| Draft ID | Ticket | Blocked by | Phase |
-|---|---|---|---|
-| R01 | [Create a useful Edition through protected reporting ingestion](tickets/01-safe-useful-reporting.md) | None | R1 |
-| R02 | [Compare two candidate providers using real reading samples](tickets/02-compare-provider-coverage.md) | None | R1 |
-| R03 | [Deliver diverse Stories from the justified provider combination](tickets/03-complementary-shared-pool.md) | R01, R02 | R1 |
-| R04 | [Read and download one complete, consistent Edition](tickets/04-complete-edition-and-pdf.md) | R03 | R2 |
-| R05 | [Make subject preferences and feedback improve the next Edition](tickets/05-preferences-and-next-day-learning.md) | R04 | R3 |
-| R06 | [Reduce repeated events while retaining meaningful updates](tickets/06-fresh-events-and-updates.md) | R04 | R3 |
-| R07 | [Use a validated AI editor to select a personal Edition](tickets/07-bounded-ai-editor.md) | R05, R06 | R3 |
-| R08 | [Fill an undercovered interest with bounded AI-requested searches](tickets/08-bounded-targeted-search.md) | R07 | R3 |
-| R09 | [Offer a calm finished reading experience and samples before login](tickets/09-finished-reading-and-samples.md) | R08 | R4 |
-| R10 | [Verify and document the deployed reader-ready release](tickets/10-verify-reader-ready-release.md) | R09 | R4 |
-| R11 | [Run the seven-day reader pilot and assess the paid-value offer](tickets/11-measure-paid-value-pilot.md) | R10 | R5 |
+| Draft ID | Ticket | Blocked by | Phase | Former drafts |
+|---|---|---|---|---|
+| R01 | [Create protected useful reporting and choose complementary providers](tickets/01-safe-reporting-and-provider-comparison.md) | None | R1 | R01 + R02 |
+| R02 | [Deliver diverse Stories from the justified provider combination](tickets/02-complementary-shared-pool.md) | R01 | R1 | R03 |
+| R03 | [Read consistent Editions that improve with saved preferences and feedback](tickets/03-complete-edition-and-learning.md) | R02 | R2 / R3 | R04 + R05 |
+| R04 | [Reduce repeated events while retaining meaningful updates](tickets/04-fresh-events-and-updates.md) | R03 | R3 | R06 |
+| R05 | [Use a validated AI editor to select a personal Edition](tickets/05-bounded-ai-editor.md) | R04 | R3 | R07 |
+| R06 | [Fill an undercovered interest with bounded AI-requested searches](tickets/06-bounded-targeted-search.md) | R05 | R3 | R08 |
+| R07 | [Offer a calm finished reading experience and samples before login](tickets/07-finished-reading-and-samples.md) | R06 | R4 | R09 |
+| R08 | [Verify the deployed release and validate its paid-value offer](tickets/08-release-and-paid-value-pilot.md) | R07 | R4 / R5 | R10 + R11 |
 
-R01 and R02 are initially unblocked. R05 and R06 become independently available after R04. Other dependencies follow the recovery phase gates. Draft identifiers are not GitHub issue numbers. Publication will replace them with real issue links, add ready-for-agent, and establish native parent/blocking links where the connection supports them; otherwise explicit body links and the limitation will be recorded.
+The dependency order is R01 → R02 → R03 → R04 → R05 → R06 → R07 → R08. Former internal edges are stages inside merged tickets; redundant transitive edges are removed. R01 is the only initial frontier after approval/publication. Draft identifiers are not GitHub issue numbers.
 
-Each ticket delivers a verifiable complete behavior. R02 is a bounded retrieval-to-readable-sample evaluation; R11 is a real product pilot. Neither is a horizontal implementation-layer ticket. Small prefactoring belongs at the start of R01/R04 where it supports their working paths; no broad mechanical rewrite was found necessary.
+R03 establishes the complete Story/web/PDF contract before its preference/learning checks. R08 has an internal deployed reader-ready gate followed by the seven-day pilot and stays open until both stages have evidence. Record Stage A readiness without claiming Stage B or the whole ticket complete. R02 still needs the spec’s three successive daily live coverage samples. Save checkpoints across actual elapsed days.
+
+All original acceptance coverage remains. R01/R03 are larger by the owner’s request; R08 spans an external seven-day pilot and must be resumable from recorded checkpoints. Do not invent elapsed time or keep a context open waiting for it.
+
+Publication will replace draft references with real issue links, apply ready-for-agent and establish native parent/blocking links where supported; otherwise preserve explicit body links and record the limitation. Parent #11 and historical issues #1–#10 remain unchanged during ticket publication.
 
 ## Approval requested
 
-- Is each slice sized appropriately for a fresh agent context?
-- Do the blockers represent real prerequisites?
-- Should any slices be merged, split or resequenced?
-
-The invoked to-tickets skill says: “Iterate until the user approves the breakdown.” Publication follows that approval. Existing parent #11 and historical issues #1–#10 remain unchanged during ticket publication.
+Do the revised eight sizes and blockers match the requested merges, or should any further merge, split or resequencing be made? The invoked to-tickets skill says: “Iterate until the user approves the breakdown.” Publication follows confirmation of this revised breakdown.

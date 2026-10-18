@@ -2,7 +2,7 @@
 
 ## Current state
 
-Planning checkpoint: 18 October 2026, Asia/Karachi. Active authority: [recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Main baseline: `3e8e437735d3258e5e342c7d1f738a30e8d99f9c`. No recovery implementation or production migration has been performed. The 11 [ticket drafts](TICKET-REVIEW.md) await owner approval; they are not published issues and cannot be claimed yet.
+Planning checkpoint: 18 October 2026, Asia/Karachi. Active authority: [recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Main baseline: `3e8e437735d3258e5e342c7d1f738a30e8d99f9c`. No recovery implementation or production migration has been performed. The eight [ticket drafts](TICKET-REVIEW.md) await owner approval; they are not published issues and cannot be claimed yet.
 
 This recovery replaces the expired 17 October 21:00 hackathon schedule for new recovery work. The original issues #1–#10 are historical scope/evidence, even though still open; their state does not establish what is implemented. Use current code and dated checks, not old completion claims. Parent #11 stays open and unchanged during ticket publication.
 
@@ -11,7 +11,7 @@ This recovery replaces the expired 17 October 21:00 hackathon schedule for new r
 1. Read this handoff, the [short plan](plan.md), [ticket review/index](TICKET-REVIEW.md), and the authoritative issue plus its comments. The [spec snapshot](spec.md) is a convenience copy; GitHub is authoritative for subsequent changes.
 2. Check the working tree and current commit. Preserve existing work. Read the current Product, Glossary, relevant ADRs, and issue-tracker instructions before implementation or status changes.
 3. Confirm whether the owner approved the ticket breakdown. While approval is pending, revise drafts or context only; publication and implementation remain pending. After approval, publish one ready-for-agent child per ticket in dependency order, preserve text links, add native relationships when possible, and record the real IDs here and in the index.
-4. Work the frontier: claim an open child only when its actual blockers have acceptance evidence and are complete. The initial frontier after publication is R01/R02. Check external prerequisites independently; ready-for-agent does not grant credentials, suitable provider terms or a paid budget.
+4. Work the frontier: claim an open child only when its actual blockers have acceptance evidence and are complete. The initial frontier after revised approval/publication is R01. Check external prerequisites independently; ready-for-agent does not grant credentials, suitable provider terms or a paid budget.
 5. Before closing a child, record the exact commit, environment, date, criteria outcomes and remaining limitations. Pass/fail/blocked/not-run are distinct. Update the ticket and this small checkpoint; synchronize the spec snapshot only when its authority changes. Keep this handoff current for the next agent.
 
 ## Product decisions to preserve
@@ -44,7 +44,11 @@ Existing test helpers can write to the connected database. Confirm test isolatio
 
 Read the provider findings in the spec before choosing adapters. Current documentation can conflict or change; an API key or quota does not establish commercial Briefing/PDF/archive permissions. If credentials, lawful output access, sufficient reporting, a suitable model, pilot participants or a chosen price are missing, document the precise prerequisite and continue independent eligible work. Preserve progress with a next action; never substitute invented samples or claim a blocked gate passed.
 
-R03 needs three successive daily live coverage samples; R11 needs a seven-day pilot. Save intermediate evidence and resume later as authorized rather than simulating elapsed days or claiming completion in one run. No schedule/monitor is created by this handoff.
+R02 needs three successive daily live coverage samples; R08 needs a seven-day pilot. Save intermediate evidence and resume later as authorized rather than simulating elapsed days or claiming completion in one run. No schedule/monitor is created by this handoff.
+
+## Owner-requested ticket merges
+
+The owner combined former R01+R02, R04+R05 and R10+R11. Use the revised eight-ticket index and current bodies; former draft IDs are historical. All 64 criteria remain. The dependency frontier is a linear R01–R08 chain. R08 records deployed readiness before starting its seven-day pilot and remains open until both stages pass. Revised publication approval is pending; the side-branch request alone does not approve ticket publication.
 
 ## Evidence/checkpoint template
 
@@ -60,7 +64,7 @@ R03 needs three successive daily live coverage samples; R11 needs a seven-day pi
 
 - [Plan](plan.md): human-readable route through the five phases.
 - [Spec snapshot](spec.md): revision 2 mirror, not evidence of implementation.
-- [Draft ticket review/index](TICKET-REVIEW.md): 11 proposed slices, blockers and individual draft bodies.
+- [Draft ticket review/index](TICKET-REVIEW.md): Eight proposed slices, blockers, former-to-new mapping and individual draft bodies.
 - GitHub parent/child issue bodies, comments and acceptance evidence: live authority after publication.
 
 Spec snapshot SHA-256 (UTF-8 bytes): `c7da6a46bd14ff51516270060ef30224fa7783752c878d73d1519fc7250d79c5`. Recompute when syncing it from an approved published revision.
