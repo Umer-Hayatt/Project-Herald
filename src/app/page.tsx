@@ -25,6 +25,7 @@ export default async function Home() {
     const { data } = await supabase
       .from("source_articles")
       .select("*")
+      .not("publisher", "in", '("Herald Verified Wire","Fake","Probe")')
       .order("published_at", { ascending: false })
       .limit(32);
     if (data && data.length > 0) {
