@@ -305,7 +305,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
       name: "healthy-provider",
       defaultOutputUse: "commercial",
       isConfigured: () => true,
-      fetchCandidates: async (_opts) => ({
+      fetchCandidates: async () => ({
         candidates: [
           {
             id: "healthy-1",
