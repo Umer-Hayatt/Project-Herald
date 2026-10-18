@@ -131,6 +131,7 @@ export default async function PaperPage({
     const { data: trendData } = await supabase
       .from("source_articles")
       .select("id, external_id, title, publisher, published_at, url, description, snippet")
+      .not("publisher", "in", '("Herald Verified Wire","Fake","Probe")')
       .order("published_at", { ascending: false })
       .limit(16);
     if (trendData && trendData.length > 0) {
