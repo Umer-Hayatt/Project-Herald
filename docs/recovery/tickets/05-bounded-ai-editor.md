@@ -1,3 +1,5 @@
+# Issue #16: R05: Use a validated AI editor to select a personal Edition
+
 ## Parent
 
 [Recovery specification #11](https://github.com/Umer-Hayatt/Project-Herald/issues/11)
@@ -22,4 +24,4 @@ A compatible enabled model selects a balanced Edition from bounded eligible cand
 
 ## Blocked by
 
-- R04: Reduce repeated events while retaining meaningful updates (draft identifier; replace with published issue link).
+- [R04: Reduce repeated events while retaining meaningful updates](https://github.com/Umer-Hayatt/Project-Herald/issues/15)

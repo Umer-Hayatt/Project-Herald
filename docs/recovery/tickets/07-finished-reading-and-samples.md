@@ -1,3 +1,5 @@
+# Issue #18: R07: Offer a calm finished reading experience and samples before login
+
 ## Parent
 
 [Recovery specification #11](https://github.com/Umer-Hayatt/Project-Herald/issues/11)
@@ -21,4 +23,4 @@ Visitors can inspect a real labelled sample and PDF before signing in; readers c
 
 ## Blocked by
 
-- R06: Fill an undercovered interest with bounded AI-requested searches (draft identifier; replace with published issue link).
+- [R06: Fill an undercovered interest with bounded AI-requested searches](https://github.com/Umer-Hayatt/Project-Herald/issues/17)

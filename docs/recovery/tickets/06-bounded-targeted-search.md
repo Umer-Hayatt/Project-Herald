@@ -1,3 +1,5 @@
+# Issue #17: R06: Fill an undercovered interest with bounded AI-requested searches
+
 ## Parent
 
 [Recovery specification #11](https://github.com/Umer-Hayatt/Project-Herald/issues/11)
@@ -21,4 +23,4 @@ When initial reporting misses a reader’s interest, the AI editor can request a
 
 ## Blocked by
 
-- R05: Use a validated AI editor to select a personal Edition (draft identifier; replace with published issue link).
+- [R05: Use a validated AI editor to select a personal Edition](https://github.com/Umer-Hayatt/Project-Herald/issues/16)

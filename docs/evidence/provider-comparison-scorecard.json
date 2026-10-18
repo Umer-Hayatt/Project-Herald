@@ -1,0 +1,871 @@
+{
+  "generatedAt": "2026-10-18T10:15:14.800Z",
+  "evaluationContext": {
+    "activeBaseline": "TheNewsAPI",
+    "candidate1": "GNews",
+    "candidate2": "NewsData.io",
+    "additionalCandidatesConsidered": [
+      "Currents",
+      "Mediastack"
+    ]
+  },
+  "liveInspectedCount": 30,
+  "theNewsApiInspectionSummary": {
+    "totalFetched": 30,
+    "eligibleCount": 29,
+    "rejectedCount": 1,
+    "rejectionBreakdown": {
+      "generic_title": 1
+    },
+    "textDepthAverages": {
+      "avgTitleWords": 11,
+      "avgDescriptionWords": 23,
+      "avgTotalWords": 59
+    }
+  },
+  "matrix": [
+    {
+      "provider": "TheNewsAPI",
+      "status": "Active supply baseline",
+      "freeTierQuota": "15 requests/day, 3 articles/request (45 articles/day max)",
+      "delay": "Real-time to ~15 min",
+      "contentDepth": "Title, description, snippet (40-90 words avg); no full body text",
+      "publisherProvenance": "High: clean publisher name, canonical article URL, image_url",
+      "publisherVsEventGeo": "Field `locale` indicates publisher country, not event location",
+      "permissions": {
+        "evaluation": "Permitted (active key)",
+        "publicDisplay": "Permitted for headlines, excerpts, and attribution",
+        "customerAiBriefings": "Permitted: uses publisher excerpts as source grounding",
+        "pdfDownload": "Permitted: attribution and original links preserved",
+        "persistentArchive": "Permitted: reader edition snapshot retention"
+      },
+      "limitations": "Extremely tight daily quota (15 req/day); requires strict shared caching"
+    },
+    {
+      "provider": "GNews",
+      "status": "Evaluation candidate 1",
+      "freeTierQuota": "100 requests/day, 10 articles/request (1,000 articles/day)",
+      "delay": "12 hours on free tier",
+      "contentDepth": "Title, description, partial content (truncated to ~200 chars)",
+      "publisherProvenance": "High: source name and direct article URL",
+      "publisherVsEventGeo": "Differentiates `country` (publisher origin) from search query entities",
+      "permissions": {
+        "evaluation": "Permitted with free API registration",
+        "publicDisplay": "Free tier restricted to non-commercial evaluation",
+        "customerAiBriefings": "Restricted on free tier: commercial license required for derivative AI summaries",
+        "pdfDownload": "Restricted: export of archived stories requires commercial terms",
+        "persistentArchive": "Restricted: free tier prohibits persistent archiving"
+      },
+      "limitations": "12-hour publication delay on free tier impairs breaking news freshness; commercial license prerequisite"
+    },
+    {
+      "provider": "NewsData.io",
+      "status": "Evaluation candidate 2",
+      "freeTierQuota": "200 credits/day, up to 10 articles/credit",
+      "delay": "Near real-time (~15-30 min)",
+      "contentDepth": "Title, description, snippet (truncated body on free tier)",
+      "publisherProvenance": "Moderate to high: source_id, creator, link, country array",
+      "publisherVsEventGeo": "Country tags are publisher registration locations, often multiple",
+      "permissions": {
+        "evaluation": "Permitted with free API registration",
+        "publicDisplay": "Permitted for excerpts with attribution",
+        "customerAiBriefings": "Unresolved: published commercial-use guidance conflicts between marketing blog and API docs",
+        "pdfDownload": "Unresolved: licensing conflict regarding PDF bundling",
+        "persistentArchive": "Permitted for short-term cache; long-term unverified"
+      },
+      "limitations": "Documentation conflict regarding commercial derivative use must be resolved before production adoption"
+    },
+    {
+      "provider": "Currents",
+      "status": "Evaluated & deferred",
+      "freeTierQuota": "250 requests/day, 20 results/request",
+      "delay": "Near real-time",
+      "contentDepth": "Title, description, url, author",
+      "publisherProvenance": "Good publisher metadata",
+      "publisherVsEventGeo": "Language and country filters",
+      "permissions": {
+        "evaluation": "Permitted",
+        "publicDisplay": "Permitted",
+        "customerAiBriefings": "Explicitly EXCLUDED from self-service plans on pricing page",
+        "pdfDownload": "Restricted without enterprise agreement",
+        "persistentArchive": "Explicitly EXCLUDED without enterprise license"
+      },
+      "limitations": "Pricing page explicitly excludes AI summaries and archives; unacceptable for Herald core contract"
+    },
+    {
+      "provider": "Mediastack",
+      "status": "Evaluated & deferred",
+      "freeTierQuota": "100 requests/month (delayed)",
+      "delay": "Delayed on free tier",
+      "contentDepth": "Title, description, source",
+      "publisherProvenance": "Standard metadata",
+      "publisherVsEventGeo": "Country code reflects publisher registration",
+      "permissions": {
+        "evaluation": "Permitted",
+        "publicDisplay": "Non-commercial only on free tier",
+        "customerAiBriefings": "Non-commercial only",
+        "pdfDownload": "Non-commercial only",
+        "persistentArchive": "Non-commercial only"
+      },
+      "limitations": "100 requests per MONTH is far below Herald's daily operational requirement (~3 requests/day)"
+    }
+  ],
+  "recommendation": {
+    "retainedBaseline": "TheNewsAPI",
+    "recommendedNextComplement": "GNews or NewsData.io subject to owner authorization of account key and commercial terms",
+    "rejectionRationale": {
+      "Currents": "Rejected due to explicit self-service terms prohibiting customer AI summaries and persistent archives.",
+      "Mediastack": "Rejected due to severe 100 requests/month quota cap and non-commercial restriction."
+    },
+    "aiRuntimeFeasibility": {
+      "modelTested": "gemini-3.8-flash (via Google Generative Language API)",
+      "status": "Live probe verified passed (HTTP 200, returnedText true)",
+      "operationalPrerequisite": "Confirm deployment geography and audience suitability before activating public AI briefings; preserve deterministic fallback throughout."
+    }
+  },
+  "liveSamples": [
+    {
+      "uuid": "62315c3e-fd92-45a4-a3f3-0e6e2b2ea527",
+      "title": "Mint Explainer: What’s at stake for consumer companies this festive season?",
+      "publisher": "livemint.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.livemint.com/news/mint-explainer-what-s-at-stake-for-consumer-companies-this-festive-season-11792312794451.html",
+      "published_at": "2026-10-18T10:03:03.000000Z",
+      "categories": [
+        "general",
+        "business"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 11,
+        "descriptionWords": 28,
+        "snippetWords": 25,
+        "totalWords": 64
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "1. How important is the festive season for Indian consumer companies?\n\nSales during this period are vital, though the impact varies across product categories. M..."
+    },
+    {
+      "uuid": "038fafb5-f36a-466d-96eb-b547f4918ae7",
+      "title": "NMC withdraws medical education regulations: What colleges need to know",
+      "publisher": "indiatoday.intoday.in",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.indiatoday.in/education-today/news/story/nmc-medical-education-rules-commission-scraps-2023-regulations-adr-filing-remains-mandatory-3020109-2026-10-18",
+      "published_at": "2026-10-18T10:00:30.000000Z",
+      "categories": [
+        "general"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 10,
+        "descriptionWords": 20,
+        "snippetWords": 24,
+        "totalWords": 54
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "The National Medical Commission, NMC, has scrapped its 2023 regulations on maintaining standards in medical education, but medical colleges will still have to f..."
+    },
+    {
+      "uuid": "c7562040-b043-4a26-863f-d701c2f9b7b9",
+      "title": "'It was jaw-dropping': The shocking lessons from an infamous experiment in obedience",
+      "publisher": "bbc.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.bbc.com/future/article/20261016-the-shocking-truths-about-an-infamous-experiment-in-obedience?ocid=global_future_rss",
+      "published_at": "2026-10-18T10:00:25.000000Z",
+      "categories": [
+        "science",
+        "tech",
+        "general"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 12,
+        "descriptionWords": 24,
+        "snippetWords": 26,
+        "totalWords": 62
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "After the experiment, a psychologist talked to the volunteers about their experience to ensure they were OK. One young woman \"began to cry very intensely\", Grzy..."
+    },
+    {
+      "uuid": "c7562040-b043-4a26-863f-d701c2f9b7b9",
+      "title": "'It was jaw-dropping': The shocking lessons from an infamous experiment in obedience",
+      "publisher": "bbc.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.bbc.com/future/article/20261016-the-shocking-truths-about-an-infamous-experiment-in-obedience?ocid=global_future_rss",
+      "published_at": "2026-10-18T10:00:25.000000Z",
+      "categories": [
+        "science",
+        "tech",
+        "general"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 12,
+        "descriptionWords": 24,
+        "snippetWords": 26,
+        "totalWords": 62
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "After the experiment, a psychologist talked to the volunteers about their experience to ensure they were OK. One young woman \"began to cry very intensely\", Grzy..."
+    },
+    {
+      "uuid": "b6727c28-665b-414b-be52-aaf0e1c55090",
+      "title": "Chain of Thought For Humans — LessWrong",
+      "publisher": "lesswrong.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.lesswrong.com/posts/FZ6FPNCfqikNgbyef/chain-of-thought-for-humans",
+      "published_at": "2026-10-18T09:36:53.000000Z",
+      "categories": [
+        "science"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 7,
+        "descriptionWords": 26,
+        "snippetWords": 6,
+        "totalWords": 39
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "This is a linkpost for https://www.boristhebrave.com/2026/10/18/chain-of-thought-for-humans/"
+    },
+    {
+      "uuid": "73a505a5-7ff3-4712-9448-857e6cdbdbd7",
+      "title": "3 Strategies for Using Points to Book Flights and Hotels",
+      "publisher": "businessinsider.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.businessinsider.com/credit-card-airline-points-maximizing-strategies-travel-book-flights-hotels-2026-10",
+      "published_at": "2026-10-18T09:08:26.000000Z",
+      "categories": [
+        "tech",
+        "business",
+        "science"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 10,
+        "descriptionWords": 25,
+        "snippetWords": 27,
+        "totalWords": 62
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "I've been collecting airline miles and credit card points for more than two decades, long before the influx of social media posts promising things like a \"free\"..."
+    },
+    {
+      "uuid": "c7562040-b043-4a26-863f-d701c2f9b7b9",
+      "title": "'It was jaw-dropping': The shocking lessons from an infamous experiment in obedience",
+      "publisher": "bbc.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.bbc.com/future/article/20261016-the-shocking-truths-about-an-infamous-experiment-in-obedience?ocid=global_future_rss",
+      "published_at": "2026-10-18T10:00:25.000000Z",
+      "categories": [
+        "science",
+        "tech",
+        "general"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 12,
+        "descriptionWords": 24,
+        "snippetWords": 26,
+        "totalWords": 62
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "After the experiment, a psychologist talked to the volunteers about their experience to ensure they were OK. One young woman \"began to cry very intensely\", Grzy..."
+    },
+    {
+      "uuid": "0ed32aa5-de69-4ad0-9190-e33103efb46c",
+      "title": "Andrew Left wants his fraud conviction tossed after witness gets caught up in insider trading probe",
+      "publisher": "businessinsider.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.businessinsider.com/andrew-left-witness-insider-trading-investigation-daniel-bachus-grand-canyon-2026-10",
+      "published_at": "2026-10-18T10:00:04.000000Z",
+      "categories": [
+        "tech",
+        "business"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 16,
+        "descriptionWords": 23,
+        "snippetWords": 26,
+        "totalWords": 65
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "A witness who testified against Andrew Left has himself become involved in an insider trading probe, bringing a new twist to the bombastic short-seller's fraud ..."
+    },
+    {
+      "uuid": "f831a702-e9ea-478d-bd4a-d5ac7c2460e8",
+      "title": "I made an impulsive decision to quit a great job in Hollywood. It felt like a mistake — but here's what I learned.",
+      "publisher": "businessinsider.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.businessinsider.com/quit-hollywood-job-career-mistake-worked-out-risks-reward-2026-10",
+      "published_at": "2026-10-18T10:00:03.000000Z",
+      "categories": [
+        "tech",
+        "business"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 23,
+        "descriptionWords": 19,
+        "snippetWords": 28,
+        "totalWords": 70
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "The following is adapted from a book excerpt.\n\nI began my career as an entertainment lawyer in a major firm. It was a lucrative, predictable professional path t..."
+    },
+    {
+      "uuid": "4bcf88b0-0549-4c58-899e-768408634697",
+      "title": "Saudi Printing sells production lines for SAR 1.1M, expects SAR 5M non-cash loss",
+      "publisher": "argaam.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.argaam.com/en/article/articledetail/id/1944848",
+      "published_at": "2026-10-18T10:08:00.000000Z",
+      "categories": [
+        "business"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 13,
+        "descriptionWords": 24,
+        "snippetWords": 28,
+        "totalWords": 65
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "The sale is part of SPPC’s strategy to evaluate exit options for non-core assets and projects\n\nSaudi Printing and Packaging Co. (SPPC) sold on Oct. 15 the pol..."
+    },
+    {
+      "uuid": "62315c3e-fd92-45a4-a3f3-0e6e2b2ea527",
+      "title": "Mint Explainer: What’s at stake for consumer companies this festive season?",
+      "publisher": "livemint.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.livemint.com/news/mint-explainer-what-s-at-stake-for-consumer-companies-this-festive-season-11792312794451.html",
+      "published_at": "2026-10-18T10:03:03.000000Z",
+      "categories": [
+        "general",
+        "business"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 11,
+        "descriptionWords": 28,
+        "snippetWords": 25,
+        "totalWords": 64
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "1. How important is the festive season for Indian consumer companies?\n\nSales during this period are vital, though the impact varies across product categories. M..."
+    },
+    {
+      "uuid": "784cc121-bb8f-40c0-859b-7fa6c6d7bf23",
+      "title": "Mouwasat faces commercial claim of SAR 335.4M",
+      "publisher": "argaam.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.argaam.com/en/article/articledetail/id/1944845",
+      "published_at": "2026-10-18T10:03:00.000000Z",
+      "categories": [
+        "business"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 7,
+        "descriptionWords": 25,
+        "snippetWords": 27,
+        "totalWords": 59
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Mouwasat Medical Services Co. said that a commercial lawsuit was filed against it on Oct. 12 by Doctors Co. for Medical Projects, a closed joint-stock company, ..."
+    },
+    {
+      "uuid": "5350a982-9a35-494a-8470-e733bc09f2f0",
+      "title": "Don’t let voter rage drive America over the cliff",
+      "publisher": "washingtontimes.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.washingtontimes.com/news/2026/oct/18/dont-let-voter-rage-drive-america-cliff/",
+      "published_at": "2026-10-18T10:00:00.000000Z",
+      "categories": [
+        "general",
+        "politics"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 9,
+        "descriptionWords": 21,
+        "snippetWords": 31,
+        "totalWords": 61
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "OPINION:\n\nSuppose you saw someone you love in a car heading for the edge of a cliff, going 90 miles an hour. The driver ignores your repeated warnings to stop. ..."
+    },
+    {
+      "uuid": "472f1561-ebf6-4154-9521-18328914c484",
+      "title": "Syria Is Rebuilding an Army Before It Rebuilds Syria",
+      "publisher": "gatestoneinstitute.org",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.gatestoneinstitute.org/22923/syria-rebuilding-army",
+      "published_at": "2026-10-18T10:00:00.000000Z",
+      "categories": [
+        "politics"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 9,
+        "descriptionWords": 25,
+        "snippetWords": 25,
+        "totalWords": 59
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Whether Ahmed al-Sharaa has changed since the world knew him as al-Jolani will occupy biographers. Israel's planners have stopped asking. They are counting his ..."
+    },
+    {
+      "uuid": "1a02629d-9b46-4140-b48b-bc11a92e0f6f",
+      "title": "Keralam High Court directs release of ₹9.73 crore for 225 victim compensation claims",
+      "publisher": "thehindu.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.thehindu.com/news/national/kerala/keralam-high-court-directs-release-of-973-crore-for-225-victim-compensation-claims/article71599510.ece",
+      "published_at": "2026-10-18T09:55:22.000000Z",
+      "categories": [
+        "general",
+        "politics"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 13,
+        "descriptionWords": 26,
+        "snippetWords": 25,
+        "totalWords": 64
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "The Kerala High Court has directed the Additional Chief Secretary (Home) to release ₹9.73 crore to settle 225 victim compensation claims within five weeks.\n\nA..."
+    },
+    {
+      "uuid": "7b6f523a-7054-40c1-8a41-111e0fb2bf66",
+      "title": "The best disallowed goal of all-time? Ex-Spurs player Lo Celso denied by VAR!",
+      "publisher": "skysports.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.skysports.com/watch/video/13600542/the-best-disallowed-goal-of-all-time-ex-spurs-player-lo-celso-denied-by-var",
+      "published_at": "2026-10-18T10:12:00.000000Z",
+      "categories": [
+        "sports"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 13,
+        "descriptionWords": 20,
+        "snippetWords": 28,
+        "totalWords": 61
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Please use Chrome browser for a more accessible video player\n\nThe moment former Spurs player, Giovani Lo Celso's screamer was denied by VAR in Real Betis' 5-2 d..."
+    },
+    {
+      "uuid": "4df20fce-0f86-4f93-b574-13c41ade412b",
+      "title": "Texans vs. Jaguars odds, predictions: Kalshi promo code CBSSPORTS55 for $55 bonus on NFL Week 6 London game",
+      "publisher": "cbssports.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "uk",
+        "london"
+      ],
+      "url": "https://www.cbssports.com/prediction/news/texans-vs-jaguars-odds-predictions-kalshi-promo-code-cbssports55-for-55-bonus-on-nfl-week-6-london-game/",
+      "published_at": "2026-10-18T09:30:48.000000Z",
+      "categories": [
+        "sports"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 18,
+        "descriptionWords": 30,
+        "snippetWords": 31,
+        "totalWords": 79
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "The Jacksonville Jaguars are at their home away from home again in NFL Week 6, and they'll take on the Houston Texans in an AFC South matchup Sunday at Wembley ..."
+    },
+    {
+      "uuid": "81f75768-fd09-426e-92f6-8ca24e367cd6",
+      "title": "European Club Cup: Comfortable wins for the favourites",
+      "publisher": "en.chessbase.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://en.chessbase.com/post/european-club-cup-2026-1",
+      "published_at": "2026-10-18T09:25:00.000000Z",
+      "categories": [
+        "sports"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 8,
+        "descriptionWords": 28,
+        "snippetWords": 27,
+        "totalWords": 63
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Budva hosts seven rounds of intense competition\n\nThe 41st European Chess Club Cup and the 30th European Women's Chess Club Cup got underway on Saturday, 17 Octo..."
+    },
+    {
+      "uuid": "e51c4cfa-6f46-44cd-b3d8-60f84f647890",
+      "title": "Gogglebox AU S24E09 1080p TEN WEB-DL H264-NGP – ReleaseBB",
+      "publisher": "rlsbb.ru",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://post.rlsbb.cc/gogglebox-au-s24e09-1080p-ten-web-dl-h264-ngp/",
+      "published_at": "2026-10-18T10:04:19.000000Z",
+      "categories": [
+        "entertainment"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 9,
+        "descriptionWords": 0,
+        "snippetWords": 28,
+        "totalWords": 37
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Season 24, Episode 09 –\n\nKick back with your favourite couch critics as they react to the week’s biggest TV moments, featuring Adam and Symon; the Daltons; ..."
+    },
+    {
+      "uuid": "5d5cd41a-b9d9-4da3-a8bd-0ed393ab31fe",
+      "title": "This Will Be 2027's Most Popular Color Trend",
+      "publisher": "whowhatwear.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.whowhatwear.com/fashion/trends/cobalt-blue-color-trend-2027",
+      "published_at": "2026-10-18T10:00:00.000000Z",
+      "categories": [
+        "entertainment"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 8,
+        "descriptionWords": 26,
+        "snippetWords": 14,
+        "totalWords": 48
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "US edition for content related to your region.\",\"homepageLink\":\"https:\\/\\/www.whowhatwear.com\"},{\"locale\":\"GB\",\"translatedText\":\"Looks like you're in the UK! Vi..."
+    },
+    {
+      "uuid": "5f97b7a6-ea40-4fa4-b239-95075c68e5f5",
+      "title": "Zoë Kravitz Wore the Chicest Ballet Flat Color of Winter 2026",
+      "publisher": "whowhatwear.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.whowhatwear.com/fashion/celebrity-style/burgundy-ballet-flats-trend-zoe-kravitz-2026",
+      "published_at": "2026-10-18T10:00:00.000000Z",
+      "categories": [
+        "entertainment"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 11,
+        "descriptionWords": 20,
+        "snippetWords": 14,
+        "totalWords": 45
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "US edition for content related to your region.\",\"homepageLink\":\"https:\\/\\/www.whowhatwear.com\"},{\"locale\":\"GB\",\"translatedText\":\"Looks like you're in the UK! Vi..."
+    },
+    {
+      "uuid": "28b87b58-735d-48ca-876f-11070e994469",
+      "title": "Keto and Depression: What the Research Shows",
+      "publisher": "ruled.me",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.ruled.me/keto-and-depression/",
+      "published_at": "2026-10-18T09:00:00.000000Z",
+      "categories": [
+        "food",
+        "health"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 7,
+        "descriptionWords": 25,
+        "snippetWords": 27,
+        "totalWords": 59
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Depression is one of the most common and most misunderstood conditions on the planet, and the relationship between diet and mood has been largely dismissed by m..."
+    },
+    {
+      "uuid": "453c63aa-b3b3-4606-8bc9-35355d463db6",
+      "title": "“In Indian families, parents won't go for medical tests because…”: Ekta Kapoor on the mindset of many Indian parents and her father Jeetendra’s money lesson",
+      "publisher": "timesofindia.indiatimes.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://timesofindia.indiatimes.com/life-style/parenting/moments/in-indian-families-parents-wont-go-for-medical-tests-because-ekta-kapoor-on-the-mindset-of-many-indian-parents-and-her-father-jeetendras-money-lesson/articleshow/135025846.cms",
+      "published_at": "2026-10-18T08:08:10.000000Z",
+      "categories": [
+        "entertainment",
+        "health"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 25,
+        "descriptionWords": 22,
+        "snippetWords": 24,
+        "totalWords": 71
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Screengrab from Ekta's podcast with Ranveer Allahbadia. (YouTube)\n\nHow Jeetendra’s childhood shaped his approach to money\n\n5 Oct 2026 | 12:06 Parents, when yo..."
+    },
+    {
+      "uuid": "d437525b-8959-40d0-b657-44f76452a21b",
+      "title": "‘My son’: Indian pilot Smit Machchhar recalls the thought that kept him fighting during the terrifying mid-air attack",
+      "publisher": "timesofindia.indiatimes.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://timesofindia.indiatimes.com/life-style/parenting/moments/my-son-indian-pilot-smit-machchhar-recalls-the-thought-that-kept-him-fighting-during-the-terrifying-mid-air-attack/articleshow/135025733.cms",
+      "published_at": "2026-10-18T07:52:08.000000Z",
+      "categories": [
+        "entertainment",
+        "health"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 18,
+        "descriptionWords": 23,
+        "snippetWords": 30,
+        "totalWords": 71
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "“My son”: The two words that came to Smit Machchhar's mind when asked whom he thought of first during the fight to survive.\n\n5 Oct 2026 | 12:06 Parents, whe..."
+    },
+    {
+      "uuid": "baf004ff-9695-4cc4-b8df-ae876727a8ad",
+      "title": "Cheap full-service flights from Vienna to Mumbai, India for €458",
+      "publisher": "fly4free.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "india"
+      ],
+      "url": "https://www.fly4free.com/flight-deals/europe/flights-from-vienna-to-mumbai-e458/",
+      "published_at": "2026-10-18T09:00:13.000000Z",
+      "categories": [
+        "travel"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 10,
+        "descriptionWords": 25,
+        "snippetWords": 25,
+        "totalWords": 60
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Discover the vibrant energy of Mumbai with this exceptional Saudia flight deal from Vienna. Travelers can fly to India’s largest city from just €458 return,..."
+    },
+    {
+      "uuid": "10426de5-3321-4bc8-8d7d-d536c511f397",
+      "title": "Katie Parla’s Guide to Venice",
+      "publisher": "roadsandkingdoms.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://roadsandkingdoms.com/2026/katie-parlas-guide-to-venice/",
+      "published_at": "2026-10-18T08:05:15.000000Z",
+      "categories": [
+        "travel",
+        "food",
+        "entertainment"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 5,
+        "descriptionWords": 18,
+        "snippetWords": 29,
+        "totalWords": 52
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Every Monday through Saturday at ten in the morning, a tiny counter spot by the Mercato di Rialto, the oldest and most famous market in Venice, opens its shutte..."
+    },
+    {
+      "uuid": "c6c050d8-575a-4c87-aa00-52ee54dbcaa7",
+      "title": "Cheap direct flights from Paris to the island of Sao Vicente, Cape Verde 🏝️ for €200",
+      "publisher": "fly4free.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.fly4free.com/flight-deals/europe/flights-from-paris-to-sao-vicente-e200/",
+      "published_at": "2026-10-18T08:00:41.000000Z",
+      "categories": [
+        "travel"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 16,
+        "descriptionWords": 16,
+        "snippetWords": 25,
+        "totalWords": 57
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Travel dates:\n\nNovember 2026 – February 2027 (every Tuesday, Thursday, and Saturday)\n\nRoutes:\n\nParis – Sao Vicente – Paris\n\nWhy visit Cape Verde?\n\nAll the..."
+    },
+    {
+      "uuid": "8ce32bb1-c0cf-4c48-a962-8c30bd06a88f",
+      "title": "Rahaa Resort Maldives",
+      "publisher": "hungryhongkong.net",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://hungryhongkong.net/2026/10/rahaa-resort-maldives.html",
+      "published_at": "2026-10-18T10:01:16.000000Z",
+      "categories": [
+        "food"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 3,
+        "descriptionWords": 24,
+        "snippetWords": 20,
+        "totalWords": 47
+      },
+      "qualityEvaluation": {
+        "eligible": false,
+        "reason": "generic_title",
+        "detail": "Title is too short or generic: \"Rahaa Resort Maldives\""
+      },
+      "readingSnippet": "Modern Rooms\n\nComfortable Beds\n\nBeach\n\nComplimentary Kayaking\n\nLagoon\n\nPrivate Lagoon Breakfast\n\nExcursions\n\nHouse Reef Snorkelling\n\nSunset Fishing\n\nEating our ..."
+    },
+    {
+      "uuid": "b0ea7391-ec3f-4dcd-a4af-583f013aae56",
+      "title": "Kaagé at Rahaa Resort Maldives",
+      "publisher": "hungryhongkong.net",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://hungryhongkong.net/2026/10/kaage-at-rahaa-resort-maldives.html",
+      "published_at": "2026-10-18T09:53:47.000000Z",
+      "categories": [
+        "food"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 5,
+        "descriptionWords": 25,
+        "snippetWords": 23,
+        "totalWords": 53
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "Buffet\n\nOmelette\n\nMaldivian Tuna Noodles\n\nSpaghetti Aglio Olio\n\nSpaghetti Bolognese\n\nFish\n\nTandoori Chicken\n\nRoasted Beef with Red Wine Sauce\n\nSet along the bea..."
+    },
+    {
+      "uuid": "ba9205c7-a12c-4259-bfc3-5402d6b17d59",
+      "title": "My Everyday Life Week 42",
+      "publisher": "shutterbean.com",
+      "publisherLocale": "unspecified",
+      "eventGeoMentions": [
+        "unspecified/global"
+      ],
+      "url": "https://www.shutterbean.com/2026/my-everyday-life-week-42-14/",
+      "published_at": "2026-10-18T09:22:51.000000Z",
+      "categories": [
+        "food",
+        "entertainment"
+      ],
+      "wordCountMetrics": {
+        "titleWords": 5,
+        "descriptionWords": 23,
+        "snippetWords": 31,
+        "totalWords": 59
+      },
+      "qualityEvaluation": {
+        "eligible": true
+      },
+      "readingSnippet": "My Everyday Life Week 42- here’s what this past week looked like:\n\nMy friend Jessica came to visit!! She spent a day with us.\n\nI took her on my favorite hike...."
+    }
+  ]
+}

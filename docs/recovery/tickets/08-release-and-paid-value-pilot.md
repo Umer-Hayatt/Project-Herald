@@ -1,3 +1,5 @@
+# Issue #19: R08: Verify the deployed release and validate its paid-value offer
+
 ## Parent
 
 [Recovery specification #11](https://github.com/Umer-Hayatt/Project-Herald/issues/11)
@@ -31,4 +33,4 @@ A new reader can use a verified deployed release, and the owner then has real se
 
 ## Blocked by
 
-- R07: Offer a calm finished reading experience and samples before login (draft identifier; replace with published issue link).
+- [R07: Offer a calm finished reading experience and samples before login](https://github.com/Umer-Hayatt/Project-Herald/issues/18)

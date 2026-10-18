@@ -1,3 +1,5 @@
+# Issue #15: R04: Reduce repeated events while retaining meaningful updates
+
 ## Parent
 
 [Recovery specification #11](https://github.com/Umer-Hayatt/Project-Herald/issues/11)
@@ -20,4 +22,4 @@ Returning readers receive fresh understanding: unchanged events included in rece
 
 ## Blocked by
 
-- R03: Read consistent Editions that improve with saved preferences and feedback (draft identifier; replace with published issue link).
+- [R03: Read consistent Editions that improve with saved preferences and feedback](https://github.com/Umer-Hayatt/Project-Herald/issues/14)

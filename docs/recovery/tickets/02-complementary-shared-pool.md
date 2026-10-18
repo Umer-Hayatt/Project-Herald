@@ -1,3 +1,5 @@
+# Issue #13: R02: Deliver diverse Stories from the justified provider combination
+
 ## Parent
 
 [Recovery specification #11](https://github.com/Umer-Hayatt/Project-Herald/issues/11)
@@ -21,4 +23,4 @@ Readers receive useful reporting from the selected complementary combination thr
 
 ## Blocked by
 
-- R01: Create protected useful reporting and choose complementary providers (draft identifier; replace with published issue link).
+- [R01: Create protected useful reporting and choose complementary providers](https://github.com/Umer-Hayatt/Project-Herald/issues/12)

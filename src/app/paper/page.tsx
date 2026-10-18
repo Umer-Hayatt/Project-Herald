@@ -10,6 +10,7 @@ import { regions } from "@/lib/preferences";
 import { EditionStoryCard } from "@/components/edition-story-card";
 import { PdfDownloadButton } from "@/components/pdf-download-button";
 import { getStoryImageUrl } from "@/lib/edition/images";
+import { filterEligibleArticles } from "@/lib/edition/content-quality";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -123,19 +124,21 @@ export default async function PaperPage({
   const distinctRemaining = stories.filter((s) => !highlightedPositions.has(s.position));
   const featuredStories = distinctRemaining.length >= 2 ? distinctRemaining.slice(0, 5) : [];
 
-  // 4. Stories feed: Remaining main stories with full reading experience
-  const feedMainStories = heroStory ? mainStories.slice(1) : mainStories;
 
   // 5. Sidebar Trending: Fetch fresh diverse stories from reporting supply to prevent duplicating edition stories
   let trendingStories: Array<{ id: string; title: string; publisher: string; published_at: string; word_count: number; position?: number; url?: string }> = [];
   try {
     const { data: trendData } = await supabase
       .from("source_articles")
-      .select("id, title, publisher, published_at, url")
+      .select("id, external_id, title, publisher, published_at, url, description, snippet")
       .order("published_at", { ascending: false })
-      .limit(8);
+      .limit(16);
     if (trendData && trendData.length > 0) {
-      trendingStories = trendData
+      const eligibleTrend = filterEligibleArticles(trendData, {
+        now: new Date(),
+        maxAgeHours: 48,
+      });
+      trendingStories = eligibleTrend
         .filter((item) => item.title !== heroStory?.title)
         .slice(0, 4)
         .map((item) => ({

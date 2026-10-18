@@ -3,6 +3,7 @@ import { Header } from "@/components/header";
 import { createClient } from "@/lib/supabase/server";
 import { getStoryImageUrl } from "@/lib/edition/images";
 import type { SourceArticle } from "@/lib/edition/types";
+import { filterEligibleArticles } from "@/lib/edition/content-quality";
 
 export const dynamic = "force-dynamic";
 
@@ -25,9 +26,12 @@ export default async function Home() {
       .from("source_articles")
       .select("*")
       .order("published_at", { ascending: false })
-      .limit(16);
+      .limit(32);
     if (data && data.length > 0) {
-      articles = data as SourceArticle[];
+      articles = filterEligibleArticles(data as SourceArticle[], {
+        now: new Date(),
+        maxAgeHours: 48,
+      }).slice(0, 16);
     }
   } catch {
     // If database is temporarily unreachable, fallback gracefully

@@ -1,3 +1,5 @@
+# Issue #14: R03: Read consistent Editions that improve with saved preferences and feedback
+
 ## Parent
 
 [Recovery specification #11](https://github.com/Umer-Hayatt/Project-Herald/issues/11)
@@ -32,4 +34,4 @@ Every Story and matching newspaper PDF expose the same complete saved content; r
 
 ## Blocked by
 
-- R02: Deliver diverse Stories from the justified provider combination (draft identifier; replace with published issue link).
+- [R02: Deliver diverse Stories from the justified provider combination](https://github.com/Umer-Hayatt/Project-Herald/issues/13)

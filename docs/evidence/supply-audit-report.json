@@ -1,0 +1,119 @@
+{
+  "auditedAt": "2026-10-18T06:37:53.884Z",
+  "totalArticles": 94,
+  "segregation": {
+    "liveProviderRecords": 86,
+    "testFixtureRecords": 8
+  },
+  "qualityEvaluation": {
+    "eligibleCount": 71,
+    "rejectedCount": 23,
+    "rejectionBreakdown": {
+      "missing_provenance": 0,
+      "feed_or_index_url": 14,
+      "generic_title": 9,
+      "malformed_date": 0,
+      "future_date": 0,
+      "stale_date": 0,
+      "insufficient_text": 0
+    }
+  },
+  "textDepthMetrics": {
+    "minWords": 1,
+    "maxWords": 78,
+    "medianWords": 46,
+    "topPublishers": [
+      [
+        "rlsbb.ru",
+        4
+      ],
+      [
+        "api.foxsports.com",
+        4
+      ],
+      [
+        "businessinsider.com",
+        4
+      ],
+      [
+        "innovateonpurpose.blogspot.com",
+        3
+      ],
+      [
+        "ncbi.nlm.nih.gov",
+        3
+      ],
+      [
+        "mlbtraderumors.com",
+        2
+      ],
+      [
+        "kitchenparade.com",
+        2
+      ],
+      [
+        "youtube.com",
+        2
+      ],
+      [
+        "jenniferlaurenvintage.com",
+        2
+      ],
+      [
+        "insider.com",
+        2
+      ]
+    ],
+    "localesObserved": {
+      "unspecified": 75,
+      "us": 3,
+      "global": 16
+    }
+  },
+  "completedEditionsIntact": {
+    "count": 0,
+    "editions": []
+  },
+  "sampleAttributableRecords": [
+    {
+      "external_id": "dfaa56f4-244f-438e-9200-403ca0a409f8",
+      "title": "The Corn Rake Witness",
+      "publisher": "cbsnews.com",
+      "url": "https://www.cbsnews.com/video/the-corn-rake-witness/",
+      "published_at": "2026-10-18T05:00:00+00:00",
+      "wordCount": 55
+    },
+    {
+      "external_id": "1da61a2d-6ad9-4fbf-ba17-2338270f1e94",
+      "title": "Poll: Does Paul Skenes Just Need To Fix His Changeup?",
+      "publisher": "mlbtraderumors.com",
+      "url": "https://www.mlbtraderumors.com/2026/10/poll-does-paul-skenes-just-need-to-fix-his-changeup.html",
+      "published_at": "2026-10-18T04:58:05+00:00",
+      "wordCount": 61
+    },
+    {
+      "external_id": "fa0c3bdb-6f1d-4c69-8aa5-52fb82d135d2",
+      "title": "Burrow 2026 1080p Fawesome WEB-DL H264-BobDobbs – ReleaseBB",
+      "publisher": "rlsbb.ru",
+      "url": "https://post.rlsbb.cc/burrow-2026-1080p-fawesome-web-dl-h264-bobdobbs/",
+      "published_at": "2026-10-18T04:55:31+00:00",
+      "wordCount": 40
+    },
+    {
+      "external_id": "7829a1dd-65b7-484c-a11c-775696691bac",
+      "title": "Aliens Return 2024 1080p Fawesome WEB-DL H264-BobDobbs – ReleaseBB",
+      "publisher": "rlsbb.ru",
+      "url": "https://post.rlsbb.cc/aliens-return-2024-1080p-fawesome-web-dl-h264-bobdobbs/",
+      "published_at": "2026-10-18T04:53:53+00:00",
+      "wordCount": 36
+    },
+    {
+      "external_id": "59f7c9d1-c87f-47f7-b76d-a42e382bf456",
+      "title": "Rays 'Big Three' Show Up: 3 Takeaways From ALCS Game 4 Win Over Guardians",
+      "publisher": "api.foxsports.com",
+      "url": "https://www.foxsports.com/stories/mlb/alcs-game-4-rays-guardians-world-series",
+      "published_at": "2026-10-18T04:50:53+00:00",
+      "wordCount": 59
+    }
+  ]
+}

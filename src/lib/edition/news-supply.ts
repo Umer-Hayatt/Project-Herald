@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { SourceArticle } from "./types";
+import { filterEligibleArticles } from "./content-quality";
 
 interface TheNewsAPIArticle {
   uuid: string;
@@ -18,6 +19,8 @@ interface TheNewsAPIArticle {
 /**
  * Retrieves the shared reporting supply.
  * Reuses server-cached articles within 60 minutes to protect provider rate limits.
+ * All articles pass the common content-quality eligibility policy before ingestion
+ * and before selection.
  */
 export async function getReportingSupply(
   supabase: SupabaseClient,
@@ -27,10 +30,18 @@ export async function getReportingSupply(
     referenceDate?: Date;
   },
 ): Promise<SourceArticle[]> {
-  // If controlled supply is supplied (for tests/fixtures), persist it so foreign keys are valid
+  const now = options?.referenceDate || new Date();
+
+  // If controlled supply is supplied (for tests/fixtures), filter and ingest via trusted RPC
   if (options?.controlledSupply !== undefined) {
     if (options.controlledSupply.length === 0) return [];
-    const records = options.controlledSupply.map((s) => ({
+    const eligibleControlled = filterEligibleArticles(options.controlledSupply, {
+      now,
+      maxAgeHours: 48,
+    });
+    if (eligibleControlled.length === 0) return [];
+
+    const records = eligibleControlled.map((s) => ({
       id: s.id,
       external_id: s.external_id,
       title: s.title,
@@ -40,25 +51,41 @@ export async function getReportingSupply(
       image_url: s.image_url || null,
       publisher: s.publisher,
       published_at: s.published_at,
-      retrieved_at: s.retrieved_at || (options?.referenceDate || new Date()).toISOString(),
+      retrieved_at: s.retrieved_at || now.toISOString(),
       language: s.language || "en",
       categories: s.categories || ["general"],
       locale: s.locale || null,
     }));
-    const { data } = await supabase
-      .from("source_articles")
-      .upsert(records, { onConflict: "external_id" })
-      .select();
-    return (data || options.controlledSupply) as SourceArticle[];
+
+    try {
+      // Authenticated test context claims refresh with 0 provider calls
+      const { data: lockToken } = await supabase.rpc("claim_reporting_refresh", {
+        p_force_refresh: true,
+        p_provider_calls: 0,
+      });
+      if (lockToken) {
+        await supabase.rpc("ingest_source_articles", {
+          p_lock_token: lockToken,
+          p_articles: records,
+        });
+        await supabase.rpc("finish_reporting_refresh", {
+          p_lock_token: lockToken,
+          p_succeeded: true,
+        });
+      }
+    } catch {
+      // In-memory fallback if database RPC unavailable in testing
+    }
+    return eligibleControlled as SourceArticle[];
   }
 
-  const now = options?.referenceDate || new Date();
   const maxAgeIso = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString();
   const token = process.env.THENEWSAPI_TOKEN;
   if (token) {
     // The database reserves five HTTP calls against its fixed daily budget of fifteen.
     const { data: lockToken } = await supabase.rpc("claim_reporting_refresh", {
       p_force_refresh: options?.forceRefresh || false,
+      p_provider_calls: 5,
     });
 
     // A null token means a fresh cache, another active refresh, or an exhausted budget.
@@ -67,37 +94,42 @@ export async function getReportingSupply(
       try {
         const { articles, validResponse } = await fetchNewsFromProvider(token);
         if (validResponse) {
-          const freshestAllowedAt = now.getTime() - 48 * 60 * 60 * 1000;
-          const eligibleArticles = articles.filter((item) => {
-            const publishedAt = Date.parse(item.published_at);
-            return publishedAt >= freshestAllowedAt && publishedAt <= now.getTime();
-          });
-          if (eligibleArticles.length) {
-            const recordsToInsert = eligibleArticles.map((item) => {
-              const normalizedCats = new Set((item.categories || ["general"]).map((c) => c.toLowerCase()));
-              if (normalizedCats.has("tech")) normalizedCats.add("technology");
-              if (normalizedCats.has("technology")) normalizedCats.add("tech");
+          const rawCandidates = articles.map((item) => {
+            const normalizedCats = new Set((item.categories || ["general"]).map((c) => c.toLowerCase()));
+            if (normalizedCats.has("tech")) normalizedCats.add("technology");
+            if (normalizedCats.has("technology")) normalizedCats.add("tech");
 
-              return {
-                external_id: item.uuid,
-                title: item.title,
-                description: item.description || null,
-                snippet: item.snippet || null,
-                url: item.url,
-                image_url: item.image_url || null,
-                publisher: item.source,
-                published_at: item.published_at,
-                retrieved_at: now.toISOString(),
-                language: item.language || "en",
-                categories: Array.from(normalizedCats),
-                locale: item.locale || null,
-              };
+            return {
+              external_id: item.uuid,
+              title: item.title,
+              description: item.description || null,
+              snippet: item.snippet || null,
+              url: item.url,
+              image_url: item.image_url || null,
+              publisher: item.source,
+              published_at: item.published_at,
+              retrieved_at: now.toISOString(),
+              language: item.language || "en",
+              categories: Array.from(normalizedCats),
+              locale: item.locale || null,
+            };
+          });
+
+          // Apply unified content quality eligibility policy
+          const eligibleArticles = filterEligibleArticles(rawCandidates, {
+            now,
+            maxAgeHours: 48,
+          });
+
+          if (eligibleArticles.length) {
+            // Write strictly via trusted ingestion RPC
+            const { error: ingestError } = await supabase.rpc("ingest_source_articles", {
+              p_lock_token: lockToken,
+              p_articles: eligibleArticles,
             });
-            const { error } = await supabase.from("source_articles")
-              .upsert(recordsToInsert, { onConflict: "external_id" });
-            if (error) throw error;
+            if (ingestError) throw ingestError;
           }
-          // Empty or stale-only responses must not suppress a reader's Retry for an hour.
+          // Empty or rejected-only responses must not suppress a reader's Retry for an hour.
           succeeded = eligibleArticles.length > 0;
         }
       } catch {
@@ -111,14 +143,15 @@ export async function getReportingSupply(
     }
   }
 
-  // Read a bounded fresh cache even when live retrieval is unavailable or capped.
+  // Read a bounded fresh cache and filter through the content quality policy.
   const { data: cachedArticles } = await supabase
     .from("source_articles")
     .select("*")
     .gte("published_at", maxAgeIso)
     .order("published_at", { ascending: false });
 
-  return (cachedArticles || []) as SourceArticle[];
+  const rawCached = (cachedArticles || []) as SourceArticle[];
+  return filterEligibleArticles(rawCached, { now, maxAgeHours: 48 });
 }
 
 function isTheNewsApiArticle(value: unknown): value is TheNewsAPIArticle {
