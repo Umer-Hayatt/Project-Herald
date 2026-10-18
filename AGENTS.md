@@ -1,6 +1,6 @@
 # Herald
 
-Read PRODUCT.md before product work. Use the terms in GLOSSARY.md and preserve confirmed decisions. Final human-made comic artwork, supplied animation references and frontend finishing belong to the last build slice; build usable functional screens with replaceable artwork/motion areas beforehand.
+Read PRODUCT.md before product work and use the terms in GLOSSARY.md. For recovery planning, implementation, review or resumption, read docs/recovery/README.md first; recovery specification #11 and its approved child tickets govern that work.
 
 ## Agent skills
 

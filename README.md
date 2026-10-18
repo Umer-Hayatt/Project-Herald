@@ -2,7 +2,11 @@
 
 A personal daily paper that combines relevant reporting with important Stories beyond a reader's usual interests.
 
-## Current build
+## Active recovery
+
+The current recovery authority is [specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Start with [the recovery handoff](docs/recovery/README.md), [short plan](docs/recovery/plan.md) and [ticket approval/index](docs/recovery/TICKET-REVIEW.md). The recovery breakdown is drafted and awaiting owner approval; implementation has not started. The sections below retain the original build/setup record and require current verification.
+
+## Original build record
 
 Slices 01–06 cover account/onboarding, preserved Editions, grounded Stories and discovery, feedback/settings, archive, and matching PDF exports. Slice 07 hardens provider failures and free-tier limits. Final human-made artwork and animation remain the last build slice.
 
