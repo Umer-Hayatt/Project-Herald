@@ -5,7 +5,8 @@ export type ArticleRejectionReason =
   | "malformed_date"
   | "future_date"
   | "stale_date"
-  | "insufficient_text";
+  | "insufficient_text"
+  | "disallowed_output_use";
 
 export interface ArticleQualityEvaluation {
   eligible: boolean;
@@ -80,12 +81,29 @@ export function evaluateArticleQuality(
     published_at?: string;
     description?: string | null;
     snippet?: string | null;
+    output_use?: string;
+    raw_data?: Record<string, unknown> | null;
   },
   options?: {
     now?: Date;
     maxAgeHours?: number;
+    allowEvaluationOnly?: boolean;
   },
 ): ArticleQualityEvaluation {
+  // 0. Output-use eligibility checks
+  const outputUse =
+    article.output_use ||
+    (article.raw_data as { output_use?: string } | undefined)?.output_use;
+
+  if (outputUse === "evaluation_only" && !options?.allowEvaluationOnly) {
+    return {
+      eligible: false,
+      reason: "disallowed_output_use",
+      detail:
+        "Evaluation-only material cannot enter production editions, briefings, or public previews",
+    };
+  }
+
   // 1. Provenance checks
   if (
     !article ||
@@ -219,11 +237,14 @@ export function filterEligibleArticles<T extends {
   published_at?: string;
   description?: string | null;
   snippet?: string | null;
+  output_use?: string;
+  raw_data?: Record<string, unknown> | null;
 }>(
   articles: T[],
   options?: {
     now?: Date;
     maxAgeHours?: number;
+    allowEvaluationOnly?: boolean;
     onRejected?: (article: T, evalResult: ArticleQualityEvaluation) => void;
   },
 ): T[] {

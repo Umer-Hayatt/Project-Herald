@@ -4,7 +4,7 @@
 
 Planning checkpoint: 18 October 2026, Asia/Karachi. Active authority: [recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Main baseline: `3e8e437735d3258e5e342c7d1f738a30e8d99f9c`. Working branch: `codex/herald-recovery`.
 The eight revised recovery tickets have been published as issues [#12](https://github.com/Umer-Hayatt/Project-Herald/issues/12) through [#19](https://github.com/Umer-Hayatt/Project-Herald/issues/19) with `ready-for-agent` labels, native parent sub-issue links to #11, and native linear `blockedBy` edges. See [the ticket index](TICKET-REVIEW.md).
-Active frontier: issue #13 (R02: Deliver diverse Stories from the justified provider combination). R01 (#12) completed and verified on 18 October 2026.
+Active frontier: issue #14 (R03: Read consistent Editions that improve with saved preferences and feedback). R01 (#12) and R02 (#13) completed and verified on 18 October 2026.
 
 This recovery replaces the expired 17 October 21:00 hackathon schedule for new recovery work. The original issues #1–#10 are historical scope/evidence, even though still open; their state does not establish what is implemented. Use current code and dated checks, not old completion claims. Parent #11 stays open and unchanged.
 
@@ -12,7 +12,7 @@ This recovery replaces the expired 17 October 21:00 hackathon schedule for new r
 
 1. Read this handoff, the [short plan](plan.md), [ticket index](TICKET-REVIEW.md), and the authoritative issue plus its comments. The [spec snapshot](spec.md) is a convenience copy; GitHub is authoritative for subsequent changes.
 2. Check the working tree and current commit. Preserve existing work. Read the current Product, Glossary, relevant ADRs, and issue-tracker instructions before implementation or status changes.
-3. The eight tickets (#12–#19) are published with native sub-issue and blocking relationships. Work only the frontier: open tickets whose blockers are complete. The current frontier is R01 (#12).
+3. The eight tickets (#12–#19) are published with native sub-issue and blocking relationships. Work only the frontier: open tickets whose blockers are complete. The current frontier is R03 (#14).
 4. Before closing a child, record the exact commit, environment, date, criteria outcomes and remaining limitations. Pass/fail/blocked/not-run are distinct. Update the ticket and this small checkpoint; keep this handoff current for the next agent.
 
 ## Product decisions to preserve
@@ -52,6 +52,29 @@ R02 needs three successive daily live coverage samples; R08 needs a seven-day pi
 The owner combined former R01+R02, R04+R05 and R10+R11. Use the revised eight-ticket index and current bodies; former draft IDs are historical. All 64 criteria remain. The dependency frontier is a linear R01–R08 chain. R08 records deployed readiness before starting its seven-day pilot and remains open until both stages pass. Revised publication approval is pending; the side-branch request alone does not approve ticket publication.
 
 ## Recovery checkpoints
+
+### 2026-10-18: R02 Completed & Verified
+
+- **Active child issue and parent revision**: Issue [#13](https://github.com/Umer-Hayatt/Project-Herald/issues/13) (R02), Parent [Recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11).
+- **Working commit/branch and environment**: Branch `codex/herald-recovery`, Node.js v20.18.0, Playwright 1.57.0, Supabase Postgres `hnzwraiojsftuncridsp.supabase.co`.
+- **Acceptance: pass / fail / blocked / not run, with dated evidence links**:
+  - `tests/recovery-r02.spec.ts`: PASS (12/12 passed on Desktop Chrome & Mobile Chromium).
+  - `tests/recovery-r01.spec.ts`: PASS (12/12 regression passed).
+  - Retained provider decision: PASS ([docs/evidence/retained-provider-combination.md](file:///E:/Project%20Herald/docs/evidence/retained-provider-combination.md)) — TheNewsAPI baseline retained; GNews & NewsData.io evaluation complements documented; Currents & Mediastack permanently rejected.
+  - Daily coverage audit (Day 1): PASS ([docs/evidence/daily-coverage/2026-10-18.json](file:///E:/Project%20Herald/docs/evidence/daily-coverage/2026-10-18.json)) — 6/10 advertised interests meet gate; 4 wire shortages explicitly documented; global baseline covers all regions.
+  - TypeScript typecheck & ESLint: PASS (0 errors).
+- **Live versus controlled checks and test isolation**:
+  - Live checks: Live TheNewsAPI coverage audit across all 10 advertised interests and 7 regions; live Gemini runtime health check (`gemini-3.8-flash`).
+  - Controlled checks: Controlled multi-provider stream tests in `tests/recovery-r02.spec.ts` exercising cross-provider deduplication, same-event grouping, geographic entity extraction, evaluation-only segregation, and graceful one-provider failure.
+  - Test isolation: Reader A dedicated test reader; private editions verified inaccessible cross-account via Supabase RLS.
+- **Coverage/model/permission/cost prerequisites remaining**:
+  - TheNewsAPI retained as free production baseline (15 requests/day).
+  - GNews & NewsData.io configured as evaluation-only complements; commercial production keys deferred to owner authorization.
+  - Successive daily coverage samples: Sample 1 (18 Oct 2026) recorded; Samples 2 & 3 pending calendar progression.
+- **Data/schema compatibility and rollback implications**:
+  - Compatibility: Zero schema breaking changes; `raw_data` JSONB column stores normalized provider provenance, canonical URL, and event geography.
+  - Rollback: Revert `src/lib/edition/providers/` and restore single-provider `news-supply.ts`.
+- **Next eligible issue or exact next action**: Issue [#14](https://github.com/Umer-Hayatt/Project-Herald/issues/14) (R03: Read consistent Editions that improve with saved preferences and feedback).
 
 ### 2026-10-18: R01 Completed & Verified
 

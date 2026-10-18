@@ -1,26 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { SourceArticle } from "./types";
 import { filterEligibleArticles } from "./content-quality";
-
-interface TheNewsAPIArticle {
-  uuid: string;
-  title: string;
-  description?: string;
-  snippet?: string;
-  url: string;
-  image_url?: string;
-  language: string;
-  published_at: string;
-  source: string;
-  categories?: string[];
-  locale?: string;
-}
+import { NewsProviderCoordinator } from "./providers/coordinator";
 
 /**
  * Retrieves the shared reporting supply.
+ * Coordinates multi-provider ingestion (TheNewsAPI baseline, optional GNews / NewsData evaluation complements).
  * Reuses server-cached articles within 60 minutes to protect provider rate limits.
  * All articles pass the common content-quality eligibility policy before ingestion
- * and before selection.
+ * and before selection. Evaluation-only material is segregated from production output.
  */
 export async function getReportingSupply(
   supabase: SupabaseClient,
@@ -28,9 +16,12 @@ export async function getReportingSupply(
     forceRefresh?: boolean;
     controlledSupply?: SourceArticle[];
     referenceDate?: Date;
+    coordinator?: NewsProviderCoordinator;
+    allowEvaluationOnly?: boolean;
   },
 ): Promise<SourceArticle[]> {
   const now = options?.referenceDate || new Date();
+  const allowEvaluationOnly = options?.allowEvaluationOnly ?? false;
 
   // If controlled supply is supplied (for tests/fixtures), filter and ingest via trusted RPC
   if (options?.controlledSupply !== undefined) {
@@ -38,6 +29,7 @@ export async function getReportingSupply(
     const eligibleControlled = filterEligibleArticles(options.controlledSupply, {
       now,
       maxAgeHours: 48,
+      allowEvaluationOnly,
     });
     if (eligibleControlled.length === 0) return [];
 
@@ -55,6 +47,10 @@ export async function getReportingSupply(
       language: s.language || "en",
       categories: s.categories || ["general"],
       locale: s.locale || null,
+      raw_data: s.raw_data || {
+        provider: (s as { provider?: string }).provider || "controlled",
+        output_use: (s as { output_use?: string }).output_use || "commercial",
+      },
     }));
 
     try {
@@ -80,9 +76,11 @@ export async function getReportingSupply(
   }
 
   const maxAgeIso = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString();
-  const token = process.env.THENEWSAPI_TOKEN;
-  if (token) {
-    // The database reserves five HTTP calls against its fixed daily budget of fifteen.
+  const coordinator = options?.coordinator || new NewsProviderCoordinator();
+  const configuredAdapters = coordinator.getConfiguredAdapters();
+
+  if (configuredAdapters.length > 0) {
+    // The database reserves provider calls against its fixed daily budget.
     const { data: lockToken } = await supabase.rpc("claim_reporting_refresh", {
       p_force_refresh: options?.forceRefresh || false,
       p_provider_calls: 5,
@@ -92,40 +90,40 @@ export async function getReportingSupply(
     if (lockToken) {
       let succeeded = false;
       try {
-        const { articles, validResponse } = await fetchNewsFromProvider(token);
-        if (validResponse) {
-          const rawCandidates = articles.map((item) => {
-            const normalizedCats = new Set((item.categories || ["general"]).map((c) => c.toLowerCase()));
-            if (normalizedCats.has("tech")) normalizedCats.add("technology");
-            if (normalizedCats.has("technology")) normalizedCats.add("tech");
+        const fetchRes = await coordinator.fetchAll({
+          now,
+          allowEvaluationOnly: false,
+        });
 
-            return {
-              external_id: item.uuid,
-              title: item.title,
-              description: item.description || null,
-              snippet: item.snippet || null,
-              url: item.url,
-              image_url: item.image_url || null,
-              publisher: item.source,
-              published_at: item.published_at,
-              retrieved_at: now.toISOString(),
-              language: item.language || "en",
-              categories: Array.from(normalizedCats),
-              locale: item.locale || null,
-            };
-          });
-
+        if (fetchRes.success && fetchRes.articles.length > 0) {
           // Apply unified content quality eligibility policy
-          const eligibleArticles = filterEligibleArticles(rawCandidates, {
+          const eligibleArticles = filterEligibleArticles(fetchRes.articles, {
             now,
             maxAgeHours: 48,
+            allowEvaluationOnly: false,
           });
 
-          if (eligibleArticles.length) {
+          if (eligibleArticles.length > 0) {
+            const records = eligibleArticles.map((item) => ({
+              external_id: item.external_id,
+              title: item.title,
+              description: item.description,
+              snippet: item.snippet,
+              url: item.url,
+              image_url: item.image_url,
+              publisher: item.publisher,
+              published_at: item.published_at,
+              retrieved_at: item.retrieved_at || now.toISOString(),
+              language: item.language || "en",
+              categories: item.categories,
+              locale: item.locale,
+              raw_data: item.raw_data || null,
+            }));
+
             // Write strictly via trusted ingestion RPC
             const { error: ingestError } = await supabase.rpc("ingest_source_articles", {
               p_lock_token: lockToken,
-              p_articles: eligibleArticles,
+              p_articles: records,
             });
             if (ingestError) throw ingestError;
           }
@@ -151,68 +149,9 @@ export async function getReportingSupply(
     .order("published_at", { ascending: false });
 
   const rawCached = (cachedArticles || []) as SourceArticle[];
-  return filterEligibleArticles(rawCached, { now, maxAgeHours: 48 });
-}
-
-function isTheNewsApiArticle(value: unknown): value is TheNewsAPIArticle {
-  if (typeof value !== "object" || value === null) return false;
-  const article = value as Record<string, unknown>;
-  return typeof article.uuid === "string" && article.uuid.length > 0 &&
-    typeof article.title === "string" && article.title.length > 0 &&
-    typeof article.url === "string" && /^https?:\/\//i.test(article.url) &&
-    typeof article.published_at === "string" && Number.isFinite(Date.parse(article.published_at)) &&
-    typeof article.source === "string" && article.source.length > 0 &&
-    typeof article.language === "string" &&
-    [article.description, article.snippet, article.image_url, article.locale]
-      .every((field) => field === undefined || typeof field === "string") &&
-    (article.categories === undefined || (Array.isArray(article.categories) &&
-      article.categories.every((category) => typeof category === "string")));
-}
-
-async function fetchNewsFromProvider(
-  token: string,
-): Promise<{ articles: TheNewsAPIArticle[]; validResponse: boolean }> {
-  const groups = [
-    "tech,science",
-    "sports,travel",
-    "business,politics",
-    "health,food",
-    "general,entertainment",
-  ];
-  const results = await Promise.allSettled(
-    groups.map(async (categories) => {
-      const url = new URL("https://api.thenewsapi.com/v1/news/all");
-      url.search = new URLSearchParams({
-        api_token: token,
-        language: "en",
-        categories,
-        limit: "3",
-      }).toString();
-
-      const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
-      if (!response.ok) return { articles: [], validResponse: false };
-      const body: unknown = await response.json();
-      if (typeof body !== "object" || body === null || !Array.isArray((body as { data?: unknown }).data)) {
-        return { articles: [], validResponse: false };
-      }
-      const entries = (body as { data: unknown[] }).data;
-      const articles = entries.filter(isTheNewsApiArticle);
-      return { articles, validResponse: articles.length === entries.length };
-    }),
-  );
-
-  const seenUuids = new Set<string>();
-  const articles: TheNewsAPIArticle[] = [];
-  let validResponse = false;
-  for (const result of results) {
-    if (result.status !== "fulfilled") continue;
-    validResponse ||= result.value.validResponse;
-    for (const item of result.value.articles) {
-      if (!seenUuids.has(item.uuid)) {
-        seenUuids.add(item.uuid);
-        articles.push(item);
-      }
-    }
-  }
-  return { articles, validResponse };
+  return filterEligibleArticles(rawCached, {
+    now,
+    maxAgeHours: 48,
+    allowEvaluationOnly,
+  });
 }

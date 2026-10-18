@@ -1,0 +1,176 @@
+{
+  "sampleDate": "2026-10-18",
+  "sampledAt": "2026-10-18T11:59:34.522Z",
+  "provider": "TheNewsAPI",
+  "specificationReference": "Issue #11 revision 2 / Issue #13 (R02)",
+  "gateRule": "At least 3 eligible distinct relevant Stories from at least 2 publishers per advertised interest",
+  "interestSummary": {
+    "totalAdvertised": 10,
+    "meetingGate": 6,
+    "shortageCount": 4
+  },
+  "interests": {
+    "general": {
+      "rawCount": 3,
+      "eligibleCount": 2,
+      "groupedStoryCount": 2,
+      "publisherCount": 1,
+      "publishers": [
+        "indiatoday.intoday.in"
+      ],
+      "passesGate": false,
+      "status": "shortage",
+      "shortageDetail": "Needed >=3 grouped stories & >=2 publishers; got 2 stories from 1 publishers"
+    },
+    "science": {
+      "rawCount": 3,
+      "eligibleCount": 2,
+      "groupedStoryCount": 2,
+      "publisherCount": 2,
+      "publishers": [
+        "quantiki.org",
+        "interestingengineering.com"
+      ],
+      "passesGate": false,
+      "status": "shortage",
+      "shortageDetail": "Needed >=3 grouped stories & >=2 publishers; got 2 stories from 2 publishers"
+    },
+    "technology": {
+      "rawCount": 3,
+      "eligibleCount": 3,
+      "groupedStoryCount": 3,
+      "publisherCount": 2,
+      "publishers": [
+        "ubuntubuzz.com",
+        "uctoday.com"
+      ],
+      "passesGate": true,
+      "status": "sufficient"
+    },
+    "business": {
+      "rawCount": 3,
+      "eligibleCount": 3,
+      "groupedStoryCount": 3,
+      "publisherCount": 3,
+      "publishers": [
+        "argaam.com",
+        "seekingalpha.com",
+        "thehindubusinessline.com"
+      ],
+      "passesGate": true,
+      "status": "sufficient"
+    },
+    "health": {
+      "rawCount": 3,
+      "eligibleCount": 3,
+      "groupedStoryCount": 3,
+      "publisherCount": 2,
+      "publishers": [
+        "timesofindia.indiatimes.com",
+        "powerofpositivity.com"
+      ],
+      "passesGate": true,
+      "status": "sufficient"
+    },
+    "sports": {
+      "rawCount": 3,
+      "eligibleCount": 3,
+      "groupedStoryCount": 3,
+      "publisherCount": 3,
+      "publishers": [
+        "motorsport.com",
+        "timesofindia.indiatimes.com",
+        "espncricinfo.com"
+      ],
+      "passesGate": true,
+      "status": "sufficient"
+    },
+    "entertainment": {
+      "rawCount": 3,
+      "eligibleCount": 2,
+      "groupedStoryCount": 2,
+      "publisherCount": 2,
+      "publishers": [
+        "visboo.com",
+        "notalwaysright.com"
+      ],
+      "passesGate": false,
+      "status": "shortage",
+      "shortageDetail": "Needed >=3 grouped stories & >=2 publishers; got 2 stories from 2 publishers"
+    },
+    "politics": {
+      "rawCount": 3,
+      "eligibleCount": 3,
+      "groupedStoryCount": 3,
+      "publisherCount": 3,
+      "publishers": [
+        "whowhatwhy.org",
+        "thehindu.com",
+        "gellerreport.com"
+      ],
+      "passesGate": true,
+      "status": "sufficient"
+    },
+    "travel": {
+      "rawCount": 3,
+      "eligibleCount": 2,
+      "groupedStoryCount": 2,
+      "publisherCount": 1,
+      "publishers": [
+        "fly4free.com"
+      ],
+      "passesGate": false,
+      "status": "shortage",
+      "shortageDetail": "Needed >=3 grouped stories & >=2 publishers; got 2 stories from 1 publishers"
+    },
+    "food": {
+      "rawCount": 3,
+      "eligibleCount": 3,
+      "groupedStoryCount": 3,
+      "publisherCount": 3,
+      "publishers": [
+        "onceuponachef.com",
+        "retailtimes.co.uk",
+        "inspiredbycharm.com"
+      ],
+      "passesGate": true,
+      "status": "sufficient"
+    }
+  },
+  "regionalCoverage": {
+    "global": {
+      "count": 26,
+      "description": "All eligible stories remain eligible for global baseline reading"
+    },
+    "pk": {
+      "eventConfirmedCount": 1,
+      "publisherLocaleCount": 0,
+      "status": "available"
+    },
+    "us": {
+      "eventConfirmedCount": 2,
+      "publisherLocaleCount": 0,
+      "status": "available"
+    },
+    "gb": {
+      "eventConfirmedCount": 0,
+      "publisherLocaleCount": 0,
+      "status": "global_fallback_only"
+    },
+    "in": {
+      "eventConfirmedCount": 2,
+      "publisherLocaleCount": 0,
+      "status": "available"
+    },
+    "ca": {
+      "eventConfirmedCount": 0,
+      "publisherLocaleCount": 0,
+      "status": "global_fallback_only"
+    },
+    "au": {
+      "eventConfirmedCount": 1,
+      "publisherLocaleCount": 0,
+      "status": "available"
+    }
+  }
+}

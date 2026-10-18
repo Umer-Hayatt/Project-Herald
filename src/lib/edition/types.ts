@@ -45,7 +45,13 @@ export interface EditionStory {
   word_count: number;
   section: "main" | "beyond_bubble";
   source_article_id?: string | null;
-  supporting_sources?: { id?: string; title: string; url: string; publisher: string }[];
+  supporting_sources?: {
+    id?: string;
+    title: string;
+    url: string;
+    publisher: string;
+    provider?: string;
+  }[];
 }
 
 export interface Edition {

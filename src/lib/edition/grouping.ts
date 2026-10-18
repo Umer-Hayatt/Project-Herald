@@ -119,14 +119,42 @@ function normalizeCategory(category: string): string {
   return normalized === "tech" ? "technology" : normalized;
 }
 
+function isEvaluationOnly(article: SourceArticle): boolean {
+  return (
+    (article as { output_use?: string }).output_use === "evaluation_only" ||
+    (article.raw_data as { output_use?: string } | undefined)?.output_use === "evaluation_only"
+  );
+}
+
+function providerAwareRepresentativeOrder(left: SourceArticle, right: SourceArticle): number {
+  // Commercial material always takes precedence over evaluation-only for representation
+  const leftEval = isEvaluationOnly(left);
+  const rightEval = isEvaluationOnly(right);
+  if (leftEval !== rightEval) {
+    return leftEval ? 1 : -1;
+  }
+  return representativeOrder(left, right);
+}
+
 /**
  * Groups identical canonical URLs or reports within 36 hours whose headlines
  * overlap strongly and share named-entity or body-text evidence. Uncertain
  * cross-publisher matches stay apart.
+ * Segregates evaluation-only material from production groups and supporting sources.
  */
-export function groupSourceArticles(articles: SourceArticle[]): GroupedSourceArticle[] {
+export function groupSourceArticles(
+  articles: SourceArticle[],
+  options?: { allowEvaluationOnly?: boolean },
+): GroupedSourceArticle[] {
+  const allowEvaluationOnly = options?.allowEvaluationOnly ?? false;
+
+  // Filter out evaluation-only material upfront if not explicitly allowed
+  const eligibleArticles = allowEvaluationOnly
+    ? articles
+    : articles.filter((article) => !isEvaluationOnly(article));
+
   const groups: SourceArticle[][] = [];
-  const ordered = articles
+  const ordered = eligibleArticles
     .filter((article) => canonicalizeSourceUrl(article.url) !== null)
     .map((article) => ({ ...article, url: canonicalizeSourceUrl(article.url)! }))
     .sort((a, b) => {
@@ -150,22 +178,34 @@ export function groupSourceArticles(articles: SourceArticle[]): GroupedSourceArt
   }
 
   return groups.map((sources) => {
-    const representative = [...sources].sort(representativeOrder)[0];
-    const categories = [...new Set(sources.flatMap((source) =>
+    // Sort sources to find best representative
+    const sortedSources = [...sources].sort(providerAwareRepresentativeOrder);
+    const representative = sortedSources[0];
+
+    // Filter supporting articles to ensure evaluation-only never enters production groups
+    const supporting = (
+      allowEvaluationOnly
+        ? sortedSources
+        : sortedSources.filter((s) => !isEvaluationOnly(s))
+    ).sort(articleOrder);
+
+    const categories = [...new Set(supporting.flatMap((source) =>
       (source.categories || []).map(normalizeCategory),
     ))];
-    const publishedAt = sources
+    const publishedAt = supporting
       .map((source) => source.published_at)
       .filter((value) => Number.isFinite(Date.parse(value)))
       .sort((a, b) => Date.parse(b) - Date.parse(a))[0] || representative.published_at;
     const imageUrl = representative.image_url ||
-      sources.find((source) => Boolean(source.image_url))?.image_url || null;
+      supporting.find((source) => Boolean(source.image_url))?.image_url || null;
+
     return {
       ...representative,
       image_url: imageUrl,
-      categories,
+      categories: categories.length ? categories : representative.categories,
       published_at: publishedAt,
-      supportingArticles: [...sources].sort(articleOrder),
+      supportingArticles: supporting,
     };
   });
 }
+

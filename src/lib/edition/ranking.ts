@@ -131,6 +131,8 @@ export function selectAndRankStories(
   return selected;
 }
 
+import { resolveArticleGeography } from "./geography";
+
 function rankGroupedStories(
   articles: GroupedSourceArticle[],
   preferences: SelectionPreferences,
@@ -139,6 +141,8 @@ function rankGroupedStories(
 ): GroupedSourceArticle[] {
   const normalizedInterests = new Set(preferences.interests.map((interest) => interest.toLowerCase()));
   const nowMs = referenceDate.getTime();
+  const targetRegion = preferences.preferred_region?.toLowerCase();
+
   return articles
     .filter((article) => {
       const publishedMs = Date.parse(article.published_at);
@@ -151,9 +155,19 @@ function rankGroupedStories(
           (sum, category) => sum + (normalizedInterests.has(category.toLowerCase()) ? 10 : 0),
           0,
         );
-        const regionalScore = preferences.preferred_region &&
-          preferences.preferred_region.toLowerCase() !== "global" &&
-          article.locale?.toLowerCase() === preferences.preferred_region.toLowerCase() ? 5 : 0;
+
+        let regionalScore = 0;
+        if (targetRegion && targetRegion !== "global") {
+          const geo = resolveArticleGeography(article);
+          if (geo.eventGeography.includes(targetRegion)) {
+            // Confirmed event location match receives strongest priority
+            regionalScore = 10;
+          } else if (geo.publisherCountry === targetRegion) {
+            // Publisher origin match without event evidence receives small publisher cue
+            regionalScore = 3;
+          }
+        }
+
         const ageHours = Math.max(0, (nowMs - Date.parse(article.published_at)) / 3600000);
         const freshnessScore = Math.max(0, 1 - ageHours / 48) * 5;
         const feedbackScore = article.categories.reduce(
@@ -300,6 +314,9 @@ export function buildEditionStories(
       ? article.supportingArticles
       : [article];
 
+    const isValidUuid = (val?: string | null) =>
+      Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
+
     return {
       position: startingPosition + index,
       title: article.title,
@@ -316,12 +333,16 @@ export function buildEditionStories(
       locale: article.locale,
       word_count: wordCount,
       section,
-      source_article_id: article.id || null,
+      source_article_id: isValidUuid(article.id) ? article.id : null,
       supporting_sources: supportingArticles.map((source) => ({
         id: source.id || source.external_id,
         title: source.title,
         url: source.url,
         publisher: source.publisher,
+        provider:
+          (source.raw_data as { provider?: string } | undefined)?.provider ||
+          (source as { provider?: string }).provider ||
+          "thenewsapi",
       })),
     };
   });

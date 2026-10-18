@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-18T06:20:23.460Z",
+  "checkedAt": "2026-10-18T10:55:05.865Z",
   "news": {
     "status": "passed",
     "httpStatus": 200,
@@ -21,8 +21,10 @@
       null
     ],
     "categoriesObserved": [
+      "business",
       "general",
-      "politics"
+      "entertainment",
+      "tech"
     ],
     "articleCount": 3,
     "quotaHeaders": {
@@ -38,14 +40,14 @@
     "usage": {
       "promptTokenCount": 7,
       "candidatesTokenCount": 1,
-      "totalTokenCount": 66,
+      "totalTokenCount": 65,
       "promptTokensDetails": [
         {
           "modality": "TEXT",
           "tokenCount": 7
         }
       ],
-      "thoughtsTokenCount": 58,
+      "thoughtsTokenCount": 57,
       "serviceTier": "standard"
     }
   }
