@@ -20,7 +20,7 @@ export function StoryFeedbackControls({ storyId }: { storyId: string }) {
     return () => { current = false; };
   }, [storyId]);
 
-  if (!storyId) return null;
+  if (!storyId || storyId.startsWith("sample-")) return null;
 
   async function save(feedback: "more" | "less") {
     setPending(feedback);
