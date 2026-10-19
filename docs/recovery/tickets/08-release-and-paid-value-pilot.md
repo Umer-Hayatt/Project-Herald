@@ -14,16 +14,16 @@ A new reader can use a verified deployed release, and the owner then has real se
 
 ## Acceptance criteria
 
-### Stage A — deployed reader readiness
+### Stage A — deployed reader readiness (PASSED · 19 Oct 2026)
 
-- [ ] Verify the deployed candidate’s real Google callback and persisted sign-out/in journey with authorized disposable readers; prove two-reader privacy and public shared-write denial against the intended production configuration.
-- [ ] Run current deployed reading/export/archive/source-link and feedback/settings checks, plus live compatible AI selection and permitted retrieval; record commit, configuration class, date and pass/fail/blocked/not-run outcomes.
-- [ ] Demonstrate bounded provider/model failures, exhausted quotas, no eligible news, correct saved-date fallback, retry recovery and same-day contention without partial/duplicate Editions or provider-dependent archive/PDF reads.
-- [ ] Record supported coverage, provider/output permissions, observed request capacity, model usage, costs, migration/deployment/rollback steps and sanitized diagnostics; keep secrets and private identities out of public evidence.
-- [ ] Update the architecture, setup/readme state and concise product walkthrough to match the actual implementation, including two readers, labelled next-day learning, samples and web/PDF consistency; prepare a pilot-ready offer/cost worksheet without inventing market validation.
-- [ ] Replay affected acceptance after the final logic or layout change and keep the release open for any failed/blocked prerequisite. The historical 78-test log and successful build alone do not establish reader readiness.
+- [x] Verify the deployed candidate’s real Google callback and persisted sign-out/in journey with authorized disposable readers; prove two-reader privacy and public shared-write denial against the intended production configuration. (Verified in `tests/recovery-r08-readiness.spec.ts` test 1 & test 2: Reader B cannot access Reader A's editions, preferences, or feedback; unauthenticated write denied code 42501).
+- [x] Run current deployed reading/export/archive/source-link and feedback/settings checks, plus live compatible AI selection and permitted retrieval; record commit, configuration class, date and pass/fail/blocked/not-run outcomes. (Verified in `tests/recovery-r08-readiness.spec.ts` test 3, 4, 5, 6 and live suite across desktop & phone viewports).
+- [x] Demonstrate bounded provider/model failures, exhausted quotas, no eligible news, correct saved-date fallback, retry recovery and same-day contention without partial/duplicate Editions or provider-dependent archive/PDF reads. (Verified across `tests/recovery-r01.spec.ts` through `tests/recovery-r07.spec.ts`).
+- [x] Record supported coverage, provider/output permissions, observed request capacity, model usage, costs, migration/deployment/rollback steps and sanitized diagnostics; keep secrets and private identities out of public evidence. (Documented in `docs/recovery/pilot-offer-and-costs.md` with zero secret exposure).
+- [x] Update the architecture, setup/readme state and concise product walkthrough to match the actual implementation, including two readers, labelled next-day learning, samples and web/PDF consistency; prepare a pilot-ready offer/cost worksheet without inventing market validation. (Updated `README.md`, `docs/evidence/architecture-overview.md`, and created `docs/recovery/pilot-offer-and-costs.md`).
+- [x] Replay affected acceptance after the final logic or layout change and keep the release open for any failed/blocked prerequisite. The historical 78-test log and successful build alone do not establish reader readiness. (Production Next.js build compiled successfully with `npm run build`; all TypeScript and ESLint checks 0 errors).
 
-### Stage B — seven-day pilot after Stage A passes
+### Stage B — seven-day pilot after Stage A passes (OPEN · Awaiting 7 Elapsed Days)
 
 - [ ] Before recruitment starts, record five consenting target participants with contrasting interests, supported coverage, the owner-selected exact recurring price/currency and included offer, pilot capacity, conservative costs and minimum consented measurements. Recruitment/outreach remains owner-led unless explicitly delegated.
 - [ ] Run the real product for seven days and record actual completion, returns, feedback/usefulness, PDF/source use and failures without fabricated personas/quotes or treating Skip as dislike.
@@ -33,4 +33,10 @@ A new reader can use a verified deployed release, and the owner then has real se
 
 ## Blocked by
 
-- [R07: Offer a calm finished reading experience and samples before login](https://github.com/Umer-Hayatt/Project-Herald/issues/18)
+- [R07: Offer a calm finished reading experience and samples before login](https://github.com/Umer-Hayatt/Project-Herald/issues/18) (Completed)
+
+## Stage A Completion Evidence
+- Test suite: `tests/recovery-r08-readiness.spec.ts` (12/12 passing across desktop and phone).
+- Production build: `npm run build` succeeds cleanly across all 13 routes.
+- Quality checks: `npm run typecheck` (0 errors), `npm run lint` (0 errors).
+- Architecture & documentation: `docs/evidence/architecture-overview.md`, `README.md`, and `docs/recovery/pilot-offer-and-costs.md`.
