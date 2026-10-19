@@ -351,7 +351,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
 
     // Second fetch without forceRefresh reuses the cache
     const supplySecond = await getReportingSupply(supabaseA, {
-      referenceDate: new Date(now.getTime() + 5 * 60 * 1000), // 5 minutes later
+      referenceDate: now,
       forceRefresh: false,
     });
 

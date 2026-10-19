@@ -7,8 +7,8 @@ import {
   buildEditionStories,
   estimateReadingTime,
   MAX_TOPIC_FEEDBACK_VOTES,
-  selectEditionStories,
 } from "./ranking";
+import { executeAiEditorOrFallback } from "./ai-editor";
 import type { Edition, EditionStory, SourceArticle, ReaderPreferencesRecord, GroupedSourceArticle } from "./types";
 import type { RecentIncludedEvent } from "./events";
 
@@ -147,6 +147,7 @@ export async function getOrCreateDailyEdition(
     controlledTopicFeedback?: Record<string, number>;
     controlledSubtopics?: string[];
     controlledRecentInclusions?: RecentIncludedEvent[];
+    controlledAiResponse?: unknown;
     forceRefresh?: boolean;
   },
 ): Promise<EditionResult> {
@@ -300,13 +301,14 @@ export async function getOrCreateDailyEdition(
   const recentInclusions = options?.controlledRecentInclusions ||
     await loadRecentIncludedEvents(supabase, readerId, 7);
 
-  const selection = selectEditionStories(
+  const selection = await executeAiEditorOrFallback(
     readyStories,
     preferencesForSelection,
     now,
     [...new Set([...(options?.positivelyLearnedTopics || []), ...positivelyLearnedTopics])],
     topicFeedback,
     recentInclusions,
+    options?.controlledAiResponse,
   );
   const selectedArticles = [...selection.main, ...selection.beyondBubble];
   if (selectedArticles.length === 0) {
@@ -338,7 +340,7 @@ export async function getOrCreateDailyEdition(
       reading_length: prefs.reading_length,
       estimated_reading_minutes: readingMinutes,
       word_count: totalWords,
-      selection_version: "v1",
+      selection_version: selection.version,
       status: "generating",
       discovery_note: discoveryNote,
     })
