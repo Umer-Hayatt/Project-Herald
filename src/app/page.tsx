@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getStoryImageUrl } from "@/lib/edition/images";
 import type { SourceArticle } from "@/lib/edition/types";
 
+import { partitionShowcaseArticles } from "@/lib/edition/showcase";
+
 export const dynamic = "force-dynamic";
 
 function formatRelativeTime(publishedAt: string): string {
@@ -18,26 +20,29 @@ function formatRelativeTime(publishedAt: string): string {
 }
 
 export default async function Home() {
-  let articles: SourceArticle[] = [];
+  let rawArticles: SourceArticle[] = [];
   try {
     const supabase = await createClient();
     const { data } = await supabase
       .from("source_articles")
       .select("*")
+      .not("publisher", "in", '("Herald Verified Wire","Fake","Probe","Test Publisher")')
       .order("published_at", { ascending: false })
-      .limit(16);
+      .limit(60);
     if (data && data.length > 0) {
-      articles = data as SourceArticle[];
+      rawArticles = data as SourceArticle[];
     }
   } catch {
     // If database is temporarily unreachable, fallback gracefully
   }
 
-  const heroArticle = articles[0];
-  const spotlightArticle = articles.length > 1 ? articles[1] : null;
-  const featuredArticles = articles.slice(2, 7);
-  const latestArticles = articles.slice(7, 13);
-  const trendingArticles = articles.slice(1, 5);
+  const {
+    heroArticle,
+    spotlightArticle,
+    featuredArticles,
+    latestArticles,
+    trendingArticles,
+  } = partitionShowcaseArticles(rawArticles);
 
   return (
     <>
@@ -88,7 +93,7 @@ export default async function Home() {
       </main>
 
       {/* Visual Magazine Editorial Showcase */}
-      {articles.length > 0 && (
+      {(heroArticle || featuredArticles.length > 0) && (
         <section className="edition-container" style={{ paddingTop: 0, marginTop: "1rem" }} aria-label="Today’s news preview">
           {/* Top Showcase: Hero Story & Spotlight */}
           {heroArticle && (
