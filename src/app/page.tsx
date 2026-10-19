@@ -171,11 +171,6 @@ export default async function Home() {
                 <h2 className="featured-title-bar">
                   <span className="featured-accent-pipe">|</span> Featured Stories
                 </h2>
-                <div className="featured-nav-controls" aria-hidden="true">
-                  <span>←</span>
-                  <span>• • • • •</span>
-                  <span>→</span>
-                </div>
               </div>
 
               <div className="featured-cards-grid">
@@ -289,42 +284,6 @@ export default async function Home() {
                 </div>
               )}
 
-              <div className="testimonials-card">
-                <h3 className="testimonials-title">Our Premium Readers Say About Herald</h3>
-                <div className="testimonial-item">
-                  <p className="testimonial-quote">
-                    “Herald has been a game-changer for my mornings. As an avid reader and researcher, I rely on their finite, curated content to discover news without doomscrolling.”
-                  </p>
-                  <div className="testimonial-author-row">
-                    <img
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
-                      alt=""
-                      className="testimonial-avatar"
-                    />
-                    <div>
-                      <div className="testimonial-name">Elena Rostova</div>
-                      <div className="testimonial-role">Independent Science Journalist</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="testimonial-item">
-                  <p className="testimonial-quote">
-                    “The ‘Beyond Your Bubble’ selection consistently surfaces important reporting I wouldn’t have found on typical social feeds.”
-                  </p>
-                  <div className="testimonial-author-row">
-                    <img
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80"
-                      alt=""
-                      className="testimonial-avatar"
-                    />
-                    <div>
-                      <div className="testimonial-name">Dr. Marcus Chen</div>
-                      <div className="testimonial-role">Ecology Researcher</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               <div className="cta-banner-card">
                 <h3 className="cta-banner-title">Become a Herald Reader</h3>

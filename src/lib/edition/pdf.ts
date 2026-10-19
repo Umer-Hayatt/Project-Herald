@@ -175,6 +175,14 @@ export async function generateEditionPdf(edition: Edition): Promise<Buffer> {
             align: "justify",
           });
 
+        if (story.why_it_matters) {
+          doc.y = doc.y + 4;
+          doc.font("Times-Bold").fontSize(9.5).fillColor("#111827");
+          doc.text("Why it matters: ", leftMargin, doc.y, { continued: true });
+          doc.font("Times-Italic").fontSize(9.5).fillColor("#374151");
+          doc.text(story.why_it_matters, { lineGap: 2 });
+        }
+
         doc.y = doc.y + 4;
 
         // Clickable original reporting source link (ASCII arrow "->")

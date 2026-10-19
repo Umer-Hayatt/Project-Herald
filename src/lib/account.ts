@@ -17,5 +17,8 @@ export async function loadReaderPreferences() {
     .maybeSingle();
   if (error) throw new Error("Preferences are unavailable.");
   if (!data) return null;
-  return preferenceInput.parse(data);
+  const subtopics = Array.isArray(user.user_metadata?.subtopics)
+    ? user.user_metadata.subtopics
+    : [];
+  return preferenceInput.parse({ ...data, subtopics });
 }

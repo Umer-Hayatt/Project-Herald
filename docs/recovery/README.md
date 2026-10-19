@@ -2,9 +2,9 @@
 
 ## Current state
 
-Planning checkpoint: 18 October 2026, Asia/Karachi. Active authority: [recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Main baseline: `3e8e437735d3258e5e342c7d1f738a30e8d99f9c`. Working branch: `codex/herald-recovery`.
+Planning checkpoint: 19 October 2026, Asia/Karachi. Active authority: [recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Main baseline: `3e8e437735d3258e5e342c7d1f738a30e8d99f9c`. Working branch: `codex/herald-recovery`.
 The eight revised recovery tickets have been published as issues [#12](https://github.com/Umer-Hayatt/Project-Herald/issues/12) through [#19](https://github.com/Umer-Hayatt/Project-Herald/issues/19) with `ready-for-agent` labels, native parent sub-issue links to #11, and native linear `blockedBy` edges. See [the ticket index](TICKET-REVIEW.md).
-Active frontier: issue #14 (R03: Read consistent Editions that improve with saved preferences and feedback). R01 (#12) and R02 (#13) completed and verified on 18 October 2026.
+Active frontier: issue #15 (R04: Reduce repeated events while retaining meaningful updates). R01 (#12), R02 (#13), and R03 (#14) completed and verified on 18–19 October 2026.
 
 This recovery replaces the expired 17 October 21:00 hackathon schedule for new recovery work. The original issues #1–#10 are historical scope/evidence, even though still open; their state does not establish what is implemented. Use current code and dated checks, not old completion claims. Parent #11 stays open and unchanged.
 
@@ -12,7 +12,7 @@ This recovery replaces the expired 17 October 21:00 hackathon schedule for new r
 
 1. Read this handoff, the [short plan](plan.md), [ticket index](TICKET-REVIEW.md), and the authoritative issue plus its comments. The [spec snapshot](spec.md) is a convenience copy; GitHub is authoritative for subsequent changes.
 2. Check the working tree and current commit. Preserve existing work. Read the current Product, Glossary, relevant ADRs, and issue-tracker instructions before implementation or status changes.
-3. The eight tickets (#12–#19) are published with native sub-issue and blocking relationships. Work only the frontier: open tickets whose blockers are complete. The current frontier is R03 (#14).
+3. The eight tickets (#12–#19) are published with native sub-issue and blocking relationships. Work only the frontier: open tickets whose blockers are complete. The current frontier is R04 (#15).
 4. Before closing a child, record the exact commit, environment, date, criteria outcomes and remaining limitations. Pass/fail/blocked/not-run are distinct. Update the ticket and this small checkpoint; keep this handoff current for the next agent.
 
 ## Product decisions to preserve
@@ -52,6 +52,28 @@ R02 needs three successive daily live coverage samples; R08 needs a seven-day pi
 The owner combined former R01+R02, R04+R05 and R10+R11. Use the revised eight-ticket index and current bodies; former draft IDs are historical. All 64 criteria remain. The dependency frontier is a linear R01–R08 chain. R08 records deployed readiness before starting its seven-day pilot and remains open until both stages pass. Revised publication approval is pending; the side-branch request alone does not approve ticket publication.
 
 ## Recovery checkpoints
+
+### 2026-10-19: R03 Completed & Verified
+
+- **Active child issue and parent revision**: Issue [#14](https://github.com/Umer-Hayatt/Project-Herald/issues/14) (R03), Parent [Recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11).
+- **Working commit/branch and environment**: Branch `codex/herald-recovery`, Node.js v20.18.0, Playwright 1.57.0, Supabase Postgres `hnzwraiojsftuncridsp.supabase.co`.
+- **Acceptance: pass / fail / blocked / not run, with dated evidence links**:
+  - `tests/recovery-r03.spec.ts`: PASS (12/12 passed on Desktop Chrome & Mobile Chromium).
+  - Regression `tests/recovery-r01.spec.ts`, `tests/recovery-r02.spec.ts`, `tests/recovery-r03.spec.ts`: PASS (36/36 passed).
+  - Visual evidence: PASS (`docs/evidence/screenshots/paper-desktop.png`, `docs/evidence/screenshots/paper-mobile.png`) — Lead/standard story parity (feedback controls, Skip link, separate `Why it matters:` text, expandable supporting reports dropdown), repaired Trending anchors, removed fake carousel buttons and unsupported testimonials.
+  - PDF verification: PASS (`tests/edition-pdf-service.spec.ts`, `tests/edition-pdf-browser.spec.ts`) — rendered separate importance text and clickable source annotations.
+  - TypeScript typecheck & ESLint: PASS (0 errors).
+- **Live versus controlled checks and test isolation**:
+  - Live checks: Authenticated Reader paper UI rendering, preferences update with subtopics via Supabase Auth metadata, familiar city timezone inference.
+  - Controlled checks: Controlled past/next-day supply in `tests/recovery-r03.spec.ts` testing two contrasting readers, negative-feedback priority fix, neutral Skip behavior, and strict past edition immutability.
+  - Test isolation: Reader A / Reader B dedicated test readers; preferences and feedback isolated; past editions verified strictly immutable.
+- **Coverage/model/permission/cost prerequisites remaining**:
+  - Subtopics stored via Supabase Auth `user_metadata` without requiring breaking schema migrations.
+  - Zero external paid AI calls required for R03 core rendering and feedback learning.
+- **Data/schema compatibility and rollback implications**:
+  - Compatibility: Full backward compatibility with existing preferences and saved editions; `subtopics` defaults to empty array.
+  - Rollback: Revert `src/lib/edition/ranking.ts`, `src/lib/edition/pdf.ts`, `src/components/edition-story-card.tsx`, `src/app/paper/page.tsx`.
+- **Next eligible issue or exact next action**: Issue [#15](https://github.com/Umer-Hayatt/Project-Herald/issues/15) (R04: Reduce repeated events while retaining meaningful updates).
 
 ### 2026-10-18: R02 Completed & Verified
 

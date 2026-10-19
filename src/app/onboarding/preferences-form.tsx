@@ -16,6 +16,9 @@ export function OnboardingForm({ saved, mode = "onboarding" }: { saved: Preferen
     saved?.reading_length ?? 10,
   );
   const [timeZone, setTimeZone] = useState(saved?.time_zone ?? "");
+  const [subtopicsText, setSubtopicsText] = useState(
+    saved?.subtopics?.join(", ") ?? ""
+  );
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
   const [failed, setFailed] = useState(false);
@@ -26,7 +29,7 @@ export function OnboardingForm({ saved, mode = "onboarding" }: { saved: Preferen
     let detectedZone = timeZone.trim();
     if (detectedZone && !isTimeZone(detectedZone)) {
       setFailed(true);
-      setMessage("Enter a valid IANA time zone, such as Europe/London.");
+      setMessage("Enter a valid IANA time zone, such as Europe/London, or a major city.");
       setPending(false);
       return;
     }
@@ -38,6 +41,10 @@ export function OnboardingForm({ saved, mode = "onboarding" }: { saved: Preferen
     if (!detectedZone || !isTimeZone(detectedZone))
       detectedZone = fallbackTimeZone;
     setTimeZone(detectedZone);
+    const parsedSubtopics = subtopicsText
+      .split(/[,;\n]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
     try {
       const response = await fetch("/api/preferences", {
         method: "PUT",
@@ -48,6 +55,7 @@ export function OnboardingForm({ saved, mode = "onboarding" }: { saved: Preferen
           reading_length: length,
           time_zone: detectedZone,
           onboarding_complete: complete,
+          subtopics: parsedSubtopics,
         }),
       });
       const result = await response.json();
@@ -107,6 +115,24 @@ export function OnboardingForm({ saved, mode = "onboarding" }: { saved: Preferen
           ))}
         </div>
       </fieldset>
+      <div className="subtopics-field" style={{ margin: "1.25rem 0" }}>
+        <label htmlFor="subtopics" style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>
+          Specific topics or entities <span style={{ fontWeight: 400, color: "var(--muted)" }}>(optional)</span>
+        </label>
+        <p id="subtopics-help" className="field-help" style={{ marginBottom: "0.5rem" }}>
+          Specific subjects, industries, or companies you follow (e.g. Artificial Intelligence, Solar Energy, Semiconductors).
+        </p>
+        <input
+          id="subtopics"
+          type="text"
+          value={subtopicsText}
+          placeholder="e.g. Artificial Intelligence, Clean Energy, Space"
+          onChange={(event) => setSubtopicsText(event.target.value)}
+          aria-describedby="subtopics-help"
+          disabled={pending}
+          style={{ width: "100%", padding: "0.5rem 0.75rem", borderRadius: "6px", border: "1px solid var(--border)" }}
+        />
+      </div>
       <fieldset className="preference-row" disabled={pending}>
         <div>
           <label htmlFor="region">Preferred region</label>

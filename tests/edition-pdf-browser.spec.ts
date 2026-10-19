@@ -88,7 +88,7 @@ test.describe("Seam 3: Web UI Download Experience", () => {
     // Verify Download PDF button is visible and accessible on /paper
     const downloadBtn = page.getByRole("button", {
       name: /Download newspaper PDF/i,
-    });
+    }).first();
     await expect(downloadBtn).toBeVisible();
 
     // Test actual file download on /paper
@@ -133,7 +133,7 @@ test.describe("Seam 3: Web UI Download Experience", () => {
 
     const archiveDownloadBtn = page.getByRole("button", {
       name: /Download newspaper PDF/i,
-    });
+    }).first();
     await expect(archiveDownloadBtn).toBeVisible();
 
     const [archiveDownload] = await Promise.all([

@@ -4,6 +4,7 @@ export interface SelectionPreferences {
   interests: string[];
   preferred_region: string;
   reading_length: number;
+  subtopics?: string[];
 }
 
 const BUDGETS: Record<number, { maxStories: number; maxWords: number }> = {
@@ -133,7 +134,7 @@ export function selectAndRankStories(
 
 import { resolveArticleGeography } from "./geography";
 
-function rankGroupedStories(
+export function rankGroupedStories(
   articles: GroupedSourceArticle[],
   preferences: SelectionPreferences,
   referenceDate: Date,
@@ -174,7 +175,34 @@ function rankGroupedStories(
           (sum, category) => sum + (topicFeedback[category.toLowerCase()] || 0) * TOPIC_FEEDBACK_POINTS_PER_VOTE,
           0,
         );
-        return categoryScore + regionalScore + freshnessScore + feedbackScore;
+
+        const normalizedSubtopics = (preferences.subtopics || [])
+          .map((st) => st.toLowerCase().trim())
+          .filter(Boolean);
+        let subtopicScore = 0;
+        if (normalizedSubtopics.length > 0) {
+          const text = [
+            article.title,
+            article.description,
+            article.snippet,
+            article.briefing,
+            article.whyItMatters,
+            ...(article.topics || []),
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+          for (const subtopic of normalizedSubtopics) {
+            const terms = subtopic.split(/\s+/).filter(Boolean);
+            const matchesPhrase = text.includes(subtopic);
+            const matchesAllTerms = terms.length > 1 && terms.every((term) => text.includes(term));
+            if (matchesPhrase || matchesAllTerms) {
+              subtopicScore += 8;
+            }
+          }
+        }
+
+        return categoryScore + subtopicScore + regionalScore + freshnessScore + feedbackScore;
       };
       return score(right) - score(left) ||
         Date.parse(right.published_at) - Date.parse(left.published_at) ||
@@ -262,13 +290,9 @@ export function selectEditionStories(
   }
 
   const selectedIds = new Set(beyondBubble.map((article) => article.id || article.external_id));
-  const mainCandidates = ranked
-    .filter((article) => !selectedIds.has(article.id || article.external_id))
-    .sort((left, right) => {
-      const leftMatches = hasInterestOverlap(left, outsideTopics);
-      const rightMatches = hasInterestOverlap(right, outsideTopics);
-      return Number(rightMatches) - Number(leftMatches);
-    });
+  const mainCandidates = ranked.filter(
+    (article) => !selectedIds.has(article.id || article.external_id),
+  );
   const main: GroupedSourceArticle[] = [];
   for (const candidate of mainCandidates) {
     if (main.length >= budget.maxStories) break;

@@ -52,6 +52,26 @@ export function EditionStoryCard({
 
           <h2 className="story-title hero-title">{story.title}</h2>
           <p className="story-excerpt hero-excerpt">{story.briefing || story.excerpt}</p>
+          {story.why_it_matters && (
+            <p className="story-importance hero-importance" style={{ color: "#e2e8f0", background: "rgba(15, 23, 42, 0.6)", padding: "0.5rem 0.75rem", borderRadius: "6px", margin: "0.5rem 0" }}>
+              <strong style={{ color: "var(--orange, #f97316)" }}>Why it matters:</strong> {story.why_it_matters}
+            </p>
+          )}
+
+          {sources.length > 1 && (
+            <details className="supporting-sources hero-supporting-sources" style={{ margin: "0.5rem 0" }}>
+              <summary style={{ color: "#e5e7eb", cursor: "pointer" }}>{sources.length} supporting reports</summary>
+              <ul style={{ background: "rgba(15, 23, 42, 0.95)", border: "1px solid rgba(255, 255, 255, 0.15)", borderRadius: "6px", padding: "0.5rem 0.75rem", margin: "0.25rem 0" }}>
+                {sources.map((source) => (
+                  <li key={source.id || source.url} style={{ margin: "0.25rem 0" }}>
+                    <a href={source.url} target="_blank" rel="noopener noreferrer" style={{ color: "#93c5fd", textDecoration: "underline" }}>
+                      {source.publisher}: {source.title} ↗
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
 
           <div className="hero-meta-row">
             <a
@@ -67,6 +87,10 @@ export function EditionStoryCard({
             <a href={skipHref} className="skip-btn hero-skip-btn" aria-label={skipLabel}>
               {skipLabel} ↓
             </a>
+          </div>
+
+          <div className="hero-feedback-wrap" style={{ marginTop: "0.75rem" }}>
+            <StoryFeedbackControls storyId={story.id || ""} />
           </div>
         </div>
       </article>

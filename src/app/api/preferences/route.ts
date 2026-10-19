@@ -45,7 +45,10 @@ export async function GET() {
       { error: "We couldn’t load your preferences. Please retry." },
       503,
     );
-  return json({ preferences: data });
+  const subtopics = Array.isArray(session.user?.user_metadata?.subtopics)
+    ? session.user.user_metadata.subtopics
+    : [];
+  return json({ preferences: data ? { ...data, subtopics } : null });
 }
 export async function PUT(request: NextRequest) {
   const expectedOrigin = process.env.APP_URL
@@ -67,10 +70,23 @@ export async function PUT(request: NextRequest) {
       { error: input.error.issues[0]?.message || "Check your preferences." },
       400,
     );
+
+  const { subtopics = [], ...dbPayload } = input.data;
+
+  if (subtopics !== undefined) {
+    try {
+      await session.client!.auth.updateUser({
+        data: { subtopics },
+      });
+    } catch {
+      // Continue even if auth metadata update fails
+    }
+  }
+
   const { data, error } = await session
     .client!.from("reader_preferences")
     .upsert(
-      { ...input.data, reader_id: session.user!.id },
+      { ...dbPayload, reader_id: session.user!.id },
       { onConflict: "reader_id" },
     )
     .select(preferenceColumns)
@@ -83,5 +99,5 @@ export async function PUT(request: NextRequest) {
       },
       503,
     );
-  return json({ preferences: data });
+  return json({ preferences: { ...data, subtopics } });
 }

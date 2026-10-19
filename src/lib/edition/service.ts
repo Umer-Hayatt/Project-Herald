@@ -90,6 +90,7 @@ export async function getOrCreateDailyEdition(
     controlledSupply?: SourceArticle[];
     positivelyLearnedTopics?: string[];
     controlledTopicFeedback?: Record<string, number>;
+    controlledSubtopics?: string[];
     forceRefresh?: boolean;
   },
 ): Promise<EditionResult> {
@@ -106,6 +107,22 @@ export async function getOrCreateDailyEdition(
 
   if (prefError || !preferences) {
     return { success: false, error: "NOT_ONBOARDED" };
+  }
+
+  let subtopics: string[] = options?.controlledSubtopics || [];
+  if (!options?.controlledSubtopics) {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (
+        userData.user &&
+        userData.user.id === readerId &&
+        Array.isArray(userData.user.user_metadata?.subtopics)
+      ) {
+        subtopics = userData.user.user_metadata.subtopics;
+      }
+    } catch {
+      // fallback gracefully
+    }
   }
 
   const prefs = preferences as ReaderPreferencesRecord;
@@ -218,6 +235,7 @@ export async function getOrCreateDailyEdition(
     interests: prefs.interests,
     preferred_region: prefs.preferred_region,
     reading_length: prefs.reading_length,
+    subtopics,
   };
   const topicFeedback = options?.controlledTopicFeedback || await loadTopicFeedback(supabase, readerId);
   const positivelyLearnedTopics = [

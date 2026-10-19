@@ -254,11 +254,6 @@ export default async function PaperPage({
               <h2 className="featured-title-bar">
                 <span className="featured-accent-pipe">|</span> Featured Stories
               </h2>
-              <div className="featured-nav-controls" aria-hidden="true">
-                <span>←</span>
-                <span>• • • • •</span>
-                <span>→</span>
-              </div>
             </div>
 
             <div className="featured-cards-grid">
@@ -334,10 +329,14 @@ export default async function PaperPage({
                   {trendingStories.map((trend, index) => {
                     const timeAgo = formatRelativeTime(trend.published_at);
                     const readTime = Math.max(1, Math.round(trend.word_count / 200));
+                    const targetHref = trend.position ? `#story-${trend.position}` : trend.url || "#main";
+                    const isExternal = !trend.position && Boolean(trend.url);
                     return (
                       <a
-                        key={trend.id || trend.position}
-                        href={`#story-${trend.position}`}
+                        key={trend.id || String(trend.position || index)}
+                        href={targetHref}
+                        target={isExternal ? "_blank" : undefined}
+                        rel={isExternal ? "noopener noreferrer" : undefined}
                         className="trending-item"
                       >
                         <span className="trending-num">#{index + 1}</span>
@@ -353,43 +352,6 @@ export default async function PaperPage({
                 </div>
               </div>
             )}
-
-            <div className="testimonials-card">
-              <h3 className="testimonials-title">Our Readers Say About Herald</h3>
-              <div className="testimonial-item">
-                <p className="testimonial-quote">
-                  “Herald has been a breath of fresh air. Rather than endless scrolling, I start each day with a finite, dignified edition that respects my attention.”
-                </p>
-                <div className="testimonial-author-row">
-                  <img
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
-                    alt=""
-                    className="testimonial-avatar"
-                  />
-                  <div>
-                    <div className="testimonial-name">Elena Rostova</div>
-                    <div className="testimonial-role">Independent Science Journalist</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="testimonial-item">
-                <p className="testimonial-quote">
-                  “The ‘Beyond Your Bubble’ selection consistently introduces essential global context without ever feeling overwhelming or preachy.”
-                </p>
-                <div className="testimonial-author-row">
-                  <img
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80"
-                    alt=""
-                    className="testimonial-avatar"
-                  />
-                  <div>
-                    <div className="testimonial-name">Dr. Marcus Chen</div>
-                    <div className="testimonial-role">Ecology Researcher</div>
-                  </div>
-                </div>
-              </div>
-            </div>
 
             <div className="cta-banner-card">
               <h3 className="cta-banner-title">Herald Morning Paper</h3>
