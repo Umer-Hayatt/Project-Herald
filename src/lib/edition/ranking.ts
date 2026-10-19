@@ -133,12 +133,14 @@ export function selectAndRankStories(
 }
 
 import { resolveArticleGeography } from "./geography";
+import { evaluateRecentInclusion, type RecentIncludedEvent } from "./events";
 
 export function rankGroupedStories(
   articles: GroupedSourceArticle[],
   preferences: SelectionPreferences,
   referenceDate: Date,
   topicFeedback: Record<string, number>,
+  recentInclusions: RecentIncludedEvent[] = [],
 ): GroupedSourceArticle[] {
   const normalizedInterests = new Set(preferences.interests.map((interest) => interest.toLowerCase()));
   const nowMs = referenceDate.getTime();
@@ -202,7 +204,21 @@ export function rankGroupedStories(
           }
         }
 
-        return categoryScore + subtopicScore + regionalScore + freshnessScore + feedbackScore;
+        let eventHistoryScore = 0;
+        if (recentInclusions.length > 0) {
+          const evalResult = evaluateRecentInclusion(article, recentInclusions);
+          if (evalResult.status === "unchanged_repeat") {
+            // Substantially down-rank unchanged events from recent editions
+            eventHistoryScore = -25;
+          } else if (evalResult.status === "update") {
+            // Genuine source-supported updates remain eligible with modest developing boost
+            eventHistoryScore = 4;
+            article.isUpdate = true;
+            article.updateExplanation = evalResult.updateExplanation;
+          }
+        }
+
+        return categoryScore + subtopicScore + regionalScore + freshnessScore + feedbackScore + eventHistoryScore;
       };
       return score(right) - score(left) ||
         Date.parse(right.published_at) - Date.parse(left.published_at) ||
@@ -258,12 +274,19 @@ export function selectEditionStories(
   referenceDate: Date = new Date(),
   positivelyLearnedTopics: string[] = [],
   topicFeedback: Record<string, number> = {},
+  recentInclusions: RecentIncludedEvent[] = [],
 ): EditionSelection {
   const budget = BUDGETS[preferences.reading_length] || BUDGETS[10];
-  const ranked = rankGroupedStories(articles, {
-    ...preferences,
-    interests: [...new Set([...preferences.interests, ...positivelyLearnedTopics])],
-  }, referenceDate, topicFeedback);
+  const ranked = rankGroupedStories(
+    articles,
+    {
+      ...preferences,
+      interests: [...new Set([...preferences.interests, ...positivelyLearnedTopics])],
+    },
+    referenceDate,
+    topicFeedback,
+    recentInclusions,
+  );
   const outsideTopics = new Set([
     ...preferences.interests,
     ...positivelyLearnedTopics,
@@ -341,6 +364,19 @@ export function buildEditionStories(
     const isValidUuid = (val?: string | null) =>
       Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
 
+    const supportingSources = supportingArticles.map((source) => ({
+      id: source.id || source.external_id,
+      title: source.title,
+      url: source.url,
+      publisher: source.publisher,
+      provider:
+        (source.raw_data as { provider?: string } | undefined)?.provider ||
+        (source as { provider?: string }).provider ||
+        "thenewsapi",
+      is_update: Boolean(article.isUpdate),
+      update_explanation: article.updateExplanation || undefined,
+    }));
+
     return {
       position: startingPosition + index,
       title: article.title,
@@ -358,16 +394,9 @@ export function buildEditionStories(
       word_count: wordCount,
       section,
       source_article_id: isValidUuid(article.id) ? article.id : null,
-      supporting_sources: supportingArticles.map((source) => ({
-        id: source.id || source.external_id,
-        title: source.title,
-        url: source.url,
-        publisher: source.publisher,
-        provider:
-          (source.raw_data as { provider?: string } | undefined)?.provider ||
-          (source as { provider?: string }).provider ||
-          "thenewsapi",
-      })),
+      is_update: Boolean(article.isUpdate),
+      update_explanation: article.updateExplanation || null,
+      supporting_sources: supportingSources,
     };
   });
 }

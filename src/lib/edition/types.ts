@@ -21,6 +21,8 @@ export interface GroupedSourceArticle extends SourceArticle {
   whyItMatters?: string | null;
   topics?: string[];
   briefingSource?: BriefingSource;
+  isUpdate?: boolean;
+  updateExplanation?: string | null;
 }
 
 export type BriefingSource = "gemini" | "publisher_excerpt" | "publisher_headline";
@@ -45,6 +47,8 @@ export interface EditionStory {
   word_count: number;
   section: "main" | "beyond_bubble";
   source_article_id?: string | null;
+  is_update?: boolean;
+  update_explanation?: string | null;
   supporting_sources?: {
     id?: string;
     title: string;

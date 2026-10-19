@@ -10,6 +10,7 @@ import {
   selectEditionStories,
 } from "./ranking";
 import type { Edition, EditionStory, SourceArticle, ReaderPreferencesRecord, GroupedSourceArticle } from "./types";
+import type { RecentIncludedEvent } from "./events";
 
 export type EditionResult =
   | {
@@ -33,7 +34,17 @@ async function loadEditionStories(
     .eq("edition_id", editionId)
     .eq("reader_id", readerId)
     .order("position", { ascending: true });
-  return error || !data ? null : data as EditionStory[];
+  if (error || !data) return null;
+  return data.map((story) => {
+    const updateSource = (story.supporting_sources as Array<Record<string, unknown>> | undefined)?.find(
+      (s) => Boolean(s.is_update),
+    );
+    return {
+      ...story,
+      is_update: Boolean(updateSource?.is_update),
+      update_explanation: (updateSource?.update_explanation as string) || null,
+    };
+  }) as EditionStory[];
 }
 
 async function loadLatestSavedEdition(
@@ -78,6 +89,50 @@ async function loadTopicFeedback(
   return scores;
 }
 
+async function loadRecentIncludedEvents(
+  supabase: SupabaseClient,
+  readerId: string,
+  limit = 7,
+): Promise<RecentIncludedEvent[]> {
+  const { data: pastEditions, error: edError } = await supabase
+    .from("editions")
+    .select("id, edition_date")
+    .eq("reader_id", readerId)
+    .eq("status", "completed")
+    .order("edition_date", { ascending: false })
+    .limit(limit);
+
+  if (edError || !pastEditions || pastEditions.length === 0) {
+    return [];
+  }
+
+  const editionIds = pastEditions.map((e) => e.id);
+  const { data: stories, error: storyError } = await supabase
+    .from("edition_stories")
+    .select("title, source_url, category, published_at, briefing, why_it_matters, supporting_sources, edition_id")
+    .in("edition_id", editionIds)
+    .eq("reader_id", readerId);
+
+  if (storyError || !stories) return [];
+
+  const dateMap = new Map(pastEditions.map((e) => [e.id, e.edition_date]));
+
+  return stories.map((s) => ({
+    title: s.title,
+    sourceUrl: s.source_url,
+    category: s.category,
+    publishedAt: s.published_at,
+    editionDate: dateMap.get(s.edition_id) || "",
+    briefing: s.briefing,
+    whyItMatters: s.why_it_matters,
+    supportingUrls: Array.isArray(s.supporting_sources)
+      ? s.supporting_sources
+          .map((src: unknown) => (src as { url?: string })?.url)
+          .filter((url): url is string => Boolean(url))
+      : [],
+  }));
+}
+
 /**
  * Gets the reader's preserved Edition for today, or generates and saves a new one atomically.
  */
@@ -91,6 +146,7 @@ export async function getOrCreateDailyEdition(
     positivelyLearnedTopics?: string[];
     controlledTopicFeedback?: Record<string, number>;
     controlledSubtopics?: string[];
+    controlledRecentInclusions?: RecentIncludedEvent[];
     forceRefresh?: boolean;
   },
 ): Promise<EditionResult> {
@@ -241,12 +297,16 @@ export async function getOrCreateDailyEdition(
   const positivelyLearnedTopics = [
     ...new Set(Object.entries(topicFeedback).filter(([, score]) => score > 0).map(([topic]) => topic)),
   ];
+  const recentInclusions = options?.controlledRecentInclusions ||
+    await loadRecentIncludedEvents(supabase, readerId, 7);
+
   const selection = selectEditionStories(
     readyStories,
     preferencesForSelection,
     now,
     [...new Set([...(options?.positivelyLearnedTopics || []), ...positivelyLearnedTopics])],
     topicFeedback,
+    recentInclusions,
   );
   const selectedArticles = [...selection.main, ...selection.beyondBubble];
   if (selectedArticles.length === 0) {
@@ -320,12 +380,17 @@ export async function getOrCreateDailyEdition(
     return { success: false, error: "SERVER_ERROR" };
   }
 
-  // 7. Insert ordered stories
-  const storyRecords = builtStories.map((story) => ({
-    ...story,
-    edition_id: createdEdition.id,
-    reader_id: readerId,
-  }));
+  // 7. Insert ordered stories (strip virtual fields not present in table schema)
+  const storyRecords = builtStories.map((story) => {
+    const cleanStory = { ...story };
+    delete (cleanStory as { is_update?: boolean }).is_update;
+    delete (cleanStory as { update_explanation?: string | null }).update_explanation;
+    return {
+      ...cleanStory,
+      edition_id: createdEdition.id,
+      reader_id: readerId,
+    };
+  });
 
   const { data: insertedStories, error: storyError } = await supabase
     .from("edition_stories")
@@ -359,7 +424,11 @@ export async function getOrCreateDailyEdition(
     readingLength: prefs.reading_length,
     edition: {
       ...completedEdition,
-      stories: (insertedStories || []) as EditionStory[],
+      stories: (insertedStories || []).map((s, idx) => ({
+        ...s,
+        is_update: builtStories[idx]?.is_update ?? false,
+        update_explanation: builtStories[idx]?.update_explanation ?? null,
+      })) as EditionStory[],
     },
   };
 }

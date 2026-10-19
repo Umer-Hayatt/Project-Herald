@@ -48,10 +48,20 @@ export function EditionStoryCard({
           <div className="hero-badges">
             <span className="hero-pill-badge">Editor’s Choice</span>
             <span className="hero-pill-badge secondary">{categoryLabel}</span>
+            {story.is_update && (
+              <span className="hero-pill-badge update" style={{ background: "#d97706", color: "#fff" }}>
+                Developing Update
+              </span>
+            )}
           </div>
 
           <h2 className="story-title hero-title">{story.title}</h2>
           <p className="story-excerpt hero-excerpt">{story.briefing || story.excerpt}</p>
+          {story.update_explanation && (
+            <p className="story-update-explanation hero-update-explanation" style={{ color: "#fef08a", background: "rgba(120, 53, 15, 0.4)", padding: "0.35rem 0.65rem", borderRadius: "4px", margin: "0.35rem 0", fontSize: "0.85rem" }}>
+              <strong>Follow-up:</strong> {story.update_explanation}
+            </p>
+          )}
           {story.why_it_matters && (
             <p className="story-importance hero-importance" style={{ color: "#e2e8f0", background: "rgba(15, 23, 42, 0.6)", padding: "0.5rem 0.75rem", borderRadius: "6px", margin: "0.5rem 0" }}>
               <strong style={{ color: "var(--orange, #f97316)" }}>Why it matters:</strong> {story.why_it_matters}
@@ -122,6 +132,22 @@ export function EditionStoryCard({
           <div className="story-meta-row">
             <span className="story-pos-badge" aria-hidden="true">{story.position}</span>
             <span className="story-category-pill">{categoryLabel}</span>
+            {story.is_update && (
+              <span
+                className="story-update-badge"
+                style={{
+                  background: "#fef3c7",
+                  color: "#92400e",
+                  border: "1px solid #fde68a",
+                  padding: "0.15rem 0.5rem",
+                  borderRadius: "9999px",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                }}
+              >
+                Developing Update
+              </span>
+            )}
             <span aria-hidden="true">·</span>
             <span className="story-publisher">{story.publisher}</span>
             {relativeTime && <><span aria-hidden="true">·</span><span>{relativeTime}</span></>}
@@ -134,6 +160,11 @@ export function EditionStoryCard({
 
           <h3 className="story-title">{story.title}</h3>
           <p className="story-excerpt">{story.briefing || story.excerpt}</p>
+          {story.update_explanation && (
+            <p className="story-update-explanation" style={{ fontSize: "0.85rem", color: "#b45309", margin: "0.35rem 0", fontStyle: "italic", background: "#fefce8", padding: "0.35rem 0.65rem", borderRadius: "4px" }}>
+              <strong>Follow-up:</strong> {story.update_explanation}
+            </p>
+          )}
           {story.why_it_matters && (
             <p className="story-importance">
               <strong>Why it matters:</strong> {story.why_it_matters}

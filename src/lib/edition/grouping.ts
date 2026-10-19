@@ -52,7 +52,7 @@ function titleTokens(title: string): Set<string> {
   );
 }
 
-function sameEventTitle(left: string, right: string): boolean {
+export function sameEventTitle(left: string, right: string): boolean {
   const leftTokens = titleTokens(left);
   const rightTokens = titleTokens(right);
   if (!leftTokens.size || !rightTokens.size) return false;
@@ -72,7 +72,7 @@ function articleEvidenceTokens(article: SourceArticle): Set<string> {
   );
 }
 
-function namedEntityTokens(article: SourceArticle): Set<string> {
+export function namedEntityTokens(article: SourceArticle): Set<string> {
   const content = [article.title, article.description, article.snippet]
     .filter(Boolean)
     .join(" ");
@@ -83,7 +83,7 @@ function namedEntityTokens(article: SourceArticle): Set<string> {
   );
 }
 
-function hasSharedEventEvidence(left: SourceArticle, right: SourceArticle): boolean {
+export function hasSharedEventEvidence(left: SourceArticle, right: SourceArticle): boolean {
   const leftEntities = namedEntityTokens(left);
   const rightEntities = namedEntityTokens(right);
   if ([...leftEntities].some((entity) => rightEntities.has(entity))) return true;

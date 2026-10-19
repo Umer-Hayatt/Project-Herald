@@ -4,7 +4,7 @@
 
 Planning checkpoint: 19 October 2026, Asia/Karachi. Active authority: [recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Main baseline: `3e8e437735d3258e5e342c7d1f738a30e8d99f9c`. Working branch: `codex/herald-recovery`.
 The eight revised recovery tickets have been published as issues [#12](https://github.com/Umer-Hayatt/Project-Herald/issues/12) through [#19](https://github.com/Umer-Hayatt/Project-Herald/issues/19) with `ready-for-agent` labels, native parent sub-issue links to #11, and native linear `blockedBy` edges. See [the ticket index](TICKET-REVIEW.md).
-Active frontier: issue #15 (R04: Reduce repeated events while retaining meaningful updates). R01 (#12), R02 (#13), and R03 (#14) completed and verified on 18–19 October 2026.
+Active frontier: issue #16 (R05: Use a validated AI editor to select a personal Edition). R01 (#12), R02 (#13), R03 (#14), and R04 (#15) completed and verified on 18–19 October 2026.
 
 This recovery replaces the expired 17 October 21:00 hackathon schedule for new recovery work. The original issues #1–#10 are historical scope/evidence, even though still open; their state does not establish what is implemented. Use current code and dated checks, not old completion claims. Parent #11 stays open and unchanged.
 
@@ -12,7 +12,7 @@ This recovery replaces the expired 17 October 21:00 hackathon schedule for new r
 
 1. Read this handoff, the [short plan](plan.md), [ticket index](TICKET-REVIEW.md), and the authoritative issue plus its comments. The [spec snapshot](spec.md) is a convenience copy; GitHub is authoritative for subsequent changes.
 2. Check the working tree and current commit. Preserve existing work. Read the current Product, Glossary, relevant ADRs, and issue-tracker instructions before implementation or status changes.
-3. The eight tickets (#12–#19) are published with native sub-issue and blocking relationships. Work only the frontier: open tickets whose blockers are complete. The current frontier is R04 (#15).
+3. The eight tickets (#12–#19) are published with native sub-issue and blocking relationships. Work only the frontier: open tickets whose blockers are complete. The current frontier is R05 (#16).
 4. Before closing a child, record the exact commit, environment, date, criteria outcomes and remaining limitations. Pass/fail/blocked/not-run are distinct. Update the ticket and this small checkpoint; keep this handoff current for the next agent.
 
 ## Product decisions to preserve
@@ -52,6 +52,30 @@ R02 needs three successive daily live coverage samples; R08 needs a seven-day pi
 The owner combined former R01+R02, R04+R05 and R10+R11. Use the revised eight-ticket index and current bodies; former draft IDs are historical. All 64 criteria remain. The dependency frontier is a linear R01–R08 chain. R08 records deployed readiness before starting its seven-day pilot and remains open until both stages pass. Revised publication approval is pending; the side-branch request alone does not approve ticket publication.
 
 ## Recovery checkpoints
+
+### 2026-10-19: R04 Completed & Verified
+
+- **Active child issue and parent revision**: Issue [#15](https://github.com/Umer-Hayatt/Project-Herald/issues/15) (R04), Parent [Recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11).
+- **Working commit/branch and environment**: Branch `codex/herald-recovery`, Node.js v20.18.0, Playwright 1.57.0, Supabase Postgres `hnzwraiojsftuncridsp.supabase.co`.
+- **Acceptance: pass / fail / blocked / not run, with dated evidence links**:
+  - `tests/recovery-r04.spec.ts`: PASS (12/12 passed on Desktop Chrome & Mobile Chromium).
+  - Full regression `tests/recovery-r01.spec.ts` through `tests/recovery-r04.spec.ts`: PASS (48/48 passed).
+  - Cross-provider same-event lineage: PASS (`src/lib/edition/events.ts`) — detects syndicated and alternate-provider copies via canonical URLs and same-event titles/entities.
+  - Unchanged repeat deprioritization: PASS — unchanged events from last 7 completed editions receive -25 penalty so fresh stories take precedence.
+  - Material update eligibility: PASS — source-supported updates carry `is_update: true` and honest update explanations.
+  - Two-reader isolation: PASS — Reader A's past event inclusion does not deprioritize the event for Reader B.
+  - TypeScript typecheck & ESLint: PASS (0 errors).
+- **Live versus controlled checks and test isolation**:
+  - Live checks: Authenticated Reader paper UI rendering with Developing Update badges and Follow-up explanations.
+  - Controlled checks: Controlled multi-day sequential generation verifying past edition immutability, repeat event deprioritization, and update eligibility.
+  - Test isolation: Reader A / Reader B dedicated test readers with isolated edition history and bounded 7-edition queries.
+- **Coverage/model/permission/cost prerequisites remaining**:
+  - Event matching uses deterministic URL canonicalization and title/entity token analysis; zero external LLM tokens or paid APIs required for R04.
+  - Update explanations grounded strictly in existing reporting metadata.
+- **Data/schema compatibility and rollback implications**:
+  - Compatibility: 100% backward compatible; update metadata stored in existing `supporting_sources` JSONB column.
+  - Rollback: Revert `src/lib/edition/events.ts` and ranking penalty logic.
+- **Next eligible issue or exact next action**: Issue [#16](https://github.com/Umer-Hayatt/Project-Herald/issues/16) (R05: Use a validated AI editor to select a personal Edition).
 
 ### 2026-10-19: R03 Completed & Verified
 
