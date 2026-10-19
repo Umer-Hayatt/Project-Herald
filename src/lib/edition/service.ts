@@ -8,7 +8,11 @@ import {
   estimateReadingTime,
   MAX_TOPIC_FEEDBACK_VOTES,
 } from "./ranking";
-import { executeAiEditorOrFallback } from "./ai-editor";
+import {
+  refineEditionWithTargetedSearch,
+  type CustomSearchProvider,
+  type TargetedSearchRequest,
+} from "./targeted-search";
 import type { Edition, EditionStory, SourceArticle, ReaderPreferencesRecord, GroupedSourceArticle } from "./types";
 import type { RecentIncludedEvent } from "./events";
 
@@ -148,6 +152,9 @@ export async function getOrCreateDailyEdition(
     controlledSubtopics?: string[];
     controlledRecentInclusions?: RecentIncludedEvent[];
     controlledAiResponse?: unknown;
+    customSearchProvider?: CustomSearchProvider;
+    exhaustBudget?: boolean;
+    explicitSearchRequests?: TargetedSearchRequest[];
     forceRefresh?: boolean;
   },
 ): Promise<EditionResult> {
@@ -301,14 +308,20 @@ export async function getOrCreateDailyEdition(
   const recentInclusions = options?.controlledRecentInclusions ||
     await loadRecentIncludedEvents(supabase, readerId, 7);
 
-  const selection = await executeAiEditorOrFallback(
+  const selection = await refineEditionWithTargetedSearch(
+    supabase,
     readyStories,
     preferencesForSelection,
     now,
     [...new Set([...(options?.positivelyLearnedTopics || []), ...positivelyLearnedTopics])],
     topicFeedback,
     recentInclusions,
-    options?.controlledAiResponse,
+    {
+      customSearchProvider: options?.customSearchProvider,
+      exhaustBudget: options?.exhaustBudget,
+      controlledAiResponse: options?.controlledAiResponse,
+      explicitSearchRequests: options?.explicitSearchRequests,
+    },
   );
   const selectedArticles = [...selection.main, ...selection.beyondBubble];
   if (selectedArticles.length === 0) {
