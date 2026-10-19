@@ -120,9 +120,8 @@ export default async function PaperPage({
     [heroStory?.position, spotlightStory?.position].filter(Boolean)
   );
 
-  // 3. Featured Stories: Distinct remaining stories (never duplicates of hero or spotlight)
-  const distinctRemaining = stories.filter((s) => !highlightedPositions.has(s.position));
-  const featuredStories = distinctRemaining.length >= 2 ? distinctRemaining.slice(0, 5) : [];
+  // Distinct remaining stories for fallback sidebar context if external wire is offline
+  const remainingStories = stories.filter((s) => !highlightedPositions.has(s.position));
 
 
   // 5. Sidebar Trending: Fetch fresh diverse stories from reporting supply to prevent duplicating edition stories
@@ -155,7 +154,7 @@ export default async function PaperPage({
     // Graceful fallback
   }
   if (trendingStories.length === 0) {
-    trendingStories = distinctRemaining.slice(0, 4).map((s) => ({
+    trendingStories = remainingStories.slice(0, 4).map((s) => ({
       id: s.id || String(s.position),
       title: s.title,
       publisher: s.publisher,
@@ -189,13 +188,10 @@ export default async function PaperPage({
           </div>
           <div className="edition-meta-chips" aria-label="Edition details">
             <span className="meta-chip highlight">
-              ~{edition.estimated_reading_minutes} min read
+              ~{edition.estimated_reading_minutes} min read ({result.readingLength} min plan)
             </span>
             <span className="meta-chip">{stories.length} stories</span>
             <span className="meta-chip">{edition.word_count} words</span>
-            <span className="meta-chip">
-              {result.readingLength} minutes
-            </span>
             <span className="meta-chip">
               {regions[result.preferredRegion as keyof typeof regions] || result.preferredRegion}
             </span>
@@ -247,37 +243,7 @@ export default async function PaperPage({
           </section>
         )}
 
-        {/* Featured Stories Horizontal Carousel/Grid (distinct, non-repeating stories) */}
-        {featuredStories.length > 0 && (
-          <section className="featured-stories-section" aria-label="Featured stories">
-            <div className="featured-header-row">
-              <h2 className="featured-title-bar">
-                <span className="featured-accent-pipe">|</span> Featured Stories
-              </h2>
-            </div>
-
-            <div className="featured-cards-grid">
-              {featuredStories.map((feat) => {
-                const featImg = getStoryImageUrl(feat.category, feat.image_url);
-                return (
-                  <a
-                    key={feat.id || feat.position}
-                    href={`#story-${feat.position}`}
-                    className="featured-card"
-                    style={{
-                      backgroundImage: `linear-gradient(to top, rgba(26, 36, 46, 0.95) 0%, rgba(35, 47, 59, 0.45) 50%, rgba(41, 55, 68, 0.2) 100%), url(${featImg})`,
-                    }}
-                  >
-                    <span className="featured-card-category">{feat.category}</span>
-                    <h3 className="featured-card-title">{feat.title}</h3>
-                  </a>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Two-Column Editorial: The Latest / Your Stories + Trending Sidebar */}
+        {/* Two-Column Editorial: Your Stories + Context Sidebar */}
         <div className="edition-main-grid">
           <div className="edition-main-content">
             <section className="story-feed" aria-label="Today’s stories">
@@ -318,12 +284,11 @@ export default async function PaperPage({
             </section>
           </div>
 
-          <aside className="edition-sidebar" aria-label="Perspectives and trending">
+          <aside className="edition-sidebar" aria-label="Perspectives and context">
             {trendingStories.length > 0 && (
               <div className="trending-card">
                 <h3 className="trending-header">
-                  <span>On Trending</span>
-                  <span aria-hidden="true">🔥</span>
+                  <span>Also in the news today</span>
                 </h3>
                 <div className="trending-list">
                   {trendingStories.map((trend, index) => {
@@ -353,13 +318,13 @@ export default async function PaperPage({
               </div>
             )}
 
-            <div className="cta-banner-card">
-              <h3 className="cta-banner-title">Herald Morning Paper</h3>
-              <p className="cta-banner-text">
-                Finite daily editions curated for your interests, with room for perspective.
+            <div className="ritual-summary-card">
+              <h3 className="ritual-summary-title">Daily Reading Ritual</h3>
+              <p className="ritual-summary-text">
+                Delivered once each morning. Read to the bottom to complete your finite edition.
               </p>
-              <Link href="/settings" className="button" style={{ background: "var(--orange)", color: "#ffffff", border: "none" }}>
-                Tune Preferences
+              <Link href="/settings" className="secondary-button" style={{ fontSize: "0.85rem", width: "100%", textAlign: "center", textDecoration: "none" }}>
+                Adjust reading pace →
               </Link>
             </div>
           </aside>

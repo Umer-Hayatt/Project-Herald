@@ -58,37 +58,44 @@ export default async function Home() {
             A daily paper shaped by your interests, with important stories
             beyond them.
           </p>
-          <Link className="button" href="/login">
-            Create my paper{" "}
-            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M3 13 13 3M4 3h9v9"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              />
-            </svg>
-          </Link>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
+            <Link className="button" href="/login">
+              Create my paper{" "}
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M3 13 13 3M4 3h9v9"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+              </svg>
+            </Link>
+            <Link className="secondary-button" href="/sample" style={{ textDecoration: "none" }}>
+              Inspect sample paper & PDF →
+            </Link>
+          </div>
           <p className="small-note">
             Start with Google. Make it yours in a minute.
           </p>
         </div>
         <aside className="art-space" aria-label="Illustrative paper preview">
-          <div className="paper-object">
-            <span className="paper-masthead">Herald.</span>
-            <div className="paper-rule" />
-            <h2>
-              A wider view.
-              <br />A little more you.
-            </h2>
-            <p>
-              Your interests set the direction. A different perspective makes
-              the paper.
-            </p>
-            <div className="paper-rule" />
-            <span className="small-note">Your daily reading ritual</span>
-          </div>
-          <p className="art-caption">Illustrative preview · not a live Edition</p>
+          <Link href="/sample" style={{ textDecoration: "none", color: "inherit", display: "block" }} aria-label="Inspect public sample edition">
+            <div className="paper-object">
+              <span className="paper-masthead">Herald.</span>
+              <div className="paper-rule" />
+              <h2>
+                A wider view.
+                <br />A little more you.
+              </h2>
+              <p>
+                Your interests set the direction. A different perspective makes
+                the paper.
+              </p>
+              <div className="paper-rule" />
+              <span className="small-note">Click to inspect sample edition →</span>
+            </div>
+          </Link>
+          <p className="art-caption">Illustrative preview · click to view sample Edition</p>
         </aside>
       </main>
 
@@ -252,12 +259,11 @@ export default async function Home() {
               </div>
             </div>
 
-            <aside className="edition-sidebar" aria-label="Trending perspectives">
+            <aside className="edition-sidebar" aria-label="Wire context">
               {trendingArticles.length > 0 && (
                 <div className="trending-card">
                   <h3 className="trending-header">
-                    <span>On Trending</span>
-                    <span aria-hidden="true">🔥</span>
+                    <span>Today’s Wire Briefs</span>
                   </h3>
                   <div className="trending-list">
                     {trendingArticles.map((trend, index) => {

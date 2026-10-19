@@ -56,14 +56,14 @@ export function EditionStoryCard({
           </div>
 
           <h2 className="story-title hero-title">{story.title}</h2>
-          <p className="story-excerpt hero-excerpt">{story.briefing || story.excerpt}</p>
+          <p className="story-excerpt story-briefing hero-excerpt">{story.briefing || story.excerpt}</p>
           {story.update_explanation && (
             <p className="story-update-explanation hero-update-explanation" style={{ color: "#fef08a", background: "rgba(120, 53, 15, 0.4)", padding: "0.35rem 0.65rem", borderRadius: "4px", margin: "0.35rem 0", fontSize: "0.85rem" }}>
               <strong>Follow-up:</strong> {story.update_explanation}
             </p>
           )}
           {story.why_it_matters && (
-            <p className="story-importance hero-importance" style={{ color: "#e2e8f0", background: "rgba(15, 23, 42, 0.6)", padding: "0.5rem 0.75rem", borderRadius: "6px", margin: "0.5rem 0" }}>
+            <p className="story-importance story-why-it-matters hero-importance" style={{ color: "#e2e8f0", background: "rgba(15, 23, 42, 0.6)", padding: "0.5rem 0.75rem", borderRadius: "6px", margin: "0.5rem 0" }}>
               <strong style={{ color: "var(--orange, #f97316)" }}>Why it matters:</strong> {story.why_it_matters}
             </p>
           )}
@@ -159,14 +159,14 @@ export function EditionStoryCard({
           </div>
 
           <h3 className="story-title">{story.title}</h3>
-          <p className="story-excerpt">{story.briefing || story.excerpt}</p>
+          <p className="story-excerpt story-briefing">{story.briefing || story.excerpt}</p>
           {story.update_explanation && (
             <p className="story-update-explanation" style={{ fontSize: "0.85rem", color: "#b45309", margin: "0.35rem 0", fontStyle: "italic", background: "#fefce8", padding: "0.35rem 0.65rem", borderRadius: "4px" }}>
               <strong>Follow-up:</strong> {story.update_explanation}
             </p>
           )}
           {story.why_it_matters && (
-            <p className="story-importance">
+            <p className="story-importance story-why-it-matters">
               <strong>Why it matters:</strong> {story.why_it_matters}
             </p>
           )}

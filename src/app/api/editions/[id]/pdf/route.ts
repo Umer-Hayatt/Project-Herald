@@ -3,6 +3,7 @@ import { createClient as createServerSupabase } from "@/lib/supabase/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getArchivedEditionById } from "@/lib/edition/archive";
 import { generateEditionPdf } from "@/lib/edition/pdf";
+import { getPublicSampleEdition, SAMPLE_EDITION_ID } from "@/lib/edition/sample";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,21 @@ export async function GET(
     const { id: editionId } = await params;
     if (!editionId) {
       return new Response("Edition ID required", { status: 400 });
+    }
+
+    // Public sample edition PDF download (no authentication required)
+    if (editionId === "sample" || editionId === SAMPLE_EDITION_ID) {
+      const sampleEdition = getPublicSampleEdition();
+      const pdfBuffer = await generateEditionPdf(sampleEdition);
+      return new Response(new Uint8Array(pdfBuffer), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="Herald-Sample-Edition.pdf"`,
+          "Cache-Control": "public, max-age=3600",
+          "Content-Length": String(pdfBuffer.length),
+        },
+      });
     }
 
     // 1. Resolve Supabase client and authenticate reader (supporting both session cookies and Bearer tokens)

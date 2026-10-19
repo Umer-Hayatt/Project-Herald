@@ -58,7 +58,9 @@ export function PdfDownloadButton({
   };
 
   const buttonClass =
-    variant === "primary" ? "button pdf-btn" : "secondary-button pdf-btn";
+    variant === "primary"
+      ? "button pdf-btn pdf-download-btn"
+      : "secondary-button pdf-btn pdf-download-btn";
 
   return (
     <div className={`pdf-download-wrapper ${className}`}>
