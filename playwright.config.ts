@@ -1,13 +1,17 @@
 import { defineConfig, devices } from "@playwright/test";
-import { loadEnvConfig } from "@next/env";
 import { assertIsolatedTestEnvironment } from "./tests/isolation";
-loadEnvConfig(process.cwd());
 try {
   process.loadEnvFile(".env.test.local");
 } catch {
-  /* Live tests skip without disposable accounts. */
+  /* The isolation guard below refuses to run without local configuration. */
 }
 assertIsolatedTestEnvironment(process.env);
+// Controlled tests must not spend live provider quotas inherited from the shell.
+for (const name of ["THENEWSAPI_TOKEN", "GNEWS_API_KEY", "NEWSDATA_API_KEY", "GEMINI_API_KEY"]) {
+  process.env[name] = "";
+}
+process.env.GEMINI_PUBLIC_BRIEFINGS_ENABLED = "false";
+process.env.GEMINI_AI_EDITOR_ENABLED = "false";
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: false,

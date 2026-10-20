@@ -8,6 +8,8 @@ Planning checkpoint: 19 October 2026, Asia/Karachi. Active authority: [recovery 
 The eight revised recovery tickets have been published as issues [#12](https://github.com/Umer-Hayatt/Project-Herald/issues/12) through [#19](https://github.com/Umer-Hayatt/Project-Herald/issues/19) with `ready-for-agent` labels, native parent sub-issue links to #11, and native linear `blockedBy` edges. See [the ticket index](TICKET-REVIEW.md).
 Active frontier: repair the audited R01–R07 defects and re-establish their acceptance evidence. R08 remains blocked.
 
+Testing now uses the separate, explicitly approved **Herald Recovery Test** project; Docker is not required. See [isolated test setup](isolated-tests.md). Production remains prohibited for test mutations.
+
 This recovery replaces the expired 17 October 21:00 hackathon schedule for new recovery work. The original issues #1–#10 are historical scope/evidence, even though still open; their state does not establish what is implemented. Use current code and dated checks, not old completion claims. Parent #11 stays open and unchanged.
 
 ## Resume in order

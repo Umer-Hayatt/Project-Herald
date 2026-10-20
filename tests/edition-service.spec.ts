@@ -7,9 +7,9 @@ const mockSupply: SourceArticle[] = [
   {
     id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     external_id: "test-supply-1",
-    title: "Global Scientific Discovery",
-    description: "Breakthrough in energy efficiency.",
-    snippet: "Scientists discover ambient superconducting compound.",
+    title: "Researchers publish measurements of superconducting compound",
+    description: "Researchers published laboratory measurements of a new compound and described the methods used to test its electrical resistance.",
+    snippet: "The team released the measurements for independent replication and said further experiments are needed to confirm the observed properties.",
     url: "https://publisher.org/science-breakthrough",
     image_url: null,
     publisher: "Science Wire",
@@ -22,9 +22,9 @@ const mockSupply: SourceArticle[] = [
   {
     id: "f47ac10b-58cc-4372-a567-0e02b2c3d480",
     external_id: "test-supply-2",
-    title: "Technology Market Rally",
-    description: "Semiconductor index surges.",
-    snippet: "New chip architectures drive massive computing performance gains.",
+    title: "New chip architecture improves computing performance",
+    description: "Engineers reported benchmark results for a new processor design using a revised memory architecture to reduce delays in computing tasks.",
+    snippet: "The published tests compare the design with the previous generation under the same workload and power settings.",
     url: "https://publisher.org/tech-rally",
     image_url: null,
     publisher: "Tech Herald",
@@ -36,6 +36,16 @@ const mockSupply: SourceArticle[] = [
   },
 ];
 
+const nextDaySupply: SourceArticle[] = [{
+  ...mockSupply[0],
+  id: "f47ac10b-58cc-4372-a567-0e02b2c3d481",
+  external_id: "test-next-day-observatory",
+  title: "New mountain observatory begins public research programme",
+  description: "A mountain observatory opened its first research programme, making telescope time available to university teams studying nearby stars.",
+  snippet: "The facility published its observing schedule and application rules, with the first measurements planned for the coming month.",
+  url: "https://publisher.org/mountain-observatory-opens",
+}];
+
 test.describe("Edition Service Integration", () => {
   test.skip(!testReadersConfigured, "Test readers required in .env.test.local");
 
@@ -43,6 +53,9 @@ test.describe("Edition Service Integration", () => {
     const supabaseA = await login("A");
     const { data: { user } } = await supabaseA.auth.getUser();
     expect(user).not.toBeNull();
+
+    // This disposable reader's earlier test fixtures must not count as prior reading.
+    await supabaseA.from("editions").delete().eq("reader_id", user!.id);
 
     // Ensure reader A is onboarded
     await supabaseA.from("reader_preferences").upsert({
@@ -115,7 +128,7 @@ test.describe("Edition Service Integration", () => {
     // 4. Moving to the next day creates a new edition
     const nextDayResult = await getOrCreateDailyEdition(supabaseA, user!.id, {
       controlledDate: nextDayDate,
-      controlledSupply: mockSupply,
+      controlledSupply: nextDaySupply,
     });
 
     expect(nextDayResult.success).toBe(true);
@@ -149,6 +162,7 @@ test.describe("Edition Service Integration", () => {
     const supabase = await login("A");
     const { data: { user } } = await supabase.auth.getUser();
     expect(user).not.toBeNull();
+    await supabase.from("editions").delete().eq("reader_id", user!.id);
 
     await supabase.from("reader_preferences").upsert({
       reader_id: user!.id,
@@ -191,7 +205,7 @@ test.describe("Edition Service Integration", () => {
 
     const recovered = await getOrCreateDailyEdition(supabase, user!.id, {
       controlledDate: unavailableDate,
-      controlledSupply: mockSupply,
+      controlledSupply: nextDaySupply,
     });
     expect(recovered.success, JSON.stringify(recovered)).toBe(true);
     if (!recovered.success) return;
@@ -201,7 +215,7 @@ test.describe("Edition Service Integration", () => {
 
     const repeatedRecovery = await getOrCreateDailyEdition(supabase, user!.id, {
       controlledDate: unavailableDate,
-      controlledSupply: mockSupply,
+      controlledSupply: nextDaySupply,
     });
     expect(repeatedRecovery.success, JSON.stringify(repeatedRecovery)).toBe(true);
     if (repeatedRecovery.success) {
@@ -229,9 +243,8 @@ test.describe("Edition Service Integration", () => {
     const { data: { user } } = await supabase.auth.getUser();
     expect(user).not.toBeNull();
 
-    const { data: priorEditions } = await supabase.from("editions")
-      .select("id").eq("reader_id", user!.id).limit(1);
-    test.skip(Boolean(priorEditions?.length), "A clean disposable reader is required for the no-saved-Edition case");
+    // Repeated suite runs reuse these disposable readers; initialize this case.
+    expect((await supabase.from("editions").delete().eq("reader_id", user!.id)).error).toBeNull();
 
     await supabase.from("reader_preferences").upsert({
       reader_id: user!.id,

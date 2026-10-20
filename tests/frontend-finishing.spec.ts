@@ -3,7 +3,9 @@ import { expect, test } from "@playwright/test";
 test("a reader can identify the preview and reach sign-in with reduced motion and keyboard", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.getByText("Illustrative preview · not a live Edition")).toBeVisible();
+  const preview = page.getByRole("complementary", { name: "Illustrative paper preview" });
+  await expect(preview.getByText(/Illustrative preview/)).toBeVisible();
+  await expect(preview.getByRole("link", { name: "Inspect public sample edition" })).toHaveAttribute("href", "/sample");
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
   await page.keyboard.press("Enter");

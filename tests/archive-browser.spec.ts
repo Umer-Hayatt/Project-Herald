@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
 import { login, testReadersConfigured } from "./helpers";
 import { getOrCreateDailyEdition } from "../src/lib/edition/service";
 import type { SourceArticle } from "../src/lib/edition/types";
@@ -43,7 +43,12 @@ test.describe("Archive Browser Journey", () => {
     context,
     page,
     baseURL,
-  }) => {
+  }, testInfo) => {
+    test.setTimeout(90000);
+    const activateLink = async (link: Locator) => {
+      if (testInfo.project.use.hasTouch) await link.tap();
+      else await link.click();
+    };
     // 1. Authenticate reader A and B
     const supabaseA = await login("A", context, baseURL!);
     const {
@@ -78,8 +83,9 @@ test.describe("Archive Browser Journey", () => {
     await expect(page).toHaveURL(/\/archive$/);
 
     // Header must have navigation links
-    await expect(page.getByRole("link", { name: "Today’s Paper" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Archive" })).toBeVisible();
+    const navigation = page.getByRole("navigation", { name: "Main Navigation" });
+    await expect(navigation.getByRole("link", { name: "Today’s Paper" })).toBeVisible();
+    await expect(navigation.getByRole("link", { name: "Archive" })).toBeVisible();
 
     // 3. Seed two editions for two controlled dates
     const resDay1 = await getOrCreateDailyEdition(supabaseA, userA!.id, {
@@ -110,7 +116,7 @@ test.describe("Archive Browser Journey", () => {
     await expect(cardDay1).toBeVisible();
 
     // 5. Open dateDay2 edition by clicking its link
-    await cardDay2.getByRole("link", { name: /Read edition|View edition/i }).click();
+    await activateLink(cardDay2.getByRole("link", { name: /Read edition|View edition/i }));
     await expect(page).toHaveURL(new RegExp(`/archive/${resDay2.edition.id}$`));
 
     // Verify archived edition screen
@@ -133,7 +139,7 @@ test.describe("Archive Browser Journey", () => {
     await expect(skipBtn).toBeVisible();
 
     // 6. Navigate back to Today's paper via header
-    await page.getByRole("link", { name: "Today’s Paper", exact: true }).click();
+    await activateLink(navigation.getByRole("link", { name: "Today’s Paper", exact: true }));
     await expect(page).toHaveURL(/\/paper$/);
 
     // 7. Test unauthorized / invalid edition access

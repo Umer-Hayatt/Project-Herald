@@ -1,9 +1,10 @@
 import { chromium } from "@playwright/test";
 import { createServerClient } from "@supabase/ssr";
 import { mkdirSync, writeFileSync } from "node:fs";
-process.loadEnvFile(".env.local");
+import { assertIsolatedTestEnvironment } from "../tests/isolation.ts";
 process.loadEnvFile(".env.test.local");
-const base = process.env.CAPTURE_BASE_URL || "http://localhost:3001";
+assertIsolatedTestEnvironment({ ...process.env, TEST_BASE_URL: process.env.TEST_BASE_URL || process.env.CAPTURE_BASE_URL });
+const base = "http://localhost:3001";
 const directory = ".impeccable/review";
 mkdirSync(directory, { recursive: true });
 const results = [];

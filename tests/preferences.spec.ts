@@ -124,8 +124,12 @@ test.describe("persisted account journey", () => {
     await page.getByRole("button", { name: "Save and continue" }).click();
     await expect(page).toHaveURL(/\/paper$/);
     await page.reload();
-    await expect(page.getByText("Pakistan", { exact: true })).toBeVisible();
-    await expect(page.getByText("5 minutes", { exact: true })).toBeVisible();
+    await expect(page).toHaveURL(/\/paper$/);
+    // Reading length is a saved preference; an Edition can contain fewer minutes.
+    await page.getByRole("navigation", { name: "Main Navigation" })
+      .getByRole("link", { name: "Preferences", exact: true }).click();
+    await expect(page.getByLabel("Preferred region", { exact: true })).toHaveValue("pk");
+    await expect(page.getByLabel("Reading length", { exact: true })).toHaveValue("5");
     await page.getByRole("button", { name: "Sign out", exact: true }).click();
     await expect(page).toHaveURL(/\/login$/);
     await page.goto("/paper");

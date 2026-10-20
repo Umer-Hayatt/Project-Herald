@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "node:crypto";
 import { appendFileSync } from "node:fs";
+import { assertIsolatedTestEnvironment } from "../tests/isolation.ts";
+assertIsolatedTestEnvironment(process.env);
 // Operator-only setup. Never add this admin key to the application deployment.
 const adminKey = process.env.SUPABASE_TEST_ADMIN_KEY;
 if (!adminKey) {

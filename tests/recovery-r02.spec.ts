@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { createClient } from "@supabase/supabase-js";
 import { login, testReadersConfigured } from "./helpers";
 import { getOrCreateDailyEdition } from "../src/lib/edition/service";
 import { getReportingSupply } from "../src/lib/edition/news-supply";
@@ -346,18 +347,46 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
   test("6. Shared cache reuse: successive calls within cache window reuse pool without redundant provider fetches", async () => {
     const supabaseA = await login("A");
     const now = new Date();
-
-    // Fetch reporting supply first time
-    const supplyFirst = await getReportingSupply(supabaseA, { referenceDate: now });
-    expect(supplyFirst.length).toBeGreaterThan(0);
-
-    // Second fetch without forceRefresh reuses the cache
-    const supplySecond = await getReportingSupply(supabaseA, {
-      referenceDate: now,
-      forceRefresh: false,
+    const key = process.env.SUPABASE_REPORTING_SERVICE_KEY;
+    expect(key, "Configure the dedicated test project's server key; this test must seed its own cache").toBeTruthy();
+    if (!key) return;
+    const server = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
     });
-
-    expect(supplySecond.length).toBe(supplyFirst.length);
-    expect(supplySecond[0].title).toBe(supplyFirst[0].title);
+    const writer = { rpc: server.rpc.bind(server) };
+    const previousMeta = await server.from("reporting_cache_meta").select("*").eq("id", "news_supply").maybeSingle();
+    expect(previousMeta.error).toBeNull();
+    let providerCalls = 0;
+    const coordinator = new NewsProviderCoordinator([{
+      name: "thenewsapi", defaultOutputUse: "commercial", isConfigured: () => true,
+      fetchCandidates: async () => {
+        providerCalls++;
+        return { success: true, providerCalls: 1, candidates: [{
+          id: "r02-shared-cache-fixture", provider: "thenewsapi", output_use: "commercial",
+          title: "Ocean expedition publishes survey of deep sea habitats",
+          description: "The ocean expedition published a survey of deep sea habitats and released the sampling methods used to identify species across the study area.",
+          snippet: null, image_url: null, url: "https://publisher.org/r02-shared-cache",
+          publisher: "Controlled Ocean Reporting", published_at: now.toISOString(), retrieved_at: now.toISOString(),
+          language: "en", categories: ["science"], locale: null, raw: { test_fixture: "r02-shared-cache" },
+        }] };
+      },
+    }]);
+    try {
+      // Start with a fresh quota fixture in this dedicated test project only.
+      expect((await server.from("reporting_cache_meta").delete().eq("id", "news_supply")).error).toBeNull();
+      const first = await getReportingSupply(supabaseA, { referenceDate: now, coordinator, reportingWriter: writer, forceRefresh: true });
+      expect(first.some(article => article.external_id === "r02-shared-cache-fixture")).toBe(true);
+      const supabaseB = await login("B");
+      const second = await getReportingSupply(supabaseB, { referenceDate: now, coordinator, reportingWriter: writer });
+      expect(second.map(article => article.external_id)).toEqual(first.map(article => article.external_id));
+      expect(providerCalls).toBe(1);
+    } finally {
+      // Exact fixture cleanup is confined to this approved test database.
+      expect((await server.from("source_articles").delete().eq("external_id", "r02-shared-cache-fixture")).error).toBeNull();
+      expect((await server.from("reporting_cache_meta").delete().eq("id", "news_supply")).error).toBeNull();
+      if (previousMeta.data) {
+        expect((await server.from("reporting_cache_meta").insert(previousMeta.data)).error).toBeNull();
+      }
+    }
   });
 });
