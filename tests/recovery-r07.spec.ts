@@ -10,14 +10,15 @@ test.describe("Recovery R07: Calm Finished Reading & Public Samples Before Login
     expect(sample.edition_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(sample.estimated_reading_minutes).toBeGreaterThan(0);
     expect(sample.word_count).toBeGreaterThan(0);
-    expect(sample.stories.length).toBeGreaterThanOrEqual(4);
+    expect(sample.stories.length).toBe(2);
 
     // Verify sections and story contracts
     const mainStories = sample.stories.filter((s) => s.section === "main");
     const beyondBubble = sample.stories.filter((s) => s.section === "beyond_bubble");
 
-    expect(mainStories.length).toBeGreaterThanOrEqual(3);
-    expect(beyondBubble.length).toBeGreaterThanOrEqual(1);
+    expect(mainStories.length).toBe(2);
+    expect(beyondBubble.length).toBe(0);
+    expect(sample.discovery_note).toContain("historical");
 
     for (const story of sample.stories) {
       expect(story.title.length).toBeGreaterThan(15);
@@ -55,12 +56,12 @@ test.describe("Recovery R07: Calm Finished Reading & Public Samples Before Login
     // 3. Compact dated header
     await expect(page.locator("h1.edition-header-title")).toBeVisible();
     await expect(page.locator(".edition-header-meta")).toContainText("Sample Issue");
-    await expect(page.locator(".edition-header-meta")).toContainText("plan");
+    await expect(page.locator(".edition-header-meta")).toContainText("Historical sample");
 
     // 4. Main and Beyond Your Bubble stories
     const storyCards = page.locator(".story-card");
     const storyCount = await storyCards.count();
-    expect(storyCount).toBeGreaterThanOrEqual(4);
+    expect(storyCount).toBe(2);
 
     // Verify first story has full contract visible
     const firstStory = storyCards.first();

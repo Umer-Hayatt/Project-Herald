@@ -90,17 +90,22 @@ export function evaluateArticleQuality(
     allowEvaluationOnly?: boolean;
   },
 ): ArticleQualityEvaluation {
+  if (!article || typeof article !== "object") {
+    return { eligible: false, reason: "missing_provenance" };
+  }
   // 0. Output-use eligibility checks
   const outputUse =
     article.output_use ||
     (article.raw_data as { output_use?: string } | undefined)?.output_use;
 
-  if (outputUse === "evaluation_only" && !options?.allowEvaluationOnly) {
+  const provider = article.raw_data?.provider;
+  if (typeof provider !== "string" || !provider.trim() || provider === "controlled" ||
+    (outputUse !== "commercial" && !(outputUse === "evaluation_only" && options?.allowEvaluationOnly))) {
     return {
       eligible: false,
       reason: "disallowed_output_use",
       detail:
-        "Evaluation-only material cannot enter production editions, briefings, or public previews",
+        "Reporting requires explicit provider provenance and permitted output use",
     };
   }
 
@@ -126,6 +131,15 @@ export function evaluateArticleQuality(
   }
 
   // 2. Date checks
+  try {
+    const hostname = new URL(article.url).hostname;
+    if (/(^|\.)(example\.(com|org|net)|localhost)$|\.(test|invalid|example)$/i.test(hostname)) {
+      return { eligible: false, reason: "missing_provenance", detail: "Reserved example hosts are not reporting sources" };
+    }
+  } catch {
+    return { eligible: false, reason: "missing_provenance" };
+  }
+
   if (!article.published_at || typeof article.published_at !== "string") {
     return {
       eligible: false,

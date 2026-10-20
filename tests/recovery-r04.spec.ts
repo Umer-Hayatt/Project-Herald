@@ -9,13 +9,13 @@ const now = new Date("2026-10-19T10:00:00Z");
 
 const pastEventCleanEnergy: RecentIncludedEvent = {
   title: "Global Clean Energy Initiative Reaches Milestone With Record Solar Targets",
-  sourceUrl: "https://example.com/clean-energy-summit",
+  sourceUrl: "https://publisher.org/clean-energy-summit",
   category: "science",
   publishedAt: "2026-10-18T08:00:00Z",
   editionDate: "2026-10-18",
   briefing: "International summit establishes ambitious solar deployment targets for 2030.",
   whyItMatters: "Grid capacity determines the real-world deployment speed.",
-  supportingUrls: ["https://example.com/clean-energy-summit-wire"],
+  supportingUrls: ["https://publisher.org/clean-energy-summit-wire"],
 };
 
 const candidateUnchangedRepeat: GroupedSourceArticle = {
@@ -24,13 +24,14 @@ const candidateUnchangedRepeat: GroupedSourceArticle = {
   title: "Global Clean Energy Initiative Reaches Milestone With Record Solar Targets",
   description: "International summit establishes ambitious solar targets across Western nations.",
   snippet: "Grid capacity determines deployment speed.",
-  url: "https://example.com/clean-energy-summit-syndicated",
+  url: "https://publisher.org/clean-energy-summit-syndicated",
   image_url: null,
   publisher: "Alternative Wire Syndication",
   published_at: "2026-10-18T09:00:00Z",
   language: "en",
   categories: ["science"],
   locale: "global",
+  raw_data: { provider: "thenewsapi", output_use: "commercial" },
   supportingArticles: [],
   briefing: "International summit establishes ambitious solar targets across Western nations.",
   whyItMatters: "Grid capacity determines deployment speed.",
@@ -44,13 +45,18 @@ const candidateMaterialUpdate: GroupedSourceArticle = {
   title: "Update: European Commission Approves Funding Framework for Solar Summit Targets",
   description: "Following weekend climate summit agreements, regulators approve formal subsidy disbursements.",
   snippet: "First round of grid grants unlocked under the global milestone agreement.",
-  url: "https://example.com/clean-energy-funding-approved",
+  url: pastEventCleanEnergy.sourceUrl,
   image_url: null,
   publisher: "European Policy Dispatch",
   published_at: "2026-10-19T06:30:00Z",
   language: "en",
   categories: ["science", "politics"],
   locale: "global",
+  raw_data: { provider: "thenewsapi", output_use: "commercial", material_update: {
+    verified: true,
+    previous_source_url: pastEventCleanEnergy.sourceUrl,
+    source_excerpt: "Following weekend climate summit agreements, regulators approve formal subsidy disbursements.",
+  } },
   supportingArticles: [
     {
       id: "supp-energy-1",
@@ -58,13 +64,14 @@ const candidateMaterialUpdate: GroupedSourceArticle = {
       title: "Global Clean Energy Initiative Reaches Milestone With Record Solar Targets",
       description: "Previous summit background.",
       snippet: null,
-      url: "https://example.com/clean-energy-summit",
+      url: "https://publisher.org/clean-energy-summit",
       image_url: null,
       publisher: "Clean Wire Service",
       published_at: "2026-10-18T08:00:00Z",
       language: "en",
       categories: ["science"],
       locale: "global",
+      raw_data: { provider: "thenewsapi", output_use: "commercial" },
     },
   ],
   briefing: "Following climate summit agreements, regulators approve formal subsidy disbursements.",
@@ -79,13 +86,14 @@ const candidateDistinctEventSameTopic: GroupedSourceArticle = {
   title: "Fusion Reactor Milestone Achieved at Magnetic Confinement Facility",
   description: "Physicists sustain high-density plasma reaction for over twenty minutes.",
   snippet: "New superconducting magnets prevent core instability.",
-  url: "https://example.com/fusion-reactor-milestone",
+  url: "https://publisher.org/fusion-reactor-milestone",
   image_url: null,
   publisher: "Physics Gazette",
   published_at: "2026-10-19T07:00:00Z",
   language: "en",
   categories: ["science"],
   locale: "global",
+  raw_data: { provider: "thenewsapi", output_use: "commercial" },
   supportingArticles: [],
   briefing: "Physicists sustain high-density plasma reaction for over twenty minutes.",
   whyItMatters: "Extended containment brings commercial net-energy generation closer.",
@@ -136,17 +144,17 @@ test.describe("Recovery R04: Reduce repeated events while retaining meaningful u
     expect(isMatch).toBe(false);
   });
 
-  test("4. Materially new update remains eligible and saves honest update explanation", () => {
+  test("4. Controlled verified update evidence remains eligible with its exact source excerpt", () => {
     const isMatch = isSameEvent(candidateMaterialUpdate, pastEventCleanEnergy);
     expect(isMatch).toBe(true);
 
     const updateCheck = detectEventUpdate(candidateMaterialUpdate, pastEventCleanEnergy);
     expect(updateCheck.isUpdate).toBe(true);
-    expect(updateCheck.explanation).toContain("Updates previous coverage");
+    expect(updateCheck.explanation).toContain("New source reporting:");
 
     const evaluation = evaluateRecentInclusion(candidateMaterialUpdate, [pastEventCleanEnergy]);
     expect(evaluation.status).toBe("update");
-    expect(evaluation.updateExplanation).toContain("Updates previous coverage");
+    expect(evaluation.updateExplanation).toContain("New source reporting:");
 
     const preferences = {
       interests: ["science"],
@@ -217,6 +225,7 @@ test.describe("Recovery R04: Reduce repeated events while retaining meaningful u
     const day1Result = await getOrCreateDailyEdition(supabaseA, userA!.id, {
       controlledDate: day1Date,
       controlledSupply: [candidateUnchangedRepeat as unknown as SourceArticle],
+      referenceDate: now,
     });
     expect(day1Result.success).toBe(true);
     if (!day1Result.success) return;
@@ -233,6 +242,7 @@ test.describe("Recovery R04: Reduce repeated events while retaining meaningful u
     const day2Result = await getOrCreateDailyEdition(supabaseA, userA!.id, {
       controlledDate: day2Date,
       controlledSupply: [candidateMaterialUpdate as unknown as SourceArticle],
+      referenceDate: now,
       controlledRecentInclusions: [pastEventCleanEnergy],
     });
     expect(day2Result.success).toBe(true);
@@ -240,7 +250,7 @@ test.describe("Recovery R04: Reduce repeated events while retaining meaningful u
 
     // Verify Day 2 story carries update explanation
     expect(day2Result.edition.stories[0].is_update).toBe(true);
-    expect(day2Result.edition.stories[0].update_explanation).toContain("Updates previous coverage");
+    expect(day2Result.edition.stories[0].update_explanation).toContain("New source reporting:");
 
     // 3. Verify Day 1 saved edition remains strictly immutable after Day 2 creation
     const { data: day1StoriesReloaded } = await supabaseA

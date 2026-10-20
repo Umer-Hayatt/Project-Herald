@@ -1,11 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
 import { loadEnvConfig } from "@next/env";
+import { assertIsolatedTestEnvironment } from "./tests/isolation";
 loadEnvConfig(process.cwd());
 try {
   process.loadEnvFile(".env.test.local");
 } catch {
   /* Live tests skip without disposable accounts. */
 }
+assertIsolatedTestEnvironment(process.env);
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: false,
@@ -13,7 +15,7 @@ export default defineConfig({
   retries: 0,
   reporter: "list",
   use: {
-    baseURL: process.env.TEST_BASE_URL || "http://localhost:3000",
+    baseURL: "http://localhost:3000",
     trace: "off",
     screenshot: "off",
   },
@@ -24,12 +26,10 @@ export default defineConfig({
       use: { ...devices["iPhone 13"], defaultBrowserType: "chromium" },
     },
   ],
-  webServer: process.env.TEST_BASE_URL
-    ? undefined
-    : {
+  webServer: {
         command: "npm run dev",
         url: "http://localhost:3000",
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: false,
         timeout: 120000,
       },
 });

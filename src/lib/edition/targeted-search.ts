@@ -6,6 +6,8 @@ import { processGroupedStories } from "./story-processing";
 import { executeAiEditorOrFallback, type AiEditorExecutionResult } from "./ai-editor";
 import type { SelectionPreferences } from "./ranking";
 import type { RecentIncludedEvent } from "./events";
+import type { ReportingWriter } from "./news-supply";
+import { createHash } from "node:crypto";
 
 export interface TargetedSearchRequest {
   query: string;
@@ -183,6 +185,7 @@ export async function executeBoundedTargetedSearch(
     customProvider?: CustomSearchProvider;
     referenceDate?: Date;
     exhaustBudget?: boolean;
+    reportingWriter?: ReportingWriter;
   },
 ): Promise<TargetedSearchExecutionResult> {
   if (options?.exhaustBudget) {
@@ -207,23 +210,26 @@ export async function executeBoundedTargetedSearch(
 
     const validated = validation.data;
     const cacheKey = getSearchCacheKey(validated);
-    const cached = searchCache.get(cacheKey);
+    // Live results always pass the current permission gate and shared database cache.
+    const cached = options?.customProvider ? searchCache.get(cacheKey) : undefined;
 
     // Check shared cache reuse
-    if (cached && now.getTime() - cached.timestamp < CACHE_WINDOW_MS) {
+    if (cached && now.getTime() >= cached.timestamp && now.getTime() - cached.timestamp < CACHE_WINDOW_MS) {
       anyReusedFromCache = true;
-      allFoundArticles.push(...cached.articles);
+      allFoundArticles.push(...filterEligibleArticles(cached.articles, { now, maxAgeHours: 48 }));
       continue;
     }
-
-    totalSearchesExecuted++;
 
     try {
       let articles: SourceArticle[] = [];
       if (options?.customProvider) {
+        totalSearchesExecuted++;
         articles = await options.customProvider(validated);
       } else {
-        articles = await executeLiveProviderSearch(validated, now);
+        const result = await executeLiveProviderSearch(validated, now, options?.reportingWriter);
+        articles = result.articles;
+        totalSearchesExecuted += result.executed;
+        anyReusedFromCache ||= result.reused;
       }
 
       // Filter through the unified content quality policy
@@ -234,7 +240,7 @@ export async function executeBoundedTargetedSearch(
       });
 
       // Save to shared cache for coalescing
-      searchCache.set(cacheKey, {
+      if (options?.customProvider && eligible.length > 0) searchCache.set(cacheKey, {
         articles: eligible,
         timestamp: now.getTime(),
       });
@@ -271,43 +277,89 @@ export async function executeBoundedTargetedSearch(
 async function executeLiveProviderSearch(
   validated: ValidatedSearchRequest,
   now: Date,
-): Promise<SourceArticle[]> {
+  writer?: ReportingWriter,
+): Promise<{ articles: SourceArticle[]; executed: number; reused: boolean }> {
+  const unavailable = { articles: [], executed: 0, reused: false };
   const gnewsKey = process.env.GNEWS_API_KEY;
-  if (gnewsKey) {
-    const url = new URL("https://gnews.io/api/v4/search");
-    url.search = new URLSearchParams({
-      q: validated.sanitizedQuery,
-      apikey: gnewsKey,
-      lang: validated.language,
-      max: "5",
-    }).toString();
-
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-    if (res.ok) {
-      const body = (await res.json()) as { articles?: Array<Record<string, unknown>> };
-      if (Array.isArray(body.articles)) {
-        return body.articles.map((item, idx) => ({
-          id: `gnews-search-${idx}-${Buffer.from(String(item.url || "")).toString("base64url").slice(0, 24)}`,
-          external_id: `gnews-search-${idx}`,
-          title: String(item.title || ""),
-          description: typeof item.description === "string" ? item.description : null,
-          snippet: typeof item.content === "string" ? item.content.slice(0, 300) : null,
-          url: String(item.url || ""),
-          image_url: typeof item.image === "string" ? item.image : null,
-          publisher: typeof (item.source as Record<string, unknown>)?.name === "string"
-            ? (item.source as Record<string, unknown>).name as string
-            : "Herald Wire",
-          published_at: typeof item.publishedAt === "string" ? item.publishedAt : now.toISOString(),
-          retrieved_at: now.toISOString(),
-          language: validated.language,
-          categories: validated.category ? [validated.category] : ["general"],
-          locale: validated.country || null,
-        }));
+  if (gnewsKey && process.env.GNEWS_COMMERCIAL_APPROVED === "true" && writer) {
+    const key = createHash("sha256").update(`gnews-commercial-v1|${getSearchCacheKey(validated)}`).digest("hex");
+    const { data: cached, error: cacheError } = await writer.rpc("read_reporting_search", { p_key: key });
+    if (cacheError) return unavailable;
+    if (Array.isArray(cached)) {
+      return { articles: filterEligibleArticles(cached as SourceArticle[], { now, maxAgeHours: 48 }), executed: 0, reused: true };
+    }
+    const { data: token, error } = await writer.rpc("claim_reporting_refresh", {
+      p_force_refresh: true, p_provider_calls: 1,
+    });
+    if (error) return unavailable;
+    if (!token) {
+      // Another instance may be filling this query. Wait only within the provider's
+      // timeout window; never reserve again or issue an unbudgeted fallback call.
+      for (let attempt = 0; attempt < 8; attempt++) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (process.env.GNEWS_COMMERCIAL_APPROVED !== "true") return unavailable;
+        const { data: pending, error: pendingError } = await writer.rpc("read_reporting_search", { p_key: key });
+        if (pendingError) return unavailable;
+        if (Array.isArray(pending)) {
+          return { articles: filterEligibleArticles(pending as SourceArticle[], { now, maxAgeHours: 48 }), executed: 0, reused: true };
+        }
       }
+      return unavailable;
+    }
+    try {
+      // A previous worker may finish between our initial cache miss and claim.
+      const { data: completed, error: completedError } = await writer.rpc("read_reporting_search", { p_key: key });
+      if (completedError || process.env.GNEWS_COMMERCIAL_APPROVED !== "true") return unavailable;
+      if (Array.isArray(completed)) {
+        return { articles: filterEligibleArticles(completed as SourceArticle[], { now, maxAgeHours: 48 }), executed: 0, reused: true };
+      }
+      const url = new URL("https://gnews.io/api/v4/search");
+      url.search = new URLSearchParams({
+        q: validated.sanitizedQuery,
+        apikey: gnewsKey,
+        lang: validated.language,
+        max: "5",
+      }).toString();
+      if (validated.country) url.searchParams.set("country", validated.country.toLowerCase());
+
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (res.ok) {
+        const body = (await res.json()) as { articles?: Array<Record<string, unknown>> };
+        if (Array.isArray(body.articles)) {
+          const articles = body.articles.map((item) => ({
+            id: `gnews-search-${createHash("sha256").update(String(item.url || "")).digest("hex")}`,
+            external_id: `gnews-${createHash("sha256").update(String(item.url || "")).digest("hex")}`,
+            title: String(item.title || ""),
+            description: typeof item.description === "string" ? item.description : null,
+            snippet: typeof item.content === "string" ? item.content.slice(0, 300) : null,
+            url: String(item.url || ""),
+            image_url: typeof item.image === "string" ? item.image : null,
+            publisher: typeof (item.source as Record<string, unknown>)?.name === "string"
+              ? (item.source as Record<string, unknown>).name as string
+              : "",
+            published_at: typeof item.publishedAt === "string" ? item.publishedAt : "",
+            retrieved_at: now.toISOString(),
+            language: validated.language,
+            categories: ["general"],
+            locale: null,
+            raw_data: { provider: "gnews", output_use: "commercial", retrieved_at: now.toISOString(), canonical_url: canonicalizeSourceUrl(String(item.url || "")) },
+          }));
+          const eligible = filterEligibleArticles(articles, { now, maxAgeHours: 48 });
+          await writer.rpc("save_reporting_search", { p_key: key, p_lock_token: token, p_articles: eligible });
+          return { articles: eligible, executed: 1, reused: false };
+        }
+      }
+      return { articles: [], executed: 1, reused: false };
+    } catch {
+      // The reservation counts the attempted provider call even on network/JSON failure.
+      return { articles: [], executed: 1, reused: false };
+    } finally {
+      // Search must not mark the broad reporting cache as refreshed.
+      await writer.rpc("finish_reporting_refresh", { p_lock_token: token, p_succeeded: false });
     }
   }
 
-  return [];
+  return unavailable;
 }
 
 /**
@@ -326,6 +378,7 @@ export async function refineEditionWithTargetedSearch(
     exhaustBudget?: boolean;
     controlledAiResponse?: unknown;
     explicitSearchRequests?: TargetedSearchRequest[];
+    reportingWriter?: ReportingWriter;
   },
 ): Promise<RefinedEditionResult> {
   // 1. Initial selection attempt
@@ -362,6 +415,7 @@ export async function refineEditionWithTargetedSearch(
     customProvider: options?.customSearchProvider,
     referenceDate,
     exhaustBudget: options?.exhaustBudget,
+    reportingWriter: options?.reportingWriter,
   });
 
   if (!searchResult.success || searchResult.articlesFound.length === 0) {
@@ -385,10 +439,13 @@ export async function refineEditionWithTargetedSearch(
     };
   }
 
-  // 4. One refinement round: Group newly found articles and merge with candidate supply
-  const newGroups = groupSourceArticles(searchResult.articlesFound);
-  const processedNew = await processGroupedStories(supabase, newGroups);
-  const readyNewGroups: GroupedSourceArticle[] = newGroups.map((g) => {
+  // Group the combined reporting, since search IDs differ from persisted source IDs.
+  const combinedGroups = groupSourceArticles([
+    ...initialCandidates.flatMap((candidate) => candidate.supportingArticles.length ? candidate.supportingArticles : [candidate]),
+    ...searchResult.articlesFound,
+  ]);
+  const processedNew = await processGroupedStories(supabase, combinedGroups, options?.reportingWriter);
+  const enrichedCandidates: GroupedSourceArticle[] = combinedGroups.map((g) => {
     const processed = processedNew.get(g.id || g.external_id);
     return {
       ...g,
@@ -399,15 +456,6 @@ export async function refineEditionWithTargetedSearch(
       categories: processed?.topics.length ? processed.topics : g.categories,
     };
   });
-
-  // Combine and deduplicate candidates by id
-  const existingIds = new Set(initialCandidates.map((c) => c.id));
-  const enrichedCandidates = [...initialCandidates];
-  for (const n of readyNewGroups) {
-    if (!existingIds.has(n.id)) {
-      enrichedCandidates.push(n);
-    }
-  }
 
   // 5. Select refined edition
   const refinedSelection = await executeAiEditorOrFallback(
@@ -423,7 +471,7 @@ export async function refineEditionWithTargetedSearch(
   return {
     ...refinedSelection,
     searchesExecuted: searchResult.searchesExecuted,
-    newStoriesDiscovered: readyNewGroups.length,
+    newStoriesDiscovered: Math.max(0, combinedGroups.length - initialCandidates.length),
     undercoveredTopic: undercoveredTopic || undefined,
     refinementApplied: true,
   };

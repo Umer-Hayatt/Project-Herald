@@ -5,6 +5,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Header } from "@/components/header";
 import { createClient } from "@/lib/supabase/server";
+import { createReportingWriter } from "@/lib/supabase/reporting";
 import { getOrCreateDailyEdition } from "@/lib/edition/service";
 import { regions } from "@/lib/preferences";
 import { EditionStoryCard } from "@/components/edition-story-card";
@@ -54,7 +55,9 @@ export default async function PaperPage({
     redirect("/login");
   }
 
-  const result = await getOrCreateDailyEdition(supabase, user.id, { forceRefresh });
+  const result = await getOrCreateDailyEdition(supabase, user.id, {
+    forceRefresh, reportingWriter: createReportingWriter(),
+  });
 
   if (!result.success) {
     if (result.error === "NOT_ONBOARDED") {
@@ -129,7 +132,7 @@ export default async function PaperPage({
   try {
     const { data: trendData } = await supabase
       .from("source_articles")
-      .select("id, external_id, title, publisher, published_at, url, description, snippet")
+      .select("id, external_id, title, publisher, published_at, url, description, snippet, raw_data")
       .not("publisher", "in", '("Herald Verified Wire","Fake","Probe")')
       .order("published_at", { ascending: false })
       .limit(16);

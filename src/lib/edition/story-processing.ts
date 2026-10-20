@@ -4,6 +4,7 @@ import { z } from "zod";
 import { interests } from "@/lib/preferences";
 import { canonicalizeSourceUrl } from "./grouping";
 import type { GroupedSourceArticle } from "./types";
+import type { ReportingWriter } from "./news-supply";
 
 const generatedStorySchema = z.object({
   id: z.string().min(1),
@@ -151,10 +152,8 @@ function fallbackForStory(story: GroupedSourceArticle): ProcessedStory {
   })[0] || story;
   const publisherText = article.snippet || article.description;
   const excerpt = (publisherText || article.title).trim();
-  const primaryTopic = story.categories[0] || "general";
-  const whyItMatters = article.description && article.description !== article.snippet && article.description.length >= 20
-    ? article.description.slice(0, 360)
-    : `Key ${primaryTopic} reporting from ${article.publisher}, offering essential perspective outside routine coverage.`;
+  // A publisher excerpt does not establish an independent importance explanation.
+  const whyItMatters = null;
   return {
     briefing: excerpt.slice(0, 900),
     whyItMatters,
@@ -307,20 +306,22 @@ async function requestGeminiOncePerProcess(inputs: StoryInput[]): Promise<unknow
 export async function processGroupedStories(
   supabase: SupabaseClient,
   stories: GroupedSourceArticle[],
+  reportingWriter?: ReportingWriter,
 ): Promise<Map<string, ProcessedStory>> {
   const inputs = stories.map(makeStoryInput);
   const byCacheKey = new Map(inputs.map((input) => [input.cacheKey, input]));
   const processed = new Map<string, ProcessedStory>();
   const keys = inputs.map((input) => input.cacheKey);
 
-  let cachedRows: Array<{ cache_key: string; payload: unknown }> = [];
+  let cachedRows: Array<{ cache_key: string; payload: unknown; trusted_server: boolean }> = [];
   if (keys.length) {
     const { data } = await supabase.from("story_processing_cache")
-      .select("cache_key,payload").in("cache_key", keys);
+      .select("cache_key,payload,trusted_server").in("cache_key", keys).eq("trusted_server", true);
     cachedRows = (data || []) as typeof cachedRows;
   }
   const cachedKeys = new Set<string>();
   for (const row of cachedRows) {
+    if (row.trusted_server !== true) continue;
     const input = byCacheKey.get(row.cache_key);
     if (!input) continue;
     const parsed = cachedStorySchema.safeParse(row.payload);
@@ -372,9 +373,8 @@ export async function processGroupedStories(
     }
   }
 
-  if (generatedRows.length) {
-    await supabase.from("story_processing_cache")
-      .upsert(generatedRows, { onConflict: "cache_key", ignoreDuplicates: true });
+  if (generatedRows.length && reportingWriter) {
+    await reportingWriter.rpc("save_processed_stories", { p_stories: generatedRows });
   }
 
   for (const [index, input] of inputs.entries()) {

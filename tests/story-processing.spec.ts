@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { processGroupedStories } from "../src/lib/edition/story-processing";
 import type { GroupedSourceArticle } from "../src/lib/edition/types";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
 test("rejects a generated topic label that the supplied sources do not support", async () => {
   const originalFetch = globalThis.fetch;
@@ -32,12 +32,9 @@ test("rejects a generated topic label that the supplied sources do not support",
     ...source,
     supportingArticles: [source],
   };
-  const supabase = {
-    from: () => ({
-      select: () => ({ in: async () => ({ data: [] }) }),
-      upsert: async () => ({ error: null }),
-    }),
-  } as unknown as SupabaseClient;
+  const supabase = createClient("http://127.0.0.1:54321", "test-only", {
+    global: { fetch: async () => Response.json([]) },
+  });
 
   globalThis.fetch = async (_input, init) => {
     const request = JSON.parse(String(init?.body));

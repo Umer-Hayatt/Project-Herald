@@ -2,7 +2,7 @@
 
 import type { EditionStory } from "@/lib/edition/types";
 import { StoryFeedbackControls } from "@/components/story-feedback-controls";
-import { getStoryImageUrl } from "@/lib/edition/images";
+import { useState } from "react";
 
 function formatRelativeTime(publishedAt: string): string {
   const publishedMs = Date.parse(publishedAt);
@@ -33,7 +33,8 @@ export function EditionStoryCard({
   const sources = story.supporting_sources?.length
     ? story.supporting_sources
     : [{ title: story.title, url: story.source_url, publisher: story.publisher }];
-  const imageUrl = getStoryImageUrl(story.category, story.image_url);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const imageUrl = story.image_url && story.image_url !== failedImageUrl ? story.image_url : null;
   const categoryLabel = story.topics?.length ? story.topics.join(" · ") : story.category;
 
   if (variant === "hero") {
@@ -42,11 +43,11 @@ export function EditionStoryCard({
         id={`story-${story.position}`}
         className="story-card story-card-hero"
         aria-label={`Lead Story ${story.position}: ${story.title}`}
-        style={{ backgroundImage: `linear-gradient(to top, rgba(26, 36, 46, 0.96) 0%, rgba(35, 47, 59, 0.75) 45%, rgba(41, 55, 68, 0.35) 100%), url(${imageUrl})` }}
+        style={{ backgroundImage: `linear-gradient(to top, rgba(26, 36, 46, 0.96) 0%, rgba(35, 47, 59, 0.75) 45%, rgba(41, 55, 68, 0.35) 100%)${imageUrl ? `, url(${JSON.stringify(imageUrl)})` : ""}` }}
       >
         <div className="hero-content">
           <div className="hero-badges">
-            <span className="hero-pill-badge">Editor’s Choice</span>
+            <span className="hero-pill-badge">Lead Story</span>
             <span className="hero-pill-badge secondary">{categoryLabel}</span>
             {story.is_update && (
               <span className="hero-pill-badge update" style={{ background: "#d97706", color: "#fff" }}>
@@ -114,19 +115,16 @@ export function EditionStoryCard({
       aria-label={`Story ${story.position}: ${story.title}`}
     >
       <div className="story-card-body">
-        <div className="story-image-wrap">
+        {imageUrl && <div className="story-image-wrap">
           <img
             src={imageUrl}
             alt=""
             loading="lazy"
             className="story-thumbnail"
-            onError={(e) => {
-              // Graceful fallback to category photography
-              (e.currentTarget as HTMLImageElement).src = getStoryImageUrl("general");
-            }}
+            onError={() => setFailedImageUrl(imageUrl)}
           />
           <span className="story-image-category-pill">{story.category}</span>
-        </div>
+        </div>}
 
         <div className="story-details">
           <div className="story-meta-row">

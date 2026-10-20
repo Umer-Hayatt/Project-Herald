@@ -18,9 +18,10 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
 
     const { error: anonInsertError } = await anonClient.from("source_articles").insert([
       {
+        raw_data: { provider: "thenewsapi", output_use: "commercial" },
         external_id: "test-anon-denied-" + Date.now(),
         title: "Unauthorized Anonymous Insert Attempt",
-        url: "https://example.com/unauthorized",
+        url: "https://publisher.org/unauthorized",
         publisher: "Attacker",
         published_at: new Date().toISOString(),
       },
@@ -32,9 +33,10 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
     const supabaseA = await login("A");
     const { error: authInsertError } = await supabaseA.from("source_articles").insert([
       {
+        raw_data: { provider: "thenewsapi", output_use: "commercial" },
         external_id: "test-auth-denied-" + Date.now(),
         title: "Unauthorized Authenticated Insert Attempt",
-        url: "https://example.com/unauthorized",
+        url: "https://publisher.org/unauthorized",
         publisher: "ReaderA",
         published_at: new Date().toISOString(),
       },
@@ -47,9 +49,10 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
       p_lock_token: "00000000-0000-0000-0000-000000000000",
       p_articles: [
         {
+          raw_data: { provider: "thenewsapi", output_use: "commercial" },
           external_id: "test-fake-token-" + Date.now(),
           title: "Fake Token Ingest Attempt",
-          url: "https://example.com/fake",
+          url: "https://publisher.org/fake",
           publisher: "Fake",
           published_at: new Date().toISOString(),
         },
@@ -58,65 +61,23 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
     expect(invalidLockError).not.toBeNull();
   });
 
-  test("2. Trusted ingestion RPC: refresh claim -> ingest -> finish cycle works", async () => {
-    const supabaseA = await login("A");
-
-    // Claim refresh with 0 provider calls (test mode)
-    const { data: lockToken, error: claimErr } = await supabaseA.rpc("claim_reporting_refresh", {
+  test("2. Readers cannot claim shared reporting write authority", async () => {
+    const reader = await login("A");
+    const { error } = await reader.rpc("claim_reporting_refresh", {
       p_force_refresh: true,
       p_provider_calls: 0,
     });
-    expect(claimErr).toBeNull();
-    expect(lockToken).not.toBeNull();
-
-    const uniqueId = "test-r01-trusted-" + Date.now();
-    const testArticle = {
-      external_id: uniqueId,
-      title: "Trusted Ingestion Demonstrates Protected Shared Reporting",
-      description: "A comprehensive test of verified reporting ingestion through security definer RPC.",
-      snippet: "Security definer functions enforce authorization and validate refresh locks.",
-      url: "https://herald.example.com/trusted-ingestion-report",
-      publisher: "Herald Verified Wire",
-      published_at: new Date().toISOString(),
-      language: "en",
-      categories: ["technology", "general"],
-      locale: "global",
-    };
-
-    const { data: insertedCount, error: ingestErr } = await supabaseA.rpc("ingest_source_articles", {
-      p_lock_token: lockToken,
-      p_articles: [testArticle],
-    });
-    expect(ingestErr).toBeNull();
-    expect(insertedCount).toBe(1);
-
-    const { data: finishOk, error: finishErr } = await supabaseA.rpc("finish_reporting_refresh", {
-      p_lock_token: lockToken,
-      p_succeeded: true,
-    });
-    expect(finishErr).toBeNull();
-    expect(finishOk).toBe(true);
-
-    // Verify public read access sees the inserted article
-    const { data: readBack } = await supabaseA
-      .from("source_articles")
-      .select("external_id, title, publisher")
-      .eq("external_id", uniqueId)
-      .maybeSingle();
-
-    expect(readBack).not.toBeNull();
-    expect(readBack?.external_id).toBe(uniqueId);
-    expect(readBack?.publisher).toBe("Herald Verified Wire");
+    expect(error?.code).toBe("42501");
   });
-
   test("3. Content quality policy: rejects feeds, generic titles, empty wrappers, and malformed dates", () => {
     const now = new Date("2026-10-18T10:00:00Z");
 
     // A. Rejects feed / index URLs
     const feedArticle = {
+      raw_data: { provider: "thenewsapi", output_use: "commercial" },
       external_id: "test-feed-1",
       title: "Valid Long News Headline Here For Test",
-      url: "https://example.com/rss/feed.xml",
+      url: "https://publisher.org/rss/feed.xml",
       publisher: "Sample News",
       published_at: "2026-10-18T09:00:00Z",
       description: "Full legitimate description of the event that happened today.",
@@ -127,9 +88,10 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
 
     // B. Rejects generic title
     const genericArticle = {
+      raw_data: { provider: "thenewsapi", output_use: "commercial" },
       external_id: "test-gen-1",
       title: "Top Stories",
-      url: "https://example.com/articles/story-123",
+      url: "https://publisher.org/articles/story-123",
       publisher: "Sample News",
       published_at: "2026-10-18T09:00:00Z",
       description: "Full legitimate description of the event that happened today.",
@@ -140,9 +102,10 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
 
     // C. Rejects empty wrapper / paywall boilerplate
     const boilerArticle = {
+      raw_data: { provider: "thenewsapi", output_use: "commercial" },
       external_id: "test-boiler-1",
       title: "Real Headline About International Summit",
-      url: "https://example.com/articles/story-456",
+      url: "https://publisher.org/articles/story-456",
       publisher: "Sample News",
       published_at: "2026-10-18T09:00:00Z",
       description: "Click here to read more",
@@ -154,9 +117,10 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
 
     // D. Rejects malformed / future dates
     const futureArticle = {
+      raw_data: { provider: "thenewsapi", output_use: "commercial" },
       external_id: "test-fut-1",
       title: "Real Headline About International Summit",
-      url: "https://example.com/articles/story-789",
+      url: "https://publisher.org/articles/story-789",
       publisher: "Sample News",
       published_at: "2026-10-25T09:00:00Z",
       description: "Full legitimate description of the event that happened today.",
@@ -167,9 +131,10 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
 
     // E. Accepts eligible reporting
     const validArticle = {
+      raw_data: { provider: "thenewsapi", output_use: "commercial" },
       external_id: "test-valid-1",
       title: "Scientific Consensus Reached on Carbon Mineralization Rate",
-      url: "https://example.com/science/carbon-mineralization-2026",
+      url: "https://publisher.org/science/carbon-mineralization-2026",
       publisher: "Science Standard",
       published_at: "2026-10-18T08:00:00Z",
       description: "Researchers announce reproducible laboratory results demonstrating accelerated basalt mineralization at ambient pressure.",
@@ -236,13 +201,14 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
         title: "Major Breakthrough in Quantum Coherence Longevity",
         description: "Physicists sustain superconducting qubit coherence across record temperature threshold.",
         snippet: "The experiment was replicated at three independent international laboratories.",
-        url: "https://example.com/quantum-coherence-2026",
+        url: "https://publisher.org/quantum-coherence-2026",
         image_url: null,
         publisher: "Quantum Science Review",
         published_at: new Date().toISOString(),
         language: "en",
         categories: ["science", "technology"],
         locale: "global",
+        raw_data: { provider: "thenewsapi", output_use: "commercial" },
       },
       {
         id: "a0000000-0000-4000-8000-000000000002",
@@ -250,13 +216,14 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
         title: "Clean Energy Grid Interconnection Standards Finalized",
         description: "Regulators establish uniform high-voltage direct current grid protocols.",
         snippet: "Interoperability standards pave the way for cross-continental renewable transfer.",
-        url: "https://example.com/clean-grid-standards-2026",
+        url: "https://publisher.org/clean-grid-standards-2026",
         image_url: null,
         publisher: "Energy Infrastructure Journal",
         published_at: new Date().toISOString(),
         language: "en",
         categories: ["technology", "business"],
         locale: "global",
+        raw_data: { provider: "thenewsapi", output_use: "commercial" },
       },
       {
         id: "a0000000-0000-4000-8000-000000000003",
@@ -264,13 +231,14 @@ test.describe("Recovery R01: Safe Reporting & Content Quality", () => {
         title: "Autonomous Maritime Navigation Treaty Signed in Geneva",
         description: "Thirty nations establish liability and safety regulations for crewless vessels.",
         snippet: "The pact updates maritime protocols for uncrewed commercial cargo vessels.",
-        url: "https://example.com/maritime-treaty-2026",
+        url: "https://publisher.org/maritime-treaty-2026",
         image_url: null,
         publisher: "Maritime Law Herald",
         published_at: new Date().toISOString(),
         language: "en",
         categories: ["politics", "general"],
         locale: "global",
+        raw_data: { provider: "thenewsapi", output_use: "commercial" },
       },
     ];
 

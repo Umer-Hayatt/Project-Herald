@@ -25,13 +25,14 @@ function makeCandidate(
     title,
     description: `Detailed reporting about ${title.toLowerCase()}.`,
     snippet: `Brief overview of ${title.toLowerCase()}.`,
-    url: `https://example.com/stories/${id}`,
+    url: `https://publisher.org/stories/${id}`,
     image_url: null,
     publisher,
     published_at: "2026-10-19T06:00:00Z",
     language: "en",
     categories: [category],
     locale: "global",
+    raw_data: { provider: "thenewsapi", output_use: "commercial" },
     supportingArticles: [],
     briefing: `Grounded briefing explaining ${title.toLowerCase()}.`,
     whyItMatters: `Contextual explanation for why ${title.toLowerCase()} matters.`,
@@ -63,7 +64,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
     }
 
     // Rejects URL fetching attempt
-    const urlAttempt = validateTargetedSearchRequest({ query: "https://malicious.example.com/payload" });
+    const urlAttempt = validateTargetedSearchRequest({ query: "https://malicious.publisher.org/payload" });
     expect(urlAttempt.valid).toBe(false);
     if (!urlAttempt.valid) {
       expect(urlAttempt.reason).toContain("Arbitrary URL fetching is strictly forbidden");
@@ -122,7 +123,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
           title: `Technical Breakthrough in ${req.sanitizedQuery} Energy Storage Density`,
           description: `Engineers announce a major advance in ${req.sanitizedQuery} manufacturing with doubled cycle life.`,
           snippet: `Commercial pilot validation confirms stable operating temperatures and fast-charging capabilities under rigorous automotive road test conditions.`,
-          url: `https://example.com/tech-articles/${req.sanitizedQuery.replace(/\s+/g, "-")}`,
+          url: `https://publisher.org/tech-articles/${req.sanitizedQuery.replace(/\s+/g, "-")}`,
           image_url: null,
           publisher: "Tech Wire Service",
           published_at: "2026-10-19T08:00:00Z",
@@ -130,7 +131,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
           language: "en",
           categories: ["technology"],
           locale: "global",
-          raw_data: { output_use: "commercial" },
+          raw_data: { provider: "thenewsapi", output_use: "commercial" },
         },
       ];
     };
@@ -183,7 +184,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
         title: "Synthetic Biology Lab Synthesizes Carbon-Negative Fertilizer Compound",
         description: "Agricultural biotech breakthrough replaces petroleum-derived nitrogen inputs.",
         snippet: "Field trials demonstrate 40 percent yield improvement across pilot farmlands.",
-        url: "https://example.com/biotech/carbon-fertilizer",
+        url: "https://publisher.org/biotech/carbon-fertilizer",
         image_url: null,
         publisher: "Agritech Chronicle",
         published_at: "2026-10-19T07:00:00Z",
@@ -191,7 +192,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
         language: "en",
         categories: ["science"],
         locale: "global",
-        raw_data: { output_use: "commercial" },
+        raw_data: { provider: "thenewsapi", output_use: "commercial" },
       },
       // Article 2: Evaluation-only (must be rejected)
       {
@@ -200,7 +201,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
         title: "Experimental Evaluation Data Feed Not For Publication",
         description: "Internal testing data.",
         snippet: "Non-commercial test payload.",
-        url: "https://example.com/eval-only-search",
+        url: "https://publisher.org/eval-only-search",
         image_url: null,
         publisher: "Restricted Wire",
         published_at: "2026-10-19T07:00:00Z",
@@ -208,7 +209,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
         language: "en",
         categories: ["science"],
         locale: "global",
-        raw_data: { output_use: "evaluation_only" },
+        raw_data: { provider: "thenewsapi", output_use: "evaluation_only" },
       },
       // Article 3: Stale article (>48 hours old)
       {
@@ -217,7 +218,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
         title: "Old Study on Fertilizer Synthesis From Last Week",
         description: "Published four days ago.",
         snippet: "Outdated findings.",
-        url: "https://example.com/stale-study",
+        url: "https://publisher.org/stale-study",
         image_url: null,
         publisher: "Archive Daily",
         published_at: "2026-10-15T00:00:00Z",
@@ -225,6 +226,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
         language: "en",
         categories: ["science"],
         locale: "global",
+        raw_data: { provider: "thenewsapi", output_use: "commercial" },
       },
     ];
 
@@ -243,7 +245,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
     const mockSupabase = {
       from: () => ({
         select: () => ({
-          in: () => ({ data: [], error: null }),
+          in: () => ({ eq: () => ({ data: [], error: null }) }),
         }),
         upsert: () => Promise.resolve({ error: null }),
       }),
@@ -256,7 +258,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
         title: "Novel CRISPR Delivery Mechanism Successfully Targets Deep Tissue in Mammals",
         description: "Genetic medicine trial shows non-viral lipid delivery reaches liver and heart cells safely.",
         snippet: "Enables gene therapies for previously untreatable hereditary cardiovascular disorders.",
-        url: "https://example.com/biotech/crispr-delivery",
+        url: "https://publisher.org/biotech/crispr-delivery",
         image_url: null,
         publisher: "BioPharma Review",
         published_at: "2026-10-19T08:00:00Z",
@@ -264,7 +266,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
         language: "en",
         categories: ["science", "biotechnology"],
         locale: "global",
-        raw_data: { output_use: "commercial" },
+        raw_data: { provider: "thenewsapi", output_use: "commercial" },
       },
     ];
 
@@ -292,7 +294,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
     const mockSupabase = {
       from: () => ({
         select: () => ({
-          in: () => ({ data: [], error: null }),
+          in: () => ({ eq: () => ({ data: [], error: null }) }),
         }),
       }),
     } as any;
@@ -319,7 +321,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
     const mockSupabase = {
       from: () => ({
         select: () => ({
-          in: () => ({ data: [], error: null }),
+          in: () => ({ eq: () => ({ data: [], error: null }) }),
         }),
       }),
     } as any;
@@ -369,7 +371,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
           title: "Novel CRISPR Delivery Mechanism Reaches Mammalian Deep Tissue",
           description: "Genetic medicine trial proves non-viral lipid delivery works safely.",
           snippet: "Treats previously untreatable hereditary cardiovascular disorders.",
-          url: "https://example.com/biotech/crispr-delivery",
+          url: "https://publisher.org/biotech/crispr-delivery",
           image_url: null,
           publisher: "BioPharma Review",
           published_at: "2026-10-19T08:00:00Z",
@@ -377,7 +379,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
           language: "en",
           categories: ["biotechnology"],
           locale: "global",
-          raw_data: { output_use: "commercial" },
+          raw_data: { provider: "thenewsapi", output_use: "commercial" },
         },
       ];
     };
@@ -388,7 +390,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
       },
       from: (table: string) => ({
         select: () => ({
-          in: () => ({ data: [], error: null }),
+          in: () => ({ eq: () => ({ data: [], error: null }) }),
           eq: (_col: string, val: string) => ({
             eq: (_col2: string, _val2: string) => ({
               maybeSingle: async () => ({
@@ -464,6 +466,7 @@ test.describe("Recovery R06: Bounded Targeted Search for Undercovered Interests"
       language: c.language,
       categories: c.categories,
       locale: c.locale,
+      raw_data: { provider: "thenewsapi", output_use: "commercial" },
     }));
 
     // First call: executes targeted search and saves refined edition

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getReaderLocalDate } from "./date";
-import { getReportingSupply } from "./news-supply";
+import { getReportingSupply, type ReportingWriter } from "./news-supply";
 import { groupSourceArticles } from "./grouping";
 import { processGroupedStories } from "./story-processing";
 import {
@@ -147,6 +147,7 @@ export async function getOrCreateDailyEdition(
     controlledDate?: string;
     referenceDate?: Date;
     controlledSupply?: SourceArticle[];
+    reportingWriter?: ReportingWriter;
     positivelyLearnedTopics?: string[];
     controlledTopicFeedback?: Record<string, number>;
     controlledSubtopics?: string[];
@@ -259,6 +260,7 @@ export async function getOrCreateDailyEdition(
   const supply = await getReportingSupply(supabase, {
     forceRefresh: options?.forceRefresh,
     controlledSupply: options?.controlledSupply,
+    reportingWriter: options?.reportingWriter,
     referenceDate: now,
   });
 
@@ -282,7 +284,7 @@ export async function getOrCreateDailyEdition(
   }
 
   // Process only supplied reporting. Preferences and reader identity never leave Herald.
-  const processedStories = await processGroupedStories(supabase, sourceGroups);
+  const processedStories = await processGroupedStories(supabase, sourceGroups, options?.reportingWriter);
   const readyStories: GroupedSourceArticle[] = sourceGroups.map((story) => {
     const processed = processedStories.get(story.id || story.external_id);
     return {
@@ -319,6 +321,7 @@ export async function getOrCreateDailyEdition(
     {
       customSearchProvider: options?.customSearchProvider,
       exhaustBudget: options?.exhaustBudget,
+      reportingWriter: options?.reportingWriter,
       controlledAiResponse: options?.controlledAiResponse,
       explicitSearchRequests: options?.explicitSearchRequests,
     },
@@ -402,6 +405,7 @@ export async function getOrCreateDailyEdition(
     delete (cleanStory as { update_explanation?: string | null }).update_explanation;
     return {
       ...cleanStory,
+      source_article_id: options?.controlledSupply !== undefined ? null : cleanStory.source_article_id,
       edition_id: createdEdition.id,
       reader_id: readerId,
     };

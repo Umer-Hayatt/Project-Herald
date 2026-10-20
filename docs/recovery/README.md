@@ -2,9 +2,11 @@
 
 ## Current state
 
-Planning checkpoint: 19 October 2026, Asia/Karachi. Active authority: [recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Main baseline: `3e8e437735d3258e5e342c7d1f738a30e8d99f9c`. Working branch: `codex/herald-recovery`.
+**Audit correction, updated 20 October 2026:** Earlier R01–R07 completion claims below are superseded. Start with [the audit-fix continuation checkpoint](2026-10-19-audit-fixes-handoff.md). Local audit fixes and verification are recorded in the latest continuation checkpoint; they have not been deployed. Active checkout: `C:/Users/HP/Documents/Codex/2026-10-18/rev/herald-recovery`, branch `codex/herald-audit-fixes`.
+
+Planning checkpoint: 19 October 2026, Asia/Karachi. Active authority: [recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Main baseline: `3e8e437735d3258e5e342c7d1f738a30e8d99f9c`. Planning branch at that checkpoint: `codex/herald-recovery` (superseded by the active checkout above).
 The eight revised recovery tickets have been published as issues [#12](https://github.com/Umer-Hayatt/Project-Herald/issues/12) through [#19](https://github.com/Umer-Hayatt/Project-Herald/issues/19) with `ready-for-agent` labels, native parent sub-issue links to #11, and native linear `blockedBy` edges. See [the ticket index](TICKET-REVIEW.md).
-Active frontier: issue #19 (R08: Verify the deployed release and validate its paid-value offer). R01 through R07 completed and verified on 18–19 October 2026.
+Active frontier: repair the audited R01–R07 defects and re-establish their acceptance evidence. R08 remains blocked.
 
 This recovery replaces the expired 17 October 21:00 hackathon schedule for new recovery work. The original issues #1–#10 are historical scope/evidence, even though still open; their state does not establish what is implemented. Use current code and dated checks, not old completion claims. Parent #11 stays open and unchanged.
 
@@ -12,7 +14,7 @@ This recovery replaces the expired 17 October 21:00 hackathon schedule for new r
 
 1. Read this handoff, the [short plan](plan.md), [ticket index](TICKET-REVIEW.md), and the authoritative issue plus its comments. The [spec snapshot](spec.md) is a convenience copy; GitHub is authoritative for subsequent changes.
 2. Check the working tree and current commit. Preserve existing work. Read the current Product, Glossary, relevant ADRs, and issue-tracker instructions before implementation or status changes.
-3. The eight tickets (#12–#19) are published with native sub-issue and blocking relationships. Work only the frontier: open tickets whose blockers are complete. The current frontier is R08 (#19).
+3. Follow the audit-fix checkpoint before relying on ticket closure state. Earlier completion claims were contradicted by the audit; R08 is not ready to proceed.
 4. Before closing a child, record the exact commit, environment, date, criteria outcomes and remaining limitations. Pass/fail/blocked/not-run are distinct. Update the ticket and this small checkpoint; keep this handoff current for the next agent.
 
 ## Product decisions to preserve

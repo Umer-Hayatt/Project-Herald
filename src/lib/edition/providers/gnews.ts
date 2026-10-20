@@ -5,6 +5,7 @@ import type {
   FetchCandidatesResult,
 } from "./types";
 import { extractEventGeography } from "../geography";
+import { createHash } from "node:crypto";
 
 interface GNewsArticle {
   title: string;
@@ -25,7 +26,7 @@ export class GNewsAdapter implements NewsProviderAdapter {
 
   constructor(
     private apiKey: string | undefined = process.env.GNEWS_API_KEY,
-    private commercialUseApproved: boolean = Boolean(process.env.GNEWS_COMMERCIAL_APPROVED),
+    private commercialUseApproved: boolean = process.env.GNEWS_COMMERCIAL_APPROVED === "true",
   ) {}
 
   isConfigured(): boolean {
@@ -75,7 +76,7 @@ export class GNewsAdapter implements NewsProviderAdapter {
             const { regions } = extractEventGeography(textForGeo);
 
             candidates.push({
-              id: `gnews-${Buffer.from(item.url).toString("base64url").slice(0, 32)}`,
+              id: `gnews-${createHash("sha256").update(item.url).digest("hex")}`,
               title: item.title,
               description: item.description || null,
               snippet: item.content ? item.content.slice(0, 250) : null,

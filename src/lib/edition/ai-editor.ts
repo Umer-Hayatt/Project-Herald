@@ -8,6 +8,7 @@ import {
   type SelectionPreferences,
 } from "./ranking";
 import type { RecentIncludedEvent } from "./events";
+import { groupSourceArticles } from "./grouping";
 
 export interface EditorPreferenceBrief {
   interests: string[];
@@ -98,6 +99,11 @@ export function validateEditorSelection(
   const budget = BUDGETS[preferences.reading_length] || BUDGETS[10];
   const { selected_stories, discovery_shortage_note } = parsed.data;
 
+  const ordered = [...selected_stories].sort((a, b) => a.position - b.position);
+  if (ordered[0].section !== "main" || ordered.some((item, index) => item.position !== index + 1)) {
+    return { valid: false, reason: "Positions must be unique and contiguous with a main Story first" };
+  }
+
   // 1. Enforce max stories constraint
   if (selected_stories.length > budget.maxStories) {
     return {
@@ -114,21 +120,38 @@ export function validateEditorSelection(
   }
 
   const seenIds = new Set<string>();
+  const selectedCandidates: GroupedSourceArticle[] = [];
   let beyondBubbleCount = 0;
   let totalWords = 0;
 
   for (const item of selected_stories) {
-    if (seenIds.has(item.id)) {
-      return { valid: false, reason: `Duplicate story ID selected: ${item.id}` };
-    }
-    seenIds.add(item.id);
-
     const matchedArticle = candidateMap.get(item.id);
     if (!matchedArticle) {
       return { valid: false, reason: `Selected story ID not in candidate shortlist: ${item.id}` };
     }
 
+    if (seenIds.has(matchedArticle.id)) {
+      return { valid: false, reason: `Duplicate Story selected: ${item.id}` };
+    }
+    seenIds.add(matchedArticle.id);
+    selectedCandidates.push(matchedArticle);
+    const selectedSources = selectedCandidates.flatMap((candidate) =>
+      candidate.supportingArticles.length ? candidate.supportingArticles : [candidate],
+    );
+    if (groupSourceArticles(selectedSources).length < selectedCandidates.length) {
+      return { valid: false, reason: "Duplicate canonical event selected" };
+    }
+
+    // Selection may arrange source-grounded content, but cannot rewrite it.
+    if (item.why_it_matters && item.why_it_matters.trim() !== matchedArticle.whyItMatters?.trim()) {
+      return { valid: false, reason: `Unverified importance explanation for ${item.id}` };
+    }
+
     if (item.section === "beyond_bubble") {
+      const topics = [...matchedArticle.categories, ...(matchedArticle.topics || [])];
+      if (!matchedArticle.whyItMatters || topics.some((topic) => preferences.interests.includes(topic))) {
+        return { valid: false, reason: "Beyond Your Bubble requires an outside-interest Story with verified importance" };
+      }
       beyondBubbleCount++;
     }
 
@@ -198,7 +221,7 @@ export async function requestAiEditor(
     `1. Select up to ${budget.maxStories} total stories under ${budget.maxWords} total words.`,
     "2. Designate exactly one story as position 1 (the Lead Story).",
     "3. Assign stories to 'main' (matching interests) or up to 2 stories to 'beyond_bubble' (outside usual interests with strong public importance).",
-    "4. For each selected story, you must provide a factual why_it_matters grounded only in the supplied reporting.",
+    "4. Preserve the supplied why_it_matters exactly, or omit it. Do not write new importance claims during selection.",
     "5. Output valid JSON matching the schema.",
   ].join(" ");
 
@@ -343,7 +366,7 @@ export async function executeAiEditorOrFallback(
 
         const augmentedArticle: GroupedSourceArticle = {
           ...article,
-          whyItMatters: item.why_it_matters || article.whyItMatters || null,
+          whyItMatters: article.whyItMatters || null,
         };
 
         if (item.section === "beyond_bubble") {

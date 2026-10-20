@@ -22,8 +22,8 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
       title: "Clean Energy Transition Accelerates Across Europe and North America",
       description: "Renewable power generation reaches record highs in latest quarterly analysis.",
       snippet: "Wind and solar infrastructure outpaces fossil fuels across Western nations.",
-      url: "https://wire-a.example.com/clean-energy-transition?utm_source=rss",
-      image_url: "https://wire-a.example.com/images/wind.jpg",
+      url: "https://wire-a.publisher.org/clean-energy-transition?utm_source=rss",
+      image_url: "https://wire-a.publisher.org/images/wind.jpg",
       publisher: "Clean Wire Service",
       published_at: new Date(now.getTime() - 2 * 3600 * 1000).toISOString(),
       retrieved_at: now.toISOString(),
@@ -35,7 +35,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
         provider_article_id: "prov-a-art-1",
         output_use: "commercial",
         retrieved_at: now.toISOString(),
-        canonical_url: "https://wire-a.example.com/clean-energy-transition",
+        canonical_url: "https://wire-a.publisher.org/clean-energy-transition",
         publisher_locale: "gb",
         event_geography: ["gb", "us"],
       },
@@ -47,7 +47,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
       title: "Global Semiconductor Manufacturers Invest Billions in New Fabrication Plants",
       description: "Chipmakers expand production facilities in the United States and Asia.",
       snippet: "Advanced packaging and high bandwidth memory drive historic infrastructure investments.",
-      url: "https://wire-b.example.com/semiconductor-fab-investments#section-1",
+      url: "https://wire-b.publisher.org/semiconductor-fab-investments#section-1",
       image_url: null,
       publisher: "Tech Global Daily",
       published_at: new Date(now.getTime() - 4 * 3600 * 1000).toISOString(),
@@ -60,7 +60,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
         provider_article_id: "prov-b-art-2",
         output_use: "commercial",
         retrieved_at: now.toISOString(),
-        canonical_url: "https://wire-b.example.com/semiconductor-fab-investments",
+        canonical_url: "https://wire-b.publisher.org/semiconductor-fab-investments",
         publisher_locale: "us",
         event_geography: ["us"],
       },
@@ -112,7 +112,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
       title: "Global Central Banks Coordinate Policy Amid Inflation Moderation",
       description: "Financial authorities announce synchronized rate adjustments.",
       snippet: "Economic indicators show stabilized consumer spending and price targets.",
-      url: "https://financialwire.example.com/central-bank-policy",
+      url: "https://financialwire.publisher.org/central-bank-policy",
       image_url: null,
       publisher: "Financial Wire",
       published_at: new Date(now.getTime() - 2 * 3600 * 1000).toISOString(),
@@ -132,7 +132,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
       title: "Confidential Market Analysis of Emerging Technology Startups",
       description: "Evaluation internal review of venture funding trajectories.",
       snippet: "Proprietary research dataset for internal assessment purposes only.",
-      url: "https://eval-research.example.com/market-analysis",
+      url: "https://eval-research.publisher.org/market-analysis",
       image_url: null,
       publisher: "Internal Research Desk",
       published_at: new Date(now.getTime() - 2 * 3600 * 1000).toISOString(),
@@ -174,11 +174,11 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
     const now = new Date();
 
     // A. Exact canonical URL deduplication across providers (different query params)
-    const urlA = "https://reuters.example.com/article/tech-ai-breakthrough?utm_source=twitter&ref=wire";
-    const urlB = "https://reuters.example.com/article/tech-ai-breakthrough/";
+    const urlA = "https://reuters.publisher.org/article/tech-ai-breakthrough?utm_source=twitter&ref=wire";
+    const urlB = "https://reuters.publisher.org/article/tech-ai-breakthrough/";
 
-    expect(canonicalizeSourceUrl(urlA)).toBe("https://reuters.example.com/article/tech-ai-breakthrough");
-    expect(canonicalizeSourceUrl(urlB)).toBe("https://reuters.example.com/article/tech-ai-breakthrough");
+    expect(canonicalizeSourceUrl(urlA)).toBe("https://reuters.publisher.org/article/tech-ai-breakthrough");
+    expect(canonicalizeSourceUrl(urlB)).toBe("https://reuters.publisher.org/article/tech-ai-breakthrough");
     expect(canonicalizeSourceUrl(urlA)).toBe(canonicalizeSourceUrl(urlB));
 
     // B. Conservative cross-provider same-event grouping (same event, different provider IDs & headlines)
@@ -188,8 +188,8 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
       title: "NASA Astronauts Successfully Complete Historic Six Hour Spacewalk Outside Space Station",
       description: "Flight engineers replace communication antenna and conduct solar array maintenance in orbit.",
       snippet: "Astronauts Jessica Meir and mission specialist conclude orbital operations outside the ISS.",
-      url: "https://spaceflight-daily.example.com/astronauts-complete-spacewalk",
-      image_url: "https://spaceflight-daily.example.com/iss.jpg",
+      url: "https://spaceflight-daily.publisher.org/astronauts-complete-spacewalk",
+      image_url: "https://spaceflight-daily.publisher.org/iss.jpg",
       publisher: "Spaceflight Daily",
       published_at: new Date(now.getTime() - 3 * 3600 * 1000).toISOString(),
       language: "en",
@@ -204,7 +204,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
       title: "NASA Astronauts Complete Complex Spacewalk Outside International Space Station",
       description: "Astronauts replace orbital communication antenna during six hour spacewalk mission.",
       snippet: "Space Station engineers safely wrap up exterior hardware upgrades.",
-      url: "https://aero-wire.example.com/iss-spacewalk-concludes",
+      url: "https://aero-wire.publisher.org/iss-spacewalk-concludes",
       image_url: null,
       publisher: "Aerospace Wire",
       published_at: new Date(now.getTime() - 2 * 3600 * 1000).toISOString(),
@@ -221,7 +221,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
       title: "James Webb Space Telescope Detects Water Vapor in Habitable Zone of Exoplanet Atmosphere",
       description: "Astronomers observe atmospheric biosignatures in planetary system 100 light years away.",
       snippet: "Spectroscopic data confirms hydrogen and moisture on distant super-Earth.",
-      url: "https://astronomy-today.example.com/webb-exoplanet-water",
+      url: "https://astronomy-today.publisher.org/webb-exoplanet-water",
       image_url: null,
       publisher: "Astronomy Today",
       published_at: new Date(now.getTime() - 4 * 3600 * 1000).toISOString(),
@@ -279,6 +279,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
       description: "Researchers demonstrate novel topological qubits with extended stability.",
       snippet: "Laboratory benchmarks indicate substantial error reduction in modular architectures.",
       locale: null,
+      raw_data: { provider: "thenewsapi", output_use: "commercial" },
     };
 
     const geoC = resolveArticleGeography(absentGeographyArticle);
@@ -312,7 +313,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
             title: "Global Ocean Exploration Project Discovers Hundreds of Deep Sea Species",
             description: "Marine biologists map underwater mountain ridges and uncharted hydrothermal vents.",
             snippet: "Expedition vessels catalogue unprecedented biodiversity in international waters.",
-            url: "https://ocean-exploration.example.com/deep-sea-species",
+            url: "https://ocean-exploration.publisher.org/deep-sea-species",
             image_url: null,
             publisher: "Ocean Science Wire",
             published_at: new Date(now.getTime() - 1 * 3600 * 1000).toISOString(),
@@ -320,6 +321,7 @@ test.describe("Recovery R02: Diverse Stories from Complementary Providers", () =
             language: "en",
             categories: ["science", "general"],
             locale: "global",
+            raw_data: { provider: "thenewsapi", output_use: "commercial" },
             provider: "healthy-provider",
             output_use: "commercial",
             event_geography: [],

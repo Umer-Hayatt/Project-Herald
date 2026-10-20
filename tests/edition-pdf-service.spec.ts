@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { generateEditionPdf } from "../src/lib/edition/pdf";
+import { getPublicSampleEdition } from "../src/lib/edition/sample";
 import type { Edition } from "../src/lib/edition/types";
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import fs from "fs";
 import path from "path";
 
@@ -23,6 +24,8 @@ const sampleEdition: Edition = {
       position: 1,
       title: "Global Clean Energy Initiative Reaches Milestone With Record Solar Installations",
       excerpt: "Nations around the world have surpassed previous clean energy deployment benchmarks following international climate agreements. Rapid infrastructure investment in solar power and battery storage drove unprecedented grid integration across five continents.",
+      briefing: "The saved Briefing reports new solar installations across five continents.",
+      why_it_matters: "Grid investment connects new solar installations to existing transmission lines.",
       publisher: "Global Climate News",
       source_url: "https://example.com/clean-energy-milestone",
       published_at: "2026-10-16T14:30:00Z",
@@ -57,7 +60,8 @@ const sampleEdition: Edition = {
       edition_id: "11111111-1111-4111-a111-111111111111",
       position: 3,
       title: "Ancient Irrigation System Rediscovered in Highland Valleys",
-      excerpt: "Archaeological teams have mapped an extensive 2,000-year-old terraced water distribution network that kept remote communities resilient during severe historical droughts. Why it matters: The discovery provides engineering insights for modern arid-climate water conservation.",
+      excerpt: "Archaeological teams have mapped an extensive 2,000-year-old terraced water distribution network that kept remote communities resilient during severe historical droughts.",
+      why_it_matters: "The discovery provides engineering insights for modern arid-climate water conservation.",
       publisher: "Archaeological Review",
       source_url: "https://example.com/ancient-irrigation",
       published_at: "2026-10-15T22:15:00Z",
@@ -70,8 +74,9 @@ const sampleEdition: Edition = {
 };
 
 test.describe("Seam 1: Edition PDF Generation Service", () => {
-  test("generates newspaper-inspired PDF preserving all content, metadata, sections, and clickable links", async () => {
+  test("generates newspaper-inspired PDF preserving all content, metadata, sections, and clickable links", async ({}, testInfo) => {
     const pdfBuffer = await generateEditionPdf(sampleEdition);
+    await testInfo.attach("short-edition", { body: pdfBuffer, contentType: "application/pdf" });
 
     expect(Buffer.isBuffer(pdfBuffer)).toBe(true);
     expect(pdfBuffer.length).toBeGreaterThan(1000);
@@ -90,7 +95,7 @@ test.describe("Seam 1: Edition PDF Generation Service", () => {
 
     try {
       const scriptPath = path.join(process.cwd(), "scripts", "inspect-pdf.py");
-      const output = execSync(`python "${scriptPath}" "${tmpPdfPath}"`, {
+      const output = execFileSync(process.env.HERALD_TEST_PYTHON || "python", [scriptPath, tmpPdfPath], {
         encoding: "utf-8",
       });
       const parsed = JSON.parse(output.trim());
@@ -110,6 +115,10 @@ test.describe("Seam 1: Edition PDF Generation Service", () => {
       expect(parsed.full_text).toContain("Breakthrough in Autonomous Robotics");
       expect(parsed.full_text).toContain("Ancient Irrigation System Rediscovered");
       expect(parsed.full_text).toContain("Archaeological teams have mapped an extensive 2,000-year-old");
+      expect(parsed.full_text).toContain(sampleEdition.stories[0].briefing);
+      expect(parsed.full_text).not.toContain("Nations around the world have surpassed");
+      expect(parsed.full_text).toContain(sampleEdition.stories[0].why_it_matters);
+      expect(parsed.full_text).toContain(sampleEdition.stories[2].why_it_matters);
 
       // 4. Verify Publishers
       expect(parsed.full_text).toContain("Global Climate News");
@@ -132,6 +141,35 @@ test.describe("Seam 1: Edition PDF Generation Service", () => {
       } catch {
         // Safe cleanup on Windows
       }
+    }
+  });
+
+  test("historical sample and multipage Edition retain every saved Story and source", async ({}, testInfo) => {
+    const longEdition: Edition = {
+      ...sampleEdition,
+      stories: Array.from({ length: 8 }, (_, index) => ({
+        ...sampleEdition.stories[index % 3], id: `long-${index}`, position: index + 1,
+        section: index < 6 ? "main" as const : "beyond_bubble" as const,
+        briefing: `${"This controlled saved report describes grid investment, public infrastructure, and the development discussed by its attributed sources. ".repeat(18)} End of saved Story ${index + 1}.`,
+      })),
+    };
+    for (const [name, edition] of [["historical-sample", getPublicSampleEdition()], ["long-edition", longEdition]] as const) {
+      const pdf = await generateEditionPdf(edition);
+      const pdfPath = testInfo.outputPath(`${name}.pdf`);
+      fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
+      fs.writeFileSync(pdfPath, pdf);
+      const parsed = JSON.parse(execFileSync(process.env.HERALD_TEST_PYTHON || "python", [
+        path.join(process.cwd(), "scripts", "inspect-pdf.py"), pdfPath,
+      ], { encoding: "utf8" }));
+      const normalizedText = parsed.body_text.replace(/\s+/g, " ");
+      if (edition.discovery_note) expect(normalizedText).toContain(edition.discovery_note);
+      for (const story of edition.stories) {
+        expect(normalizedText).toContain(story.title);
+        expect(normalizedText).toContain((story.briefing || story.excerpt).replace(/\s+/g, " "));
+        if (story.why_it_matters) expect(normalizedText).toContain(story.why_it_matters);
+        expect(parsed.links).toContain(story.source_url);
+      }
+      if (name === "long-edition") expect(parsed.num_pages).toBeGreaterThan(1);
     }
   });
 });

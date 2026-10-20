@@ -38,8 +38,8 @@ export default function SamplePage() {
         <aside className="sample-banner" aria-label="Sample edition notice">
           <div className="sample-badge">Sample Edition</div>
           <p className="sample-description">
-            This is an authentic demonstration of Herald’s daily paper format and canonical story structure.
-            Every story provides a grounded Briefing, independent importance explanation, and verified source provenance.
+            This is a short historical demonstration of Herald’s daily paper format, using two attributed NASA reports from 2022.
+            It shows how stories and sources are presented. Your current news coverage and personal selection will differ.
           </p>
           <div className="sample-actions">
             <a
@@ -60,7 +60,7 @@ export default function SamplePage() {
           <div className="edition-header-meta">
             <span className="edition-meta-item">Sample Issue</span>
             <span className="edition-meta-item">·</span>
-            <span className="edition-meta-item">Estimated {edition.estimated_reading_minutes} min reading · 10 min plan</span>
+            <span className="edition-meta-item">Estimated {edition.estimated_reading_minutes} min reading · Historical sample</span>
             <span className="edition-meta-item">·</span>
             <span className="edition-meta-item">{edition.word_count} words</span>
           </div>
@@ -87,7 +87,7 @@ export default function SamplePage() {
               ))}
             </section>
 
-            <section className="story-feed discovery-section" aria-labelledby="sample-beyond-bubble-title">
+            {beyondBubbleStories.length > 0 && <section className="story-feed discovery-section" aria-labelledby="sample-beyond-bubble-title">
               <div>
                 <h2 id="sample-beyond-bubble-title" className="edition-section-title">
                   <span style={{ color: "var(--orange)", marginRight: "0.4rem" }}>|</span>
@@ -104,7 +104,7 @@ export default function SamplePage() {
                   totalStories={stories.length}
                 />
               ))}
-            </section>
+            </section>}
           </div>
         </div>
 

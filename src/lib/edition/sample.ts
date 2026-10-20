@@ -1,122 +1,42 @@
-import type { Edition } from "./types";
+import type { Edition, EditionStory } from "./types";
+import { countWords, estimateReadingTime } from "./ranking";
 
 export const SAMPLE_EDITION_ID = "00000000-0000-4000-a000-000000000001";
 
-/**
- * Returns a canonical, public Sample Edition built entirely from permitted reporting.
- * Completely devoid of private reader data, clearly labelled, with full canonical Story contracts.
+/** Historical format demonstration using original summaries of NASA reports.
+ * Source review: docs/recovery/sample-sources.md. No current-coverage claim.
  */
-export function getPublicSampleEdition(todayDateStr?: string): Edition {
-  const editionDate = todayDateStr || new Date().toISOString().slice(0, 10);
+export function getPublicSampleEdition(): Edition {
+  const reports = [
+    {
+      title: "DART test shortened an asteroid moonlet’s orbit",
+      briefing: "NASA reported on 11 October 2022 that the DART spacecraft’s impact changed how long Dimorphos takes to orbit Didymos. The measured period fell from 11 hours and 55 minutes to 11 hours and 23 minutes. The two asteroids posed no threat to Earth. Researchers used telescope observations to measure the change after the September impact.",
+      why_it_matters: "The result provided an experimental demonstration that a spacecraft impact can change an asteroid’s motion, informing planetary defence research.",
+      source_url: "https://www.nasa.gov/news-release/nasa-confirms-dart-mission-impact-changed-asteroids-motion-in-space/",
+      published_at: "2022-10-11T00:00:00Z",
+    },
+    {
+      title: "Webb’s first deep field revealed thousands of galaxies",
+      briefing: "NASA unveiled Webb’s first deep-field image on 11 July 2022. It shows the galaxy cluster SMACS 0723 and thousands of galaxies in a small patch of sky. The telescope’s near-infrared camera combined observations at different wavelengths, with a total exposure of 12.5 hours. The foreground cluster magnifies more distant galaxies through gravitational lensing.",
+      why_it_matters: "The observations let astronomers investigate faint, distant galaxies and their properties, extending the evidence available for studying the early universe.",
+      source_url: "https://science.nasa.gov/missions/webb/nasas-webb-delivers-deepest-infrared-image-of-universe-yet/",
+      published_at: "2022-07-11T00:00:00Z",
+    },
+  ];
+  const stories: EditionStory[] = reports.map((report, index) => ({
+    ...report,
+    id: `sample-story-${index + 1}`, edition_id: SAMPLE_EDITION_ID,
+    position: index + 1, excerpt: report.briefing,
+    publisher: "NASA", category: "science", locale: "global", section: "main",
+    word_count: countWords(`${report.title} ${report.briefing} ${report.why_it_matters}`),
+    supporting_sources: [{ title: report.title, url: report.source_url, publisher: "NASA" }],
+  }));
+  const words = stories.reduce((sum, story) => sum + story.word_count, 0);
   return {
-    id: SAMPLE_EDITION_ID,
-    reader_id: "public-sample-reader",
-    edition_date: editionDate,
-    time_zone: "UTC",
-    reading_length: 10,
-    estimated_reading_minutes: 7,
-    word_count: 1450,
-    selection_version: "v1-sample",
-    status: "completed",
-    discovery_note: null,
-    created_at: `${editionDate}T06:00:00Z`,
-    stories: [
-      {
-        id: "sample-story-1",
-        edition_id: SAMPLE_EDITION_ID,
-        position: 1,
-        title: "Clean Energy Infrastructure Outpaces Fossil Investments in Major Global Economies",
-        excerpt: "International energy monitors report renewable generation reached record operational capacity this quarter.",
-        briefing: "International energy monitors report renewable generation reached record operational capacity this quarter, driven by grid-scale solar and offshore wind installations across Europe and North America.",
-        why_it_matters: "Grid transmission bottlenecks now determine whether industrial manufacturing can transition away from high-emission fossil fuels within current climate targets.",
-        publisher: "Clean Energy Chronicle",
-        source_url: "https://example.com/energy/clean-infrastructure-record",
-        published_at: `${editionDate}T06:30:00Z`,
-        category: "science",
-        locale: "global",
-        word_count: 380,
-        section: "main",
-        image_url: null,
-        supporting_sources: [
-          {
-            title: "Renewable Grid Interconnection Queue Advances Across Western Interconnect",
-            url: "https://example.com/energy/grid-queue-advances",
-            publisher: "Power Markets Dispatch",
-          },
-        ],
-      },
-      {
-        id: "sample-story-2",
-        edition_id: SAMPLE_EDITION_ID,
-        position: 2,
-        title: "Semiconductor Consortia Establish Open Standard for Chiplet Interconnects",
-        excerpt: "Hardware manufacturers agree on modular physical architectures to lower fabrication costs.",
-        briefing: "Hardware manufacturers agree on modular physical architectures to lower fabrication costs and shorten design cycles for next-generation computing hardware.",
-        why_it_matters: "Standardized physical interfaces enable smaller tech firms to assemble specialized artificial intelligence chips without proprietary foundry lock-in.",
-        publisher: "Tech Architecture Gazette",
-        source_url: "https://example.com/tech/chiplet-interconnect-standard",
-        published_at: `${editionDate}T05:45:00Z`,
-        category: "technology",
-        locale: "global",
-        word_count: 360,
-        section: "main",
-        image_url: null,
-        supporting_sources: [
-          {
-            title: "Semiconductor Packaging Standards Working Group Ratifies Specification",
-            url: "https://example.com/tech/chiplet-working-group",
-            publisher: "Silicon Systems Today",
-          },
-        ],
-      },
-      {
-        id: "sample-story-3",
-        edition_id: SAMPLE_EDITION_ID,
-        position: 3,
-        title: "Central Banks Finalize Bilateral Digital Settlement Protocol",
-        excerpt: "Cross-border payment infrastructure eliminates multiple intermediate settlement layers.",
-        briefing: "Cross-border payment infrastructure eliminates multiple intermediate settlement layers, cutting retail foreign remittance fees and clearing times.",
-        why_it_matters: "Direct sovereign wholesale rails challenge multi-decade dominance of correspondent banking networks in international trade finance.",
-        publisher: "Monetary Affairs Herald",
-        source_url: "https://example.com/economy/central-bank-digital-settlement",
-        published_at: `${editionDate}T04:15:00Z`,
-        category: "business",
-        locale: "global",
-        word_count: 340,
-        section: "main",
-        image_url: null,
-        supporting_sources: [
-          {
-            title: "Multilateral Payment Systems Advance Wholesale Settlement Tests",
-            url: "https://example.com/economy/multilateral-settlement-tests",
-            publisher: "Global Banking Review",
-          },
-        ],
-      },
-      {
-        id: "sample-story-4",
-        edition_id: SAMPLE_EDITION_ID,
-        position: 4,
-        title: "International Restoration Alliance Preserves Endangered Renaissance Architectural Frescoes",
-        excerpt: "Conservators employ non-invasive enzymatic cleaning techniques to rescue centuries-old historic frescoes.",
-        briefing: "Conservators employ non-invasive enzymatic cleaning techniques to rescue centuries-old historic frescoes damaged by indoor humidity and microclimate degradation.",
-        why_it_matters: "Demonstrates how biochemical techniques can rescue irreplaceable cultural heritage without harsh physical solvents that strip delicate paint layers.",
-        publisher: "Heritage & Arts Quarterly",
-        source_url: "https://example.com/arts/renaissance-fresco-restoration",
-        published_at: `${editionDate}T03:00:00Z`,
-        category: "arts",
-        locale: "global",
-        word_count: 370,
-        section: "beyond_bubble",
-        image_url: null,
-        supporting_sources: [
-          {
-            title: "Conservation Teams Document Cultural Heritage Sites Under Climate Stress",
-            url: "https://example.com/arts/conservation-cultural-heritage",
-            publisher: "Museum Preservation Journal",
-          },
-        ],
-      },
-    ],
+    id: SAMPLE_EDITION_ID, reader_id: "public-sample-reader", edition_date: "2022-10-11",
+    time_zone: "UTC", reading_length: 5, estimated_reading_minutes: estimateReadingTime(words),
+    word_count: words, selection_version: "historical-format-sample-v2", status: "completed",
+    discovery_note: "This historical science sample demonstrates the reading format; it does not demonstrate personalized discovery or current coverage.",
+    created_at: "2022-10-11T00:00:00Z", stories,
   };
 }

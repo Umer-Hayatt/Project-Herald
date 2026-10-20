@@ -18,13 +18,14 @@ const sampleGroupedSupply: GroupedSourceArticle[] = [
     title: "Clean Energy Transition Accelerates Across Europe and North America",
     description: "Wind and solar infrastructure outpaces fossil fuels across Western nations.",
     snippet: "International energy agencies report solar capacity doubled in the past twelve months.",
-    url: "https://example.com/clean-energy-transition",
+    url: "https://publisher.org/clean-energy-transition",
     image_url: null,
     publisher: "Clean Wire Service",
     published_at: new Date(now.getTime() - 2 * 3600 * 1000).toISOString(),
     language: "en",
     categories: ["science", "technology"],
     locale: "global",
+    raw_data: { provider: "thenewsapi", output_use: "commercial" },
     supportingArticles: [
       {
         id: "r03-supp-1",
@@ -32,13 +33,14 @@ const sampleGroupedSupply: GroupedSourceArticle[] = [
         title: "Renewable Grid Expansion Hits New Record",
         description: "Transmission lines expand to support clean power.",
         snippet: "Interconnection waitlists drop significantly.",
-        url: "https://example.com/renewable-grid-record",
+        url: "https://publisher.org/renewable-grid-record",
         image_url: null,
         publisher: "Energy Grid Dispatch",
         published_at: new Date(now.getTime() - 3 * 3600 * 1000).toISOString(),
         language: "en",
         categories: ["science"],
         locale: "global",
+        raw_data: { provider: "thenewsapi", output_use: "commercial" },
       },
     ],
     briefing: "Wind and solar infrastructure outpaces fossil fuels across Western nations with rapid grid integration.",
@@ -52,13 +54,14 @@ const sampleGroupedSupply: GroupedSourceArticle[] = [
     title: "Global Semiconductor Manufacturers Invest Billions in New Fabrication Plants",
     description: "Chipmakers expand production facilities in the United States, Europe, and Asia.",
     snippet: "Advanced semiconductor packaging and high bandwidth memory drive historic infrastructure investments.",
-    url: "https://example.com/semiconductor-fab-investments",
+    url: "https://publisher.org/semiconductor-fab-investments",
     image_url: null,
     publisher: "Tech Global Daily",
     published_at: new Date(now.getTime() - 4 * 3600 * 1000).toISOString(),
     language: "en",
     categories: ["technology", "business"],
     locale: "us",
+    raw_data: { provider: "thenewsapi", output_use: "commercial" },
     supportingArticles: [],
     briefing: "Chipmakers expand production facilities across three continents to secure supply chains for advanced memory.",
     whyItMatters: "Semiconductor sovereignty is reshaping global industrial policy and supply chain resilience.",
@@ -71,13 +74,14 @@ const sampleGroupedSupply: GroupedSourceArticle[] = [
     title: "Autonomous Maritime Navigation Treaty Signed in Geneva",
     description: "Maritime nations adopt unified standards for uncrewed ocean vessels.",
     snippet: "Safety protocols and liability frameworks established for commercial automated shipping.",
-    url: "https://example.com/maritime-treaty",
+    url: "https://publisher.org/maritime-treaty",
     image_url: null,
     publisher: "Maritime Law Herald",
     published_at: new Date(now.getTime() - 6 * 3600 * 1000).toISOString(),
     language: "en",
     categories: ["politics", "travel"],
     locale: "global",
+    raw_data: { provider: "thenewsapi", output_use: "commercial" },
     supportingArticles: [],
     briefing: "International treaty establishes binding safety protocols for uncrewed commercial shipping fleets.",
     whyItMatters: "Sets the global regulatory foundation for the next century of autonomous maritime trade.",
@@ -90,13 +94,14 @@ const sampleGroupedSupply: GroupedSourceArticle[] = [
     title: "Championship Series Game 4 Recap and Analysis",
     description: "Pitching adjustments and bullpen management decide key postseason match.",
     snippet: "Late-inning strategy shifts momentum in tournament series.",
-    url: "https://example.com/sports-recap",
+    url: "https://publisher.org/sports-recap",
     image_url: null,
     publisher: "Sports Wire Daily",
     published_at: new Date(now.getTime() - 5 * 3600 * 1000).toISOString(),
     language: "en",
     categories: ["sports"],
     locale: "us",
+    raw_data: { provider: "thenewsapi", output_use: "commercial" },
     supportingArticles: [],
     briefing: "Postseason match decided by bullpen adjustments in the late innings.",
     whyItMatters: "Changes tournament seeding heading into the final round.",
@@ -130,7 +135,7 @@ test.describe("Recovery R03: Read consistent Editions that improve with saved pr
           briefing: "Wind and solar infrastructure outpaces fossil fuels across Western nations.",
           why_it_matters: "Grid capacity determines the real-world deployment speed of zero-emission industrial power.",
           publisher: "Clean Wire Service",
-          source_url: "https://example.com/clean-energy-transition",
+          source_url: "https://publisher.org/clean-energy-transition",
           published_at: "2026-10-18T08:00:00Z",
           category: "science",
           locale: "global",
@@ -139,7 +144,7 @@ test.describe("Recovery R03: Read consistent Editions that improve with saved pr
           supporting_sources: [
             {
               title: "Renewable Grid Expansion Hits New Record",
-              url: "https://example.com/renewable-grid-record",
+              url: "https://publisher.org/renewable-grid-record",
               publisher: "Energy Grid Dispatch",
             },
           ],
@@ -153,7 +158,7 @@ test.describe("Recovery R03: Read consistent Editions that improve with saved pr
           briefing: "Maritime nations adopt unified standards for uncrewed ocean vessels.",
           why_it_matters: "Sets the global regulatory foundation for the next century of autonomous maritime trade.",
           publisher: "Maritime Law Herald",
-          source_url: "https://example.com/maritime-treaty",
+          source_url: "https://publisher.org/maritime-treaty",
           published_at: "2026-10-18T04:00:00Z",
           category: "politics",
           locale: "global",
@@ -184,9 +189,9 @@ test.describe("Recovery R03: Read consistent Editions that improve with saved pr
     expect(parsed.full_text).toContain("Why it matters:");
     expect(parsed.full_text).toContain("Grid capacity determines the real-world deployment speed");
     // Verify source URLs are present in clickable link annotations
-    expect(parsed.links).toContain("https://example.com/clean-energy-transition");
-    expect(parsed.links).toContain("https://example.com/renewable-grid-record");
-    expect(parsed.links).toContain("https://example.com/maritime-treaty");
+    expect(parsed.links).toContain("https://publisher.org/clean-energy-transition");
+    expect(parsed.links).toContain("https://publisher.org/renewable-grid-record");
+    expect(parsed.links).toContain("https://publisher.org/maritime-treaty");
     // Verify section banners
     expect(parsed.full_text).toContain("TODAY'S STORIES");
     expect(parsed.full_text).toContain("BEYOND YOUR BUBBLE");
@@ -313,7 +318,7 @@ test.describe("Recovery R03: Read consistent Editions that improve with saved pr
     expect(ranked[0].id).toBe("r03-story-semiconductors");
   });
 
-  test("6. Two contrasting readers: stored feedback changes next-day selection while past editions remain immutable", async ({
+  test("6. Saved feedback preserves the earlier Edition while a next-day Edition can be created", async ({
     context,
     baseURL,
   }) => {
@@ -341,6 +346,7 @@ test.describe("Recovery R03: Read consistent Editions that improve with saved pr
     const day1Result = await getOrCreateDailyEdition(supabaseA, userA!.id, {
       controlledDate: day1Date,
       controlledSupply: sampleGroupedSupply as unknown as SourceArticle[],
+      referenceDate: now,
     });
     expect(day1Result.success).toBe(true);
     if (!day1Result.success) return;
@@ -349,13 +355,14 @@ test.describe("Recovery R03: Read consistent Editions that improve with saved pr
     // 4. Save feedback for a future edition
     const feedbackStoryId = day1Result.edition.stories[0].id;
     if (feedbackStoryId) {
-      await context.request.post("/api/feedback", {
+      const feedbackResponse = await context.request.post("/api/feedback", {
         headers: { origin: baseURL! },
         data: {
           story_id: feedbackStoryId,
           feedback: "more",
         },
       });
+      expect(feedbackResponse.ok()).toBe(true);
     }
 
     // 5. Verify Day 1 saved edition remains strictly immutable after feedback
@@ -374,6 +381,7 @@ test.describe("Recovery R03: Read consistent Editions that improve with saved pr
     const day2Result = await getOrCreateDailyEdition(supabaseA, userA!.id, {
       controlledDate: day2Date,
       controlledSupply: sampleGroupedSupply as unknown as SourceArticle[],
+      referenceDate: now,
     });
     expect(day2Result.success).toBe(true);
 

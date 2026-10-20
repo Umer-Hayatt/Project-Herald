@@ -100,6 +100,12 @@ export async function generateEditionPdf(edition: Edition): Promise<Buffer> {
       doc.lineWidth(1).strokeColor("#111827").moveTo(leftMargin, doc.y).lineTo(rightMargin, doc.y).stroke();
       doc.y = doc.y + 12;
 
+      if (edition.discovery_note) {
+        doc.font("Times-Italic").fontSize(9).fillColor("#374151")
+          .text(edition.discovery_note, leftMargin, doc.y, { width: contentWidth, lineGap: 2 });
+        doc.y += 8;
+      }
+
       // Group stories into main stories and beyond-bubble stories
       const stories = edition.stories || [];
       const mainStories = stories.filter((s) => s.section !== "beyond_bubble");
@@ -169,7 +175,7 @@ export async function generateEditionPdf(edition: Edition): Promise<Buffer> {
           .font("Times-Roman")
           .fontSize(10)
           .fillColor("#28303e")
-          .text(story.excerpt, leftMargin, doc.y, {
+          .text(story.briefing || story.excerpt, leftMargin, doc.y, {
             width: contentWidth,
             lineGap: 2.5,
             align: "justify",

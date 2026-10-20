@@ -27,7 +27,7 @@ export class NewsDataAdapter implements NewsProviderAdapter {
 
   constructor(
     private apiKey: string | undefined = process.env.NEWSDATA_API_KEY,
-    private commercialUseApproved: boolean = Boolean(process.env.NEWSDATA_COMMERCIAL_APPROVED),
+    private commercialUseApproved: boolean = process.env.NEWSDATA_COMMERCIAL_APPROVED === "true",
   ) {}
 
   isConfigured(): boolean {

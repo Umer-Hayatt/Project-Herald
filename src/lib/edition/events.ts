@@ -109,10 +109,18 @@ export function detectEventUpdate(
     Number.isFinite(pastPubTime) &&
     candidatePubTime - pastPubTime > 8 * 3600 * 1000;
 
-  if (hasUpdateMarker || hasTimeProgression) {
-    // Generate honest, grounded update explanation referencing previous coverage
-    const explanation = `Updates previous coverage on "${past.title}" with new developments.`;
-    return { isUpdate: true, explanation };
+  // A timestamp or "updated" label alone says nothing about material change.
+  // Only expose a declared, source-exact development tied to the earlier event.
+  const evidence = candidate.raw_data?.material_update;
+  if (hasUpdateMarker && hasTimeProgression && evidence && typeof evidence === "object") {
+    const update = evidence as Record<string, unknown>;
+    const quote = typeof update.source_excerpt === "string" ? update.source_excerpt.trim() : "";
+    const sourceText = [candidate.description, candidate.snippet].filter(Boolean).join(" ");
+    const previousText = `${past.title} ${past.briefing || ""} ${past.whyItMatters || ""}`;
+    if (quote.length >= 40 && sourceText.includes(quote) && !previousText.includes(quote) &&
+      update.previous_source_url === past.sourceUrl && update.verified === true) {
+      return { isUpdate: true, explanation: `New source reporting: ${quote}` };
+    }
   }
 
   return { isUpdate: false };

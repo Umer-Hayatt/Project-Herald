@@ -3,6 +3,8 @@ import type { SourceArticle } from "./types";
 import { filterEligibleArticles } from "./content-quality";
 import { NewsProviderCoordinator } from "./providers/coordinator";
 
+export type ReportingWriter = Pick<SupabaseClient, "rpc">;
+
 /**
  * Retrieves the shared reporting supply.
  * Coordinates multi-provider ingestion (TheNewsAPI baseline, optional GNews / NewsData evaluation complements).
@@ -18,12 +20,13 @@ export async function getReportingSupply(
     referenceDate?: Date;
     coordinator?: NewsProviderCoordinator;
     allowEvaluationOnly?: boolean;
+    reportingWriter?: ReportingWriter;
   },
 ): Promise<SourceArticle[]> {
   const now = options?.referenceDate || new Date();
   const allowEvaluationOnly = options?.allowEvaluationOnly ?? false;
 
-  // If controlled supply is supplied (for tests/fixtures), filter and ingest via trusted RPC
+  // Controlled fixtures are never persisted to shared reporting.
   if (options?.controlledSupply !== undefined) {
     if (options.controlledSupply.length === 0) return [];
     const eligibleControlled = filterEligibleArticles(options.controlledSupply, {
@@ -33,45 +36,6 @@ export async function getReportingSupply(
     });
     if (eligibleControlled.length === 0) return [];
 
-    const records = eligibleControlled.map((s) => ({
-      id: s.id,
-      external_id: s.external_id,
-      title: s.title,
-      description: s.description || null,
-      snippet: s.snippet || null,
-      url: s.url,
-      image_url: s.image_url || null,
-      publisher: s.publisher,
-      published_at: s.published_at,
-      retrieved_at: s.retrieved_at || now.toISOString(),
-      language: s.language || "en",
-      categories: s.categories || ["general"],
-      locale: s.locale || null,
-      raw_data: s.raw_data || {
-        provider: (s as { provider?: string }).provider || "controlled",
-        output_use: (s as { output_use?: string }).output_use || "commercial",
-      },
-    }));
-
-    try {
-      // Authenticated test context claims refresh with 0 provider calls
-      const { data: lockToken } = await supabase.rpc("claim_reporting_refresh", {
-        p_force_refresh: true,
-        p_provider_calls: 0,
-      });
-      if (lockToken) {
-        await supabase.rpc("ingest_source_articles", {
-          p_lock_token: lockToken,
-          p_articles: records,
-        });
-        await supabase.rpc("finish_reporting_refresh", {
-          p_lock_token: lockToken,
-          p_succeeded: true,
-        });
-      }
-    } catch {
-      // In-memory fallback if database RPC unavailable in testing
-    }
     return eligibleControlled as SourceArticle[];
   }
 
@@ -79,11 +43,12 @@ export async function getReportingSupply(
   const coordinator = options?.coordinator || new NewsProviderCoordinator();
   const configuredAdapters = coordinator.getConfiguredAdapters();
 
-  if (configuredAdapters.length > 0) {
+  const writer = options?.reportingWriter;
+  if (writer && configuredAdapters.length > 0) {
     // The database reserves provider calls against its fixed daily budget.
-    const { data: lockToken } = await supabase.rpc("claim_reporting_refresh", {
+    const { data: lockToken } = await writer.rpc("claim_reporting_refresh", {
       p_force_refresh: options?.forceRefresh || false,
-      p_provider_calls: 5,
+      p_provider_calls: configuredAdapters.length * 5,
     });
 
     // A null token means a fresh cache, another active refresh, or an exhausted budget.
@@ -121,7 +86,7 @@ export async function getReportingSupply(
             }));
 
             // Write strictly via trusted ingestion RPC
-            const { error: ingestError } = await supabase.rpc("ingest_source_articles", {
+            const { error: ingestError } = await writer.rpc("ingest_source_articles", {
               p_lock_token: lockToken,
               p_articles: records,
             });
@@ -133,7 +98,7 @@ export async function getReportingSupply(
       } catch {
         // The request reservation is retained even when a provider call fails.
       } finally {
-        await supabase.rpc("finish_reporting_refresh", {
+        await writer.rpc("finish_reporting_refresh", {
           p_lock_token: lockToken,
           p_succeeded: succeeded,
         });

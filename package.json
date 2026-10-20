@@ -9,6 +9,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "playwright test",
+    "test:offline": "playwright test --config playwright.offline.config.ts",
+    "test:reporting-security": "node scripts/test-reporting-security.mjs",
     "test:account": "playwright test tests/account.spec.ts",
     "check:providers": "node --env-file=.env.local scripts/check-providers.mjs"
   },
@@ -23,6 +25,7 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.10.1",

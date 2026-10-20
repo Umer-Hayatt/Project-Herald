@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { expect, type BrowserContext } from "@playwright/test";
+import { assertIsolatedTestEnvironment } from "./isolation";
 export const testReadersConfigured = Boolean(
   process.env.TEST_READER_A_EMAIL && process.env.TEST_READER_B_EMAIL,
 );
@@ -16,6 +17,7 @@ export async function login(
   context?: BrowserContext,
   baseURL?: string,
 ) {
+  assertIsolatedTestEnvironment(process.env);
   const values = new Map<string, string>();
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!,
     key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
