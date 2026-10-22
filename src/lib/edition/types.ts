@@ -55,6 +55,10 @@ export interface EditionStory {
     url: string;
     publisher: string;
     provider?: string;
+    published_at?: string;
+    source_excerpt?: string;
+    is_update?: boolean;
+    update_explanation?: string;
   }[];
 }
 

@@ -2,7 +2,7 @@
 
 ## Current state
 
-**Audit correction, updated 20 October 2026:** Earlier R01–R07 completion claims below are superseded. Start with [the audit-fix continuation checkpoint](2026-10-19-audit-fixes-handoff.md). Local audit fixes and verification are recorded in the latest continuation checkpoint; they have not been deployed. Active checkout: `C:/Users/HP/Documents/Codex/2026-10-18/rev/herald-recovery`, branch `codex/herald-audit-fixes`.
+**Audit correction, updated 22 October 2026:** Earlier R01–R07 completion claims below are superseded. Start with [the audit-fix continuation checkpoint](2026-10-19-audit-fixes-handoff.md). Local audit fixes and verification are recorded in the latest continuation checkpoint; they have not been deployed. Active checkout: `C:/Users/HP/Documents/Codex/2026-10-18/rev/herald-recovery`, branch `codex/herald-audit-fixes`.
 
 Planning checkpoint: 19 October 2026, Asia/Karachi. Active authority: [recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Main baseline: `3e8e437735d3258e5e342c7d1f738a30e8d99f9c`. Planning branch at that checkpoint: `codex/herald-recovery` (superseded by the active checkout above).
 The eight revised recovery tickets have been published as issues [#12](https://github.com/Umer-Hayatt/Project-Herald/issues/12) through [#19](https://github.com/Umer-Hayatt/Project-Herald/issues/19) with `ready-for-agent` labels, native parent sub-issue links to #11, and native linear `blockedBy` edges. See [the ticket index](TICKET-REVIEW.md).

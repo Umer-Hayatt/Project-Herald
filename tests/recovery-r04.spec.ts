@@ -16,6 +16,10 @@ const pastEventCleanEnergy: RecentIncludedEvent = {
   briefing: "International summit establishes ambitious solar deployment targets for 2030.",
   whyItMatters: "Grid capacity determines the real-world deployment speed.",
   supportingUrls: ["https://publisher.org/clean-energy-summit-wire"],
+  sourceReports: [{
+    url: "https://publisher.org/clean-energy-summit", publishedAt: "2026-10-18T08:00:00Z",
+    text: "The European Commission proposed funding for solar summit grid upgrades.",
+  }],
 };
 
 const candidateUnchangedRepeat: GroupedSourceArticle = {
@@ -43,7 +47,7 @@ const candidateMaterialUpdate: GroupedSourceArticle = {
   id: "r04-update-clean-energy",
   external_id: "thenewsapi-clean-energy-update",
   title: "Update: European Commission Approves Funding Framework for Solar Summit Targets",
-  description: "Following weekend climate summit agreements, regulators approve formal subsidy disbursements.",
+  description: "The European Commission approved funding for solar summit grid upgrades.",
   snippet: "First round of grid grants unlocked under the global milestone agreement.",
   url: pastEventCleanEnergy.sourceUrl,
   image_url: null,
@@ -52,11 +56,7 @@ const candidateMaterialUpdate: GroupedSourceArticle = {
   language: "en",
   categories: ["science", "politics"],
   locale: "global",
-  raw_data: { provider: "thenewsapi", output_use: "commercial", material_update: {
-    verified: true,
-    previous_source_url: pastEventCleanEnergy.sourceUrl,
-    source_excerpt: "Following weekend climate summit agreements, regulators approve formal subsidy disbursements.",
-  } },
+  raw_data: { provider: "thenewsapi", output_use: "commercial" },
   supportingArticles: [
     {
       id: "supp-energy-1",
@@ -144,7 +144,7 @@ test.describe("Recovery R04: Reduce repeated events while retaining meaningful u
     expect(isMatch).toBe(false);
   });
 
-  test("4. Controlled verified update evidence remains eligible with its exact source excerpt", () => {
+  test("4. A publisher decision compared with its saved proposal remains eligible with exact excerpts", () => {
     const isMatch = isSameEvent(candidateMaterialUpdate, pastEventCleanEnergy);
     expect(isMatch).toBe(true);
 

@@ -156,7 +156,7 @@ export function validateEditorSelection(
     }
 
     const storyText = matchedArticle.briefing || matchedArticle.snippet || matchedArticle.description || matchedArticle.title;
-    totalWords += countWords(matchedArticle.title) + countWords(storyText) + countWords(item.why_it_matters || matchedArticle.whyItMatters || "");
+    totalWords += countWords(matchedArticle.title) + countWords(storyText) + countWords(item.why_it_matters || matchedArticle.whyItMatters || "") + countWords(matchedArticle.updateExplanation || "");
 
     // Check for prompt echoes or obvious non-factual filler
     if (item.why_it_matters) {

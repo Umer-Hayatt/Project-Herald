@@ -1,5 +1,5 @@
 import { canonicalizeSourceUrl, hasSharedEventEvidence, sameEventTitle } from "./grouping";
-import type { GroupedSourceArticle, SourceArticle } from "./types";
+import type { EditionStory, GroupedSourceArticle, SourceArticle } from "./types";
 
 export interface RecentIncludedEvent {
   title: string;
@@ -10,6 +10,7 @@ export interface RecentIncludedEvent {
   briefing?: string;
   whyItMatters?: string | null;
   supportingUrls?: string[];
+  sourceReports?: { url: string; publishedAt: string; text: string }[];
 }
 
 export type EventInclusionStatus = "fresh" | "unchanged_repeat" | "update";
@@ -20,7 +21,43 @@ export interface EventEvaluationResult {
   updateExplanation?: string;
 }
 
-const UPDATE_MARKERS = /\b(update|updates|updated|developing|progress|advances|confirms|statement|reaches agreement|announces next steps|outcome|aftermath|resolution|passes|approved|vetoed|ruling|verdict|latest)\b/i;
+const STATUS_TRANSITIONS: Record<string, string[]> = {
+  proposed: ["approved", "rejected"],
+  scheduled: ["cancelled", "launched", "opened"],
+  opened: ["closed"],
+};
+
+/** Preserve publisher text separately from generated Briefings for later comparison. */
+export function publisherExcerpt(source: SourceArticle): string {
+  return [source.description, source.snippet].filter(Boolean).join("\n").slice(0, 2100);
+}
+
+function decisionClaims(text: string) {
+  return text.split(/(?<=[.!?])\s+|\n+/).flatMap((quote) => {
+    const sentence = quote.trim().replace(/\s+/g, " ");
+    const normalized = sentence.toLowerCase().replace(/[.!?]+$/, "");
+    // Uncertain, conditional and negated language cannot establish an outcome.
+    if (/\b(not|never|no|none|neither|zero|could|may|might|would|should|if|unless|expected|reportedly|allegedly|denied|denies|whether)\b|n['’]t\b/.test(normalized)) return [];
+    const matches = [...normalized.matchAll(/\b(proposed|approved|rejected|scheduled|cancelled|launched|opened|closed)\b/g)];
+    if (matches.length !== 1) return [];
+    const match = matches[0];
+    // Accept a direct assertion by a named institution, not arbitrary prose
+    // such as "discussed whether it approved" or an embedded question.
+    const subjectText = sentence.slice(0, match.index).trim();
+    if (!/^(?:[Tt]he\s+)?[A-Z][\p{L}-]*(?:\s+(?:[A-Z][\p{L}-]*|of|the|and)){1,7}(?:\s+(?:has|have|had))?$/u.test(subjectText) || /\?/.test(quote)) return [];
+    const subject = normalized.slice(0, match.index).trim().replace(/\s+(has|have|had)$/, "");
+    const object = normalized.slice(match.index! + match[0].length).trim();
+    if (subject.split(" ").length < 3 || object.split(" ").length < 4) return [];
+    return [{ quote: quote.trim(), status: match[0], frame: `${subject} <decision> ${object}` }];
+  });
+}
+
+/** Update metadata is stored inside the preserved source list, not table columns. */
+export function restoreStoryUpdate(story: EditionStory): EditionStory {
+  const source = story.supporting_sources?.find(source =>
+    source?.is_update === true && typeof source.update_explanation === "string" && source.update_explanation.length > 0);
+  return { ...story, is_update: Boolean(source), update_explanation: source?.update_explanation || null };
+}
 
 /**
  * Determines whether a candidate story represents the same real-world event
@@ -89,37 +126,27 @@ export function isSameEvent(
 export function detectEventUpdate(
   candidate: GroupedSourceArticle | SourceArticle,
   past: RecentIncludedEvent,
+  deliveredHistory: RecentIncludedEvent[] = [past],
 ): { isUpdate: boolean; explanation?: string } {
-  const combinedCandidateText = [
-    candidate.title,
-    candidate.description,
-    candidate.snippet,
-    "briefing" in candidate ? candidate.briefing : null,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  // Check for explicit update markers in candidate reporting
-  const hasUpdateMarker = UPDATE_MARKERS.test(combinedCandidateText) ||
-    /^(\[?update\]?|developing|follow-up):/i.test(candidate.title);
-
-  const candidatePubTime = Date.parse(candidate.published_at);
-  const pastPubTime = Date.parse(past.publishedAt);
-  const hasTimeProgression = Number.isFinite(candidatePubTime) &&
-    Number.isFinite(pastPubTime) &&
-    candidatePubTime - pastPubTime > 8 * 3600 * 1000;
-
-  // A timestamp or "updated" label alone says nothing about material change.
-  // Only expose a declared, source-exact development tied to the earlier event.
-  const evidence = candidate.raw_data?.material_update;
-  if (hasUpdateMarker && hasTimeProgression && evidence && typeof evidence === "object") {
-    const update = evidence as Record<string, unknown>;
-    const quote = typeof update.source_excerpt === "string" ? update.source_excerpt.trim() : "";
-    const sourceText = [candidate.description, candidate.snippet].filter(Boolean).join(" ");
-    const previousText = `${past.title} ${past.briefing || ""} ${past.whyItMatters || ""}`;
-    if (quote.length >= 40 && sourceText.includes(quote) && !previousText.includes(quote) &&
-      update.previous_source_url === past.sourceUrl && update.verified === true) {
-      return { isUpdate: true, explanation: `New source reporting: ${quote}` };
+  // Original group members retain their own dates; the representative's date
+  // may be the newest date of a different member of the same group.
+  const members = "supportingArticles" in candidate && candidate.supportingArticles.some(source => source.id === candidate.id)
+    ? candidate.supportingArticles : [candidate];
+  const deliveredClaims = deliveredHistory.flatMap(event =>
+    (event.sourceReports || []).flatMap(report => decisionClaims(report.text)));
+  for (const source of members) {
+    const sourceUrl = canonicalizeSourceUrl(source.url);
+    const previous = (past.sourceReports || [])
+      .filter(report => sourceUrl && canonicalizeSourceUrl(report.url) === sourceUrl)
+      .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))[0];
+    if (!previous || !(Date.parse(source.published_at) > Date.parse(previous.publishedAt))) continue;
+    const oldClaims = decisionClaims(previous.text);
+    for (const current of decisionClaims(publisherExcerpt(source))) {
+      if (deliveredClaims.some(claim => claim.frame === current.frame && claim.status === current.status)) continue;
+      const old = oldClaims.find(claim => claim.frame === current.frame && STATUS_TRANSITIONS[claim.status]?.includes(current.status));
+      if (old) {
+        return { isUpdate: true, explanation: `New source reporting: ${current.quote} Previously reported: ${old.quote}` };
+      }
     }
   }
 
@@ -133,22 +160,15 @@ export function evaluateRecentInclusion(
   candidate: GroupedSourceArticle,
   recentInclusions: RecentIncludedEvent[],
 ): EventEvaluationResult {
-  for (const past of recentInclusions) {
-    if (isSameEvent(candidate, past)) {
-      const updateCheck = detectEventUpdate(candidate, past);
-      if (updateCheck.isUpdate) {
-        return {
-          status: "update",
-          matchedEvent: past,
-          updateExplanation: updateCheck.explanation,
-        };
-      }
-      return {
-        status: "unchanged_repeat",
-        matchedEvent: past,
-      };
-    }
-  }
-
-  return { status: "fresh" };
+  // Compare with the latest delivered version, not an older phase of the event.
+  const matches = recentInclusions.filter(past => isSameEvent(candidate, past)).sort((a, b) =>
+    (b.editionDate || "").localeCompare(a.editionDate || "") || Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+  const past = matches[0];
+  if (!past) return { status: "fresh" };
+  const updateCheck = detectEventUpdate(candidate, past, matches);
+  return {
+    status: updateCheck.isUpdate ? "update" : "unchanged_repeat",
+    matchedEvent: past,
+    updateExplanation: updateCheck.explanation,
+  };
 }

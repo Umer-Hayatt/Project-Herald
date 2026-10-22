@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Edition, EditionStory } from "./types";
+import { restoreStoryUpdate } from "./events";
 
 export interface ArchiveEditionSummary {
   id: string;
@@ -114,6 +115,6 @@ export async function getArchivedEditionById(
 
   return {
     ...edition,
-    stories: (stories || []) as EditionStory[],
+    stories: ((stories || []) as EditionStory[]).map(restoreStoryUpdate),
   };
 }

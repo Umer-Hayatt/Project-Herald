@@ -133,7 +133,7 @@ export function selectAndRankStories(
 }
 
 import { resolveArticleGeography } from "./geography";
-import { evaluateRecentInclusion, type RecentIncludedEvent } from "./events";
+import { evaluateRecentInclusion, publisherExcerpt, type RecentIncludedEvent } from "./events";
 
 export function rankGroupedStories(
   articles: GroupedSourceArticle[],
@@ -151,6 +151,10 @@ export function rankGroupedStories(
       const publishedMs = Date.parse(article.published_at);
       const ageMs = nowMs - publishedMs;
       return Number.isFinite(publishedMs) && ageMs >= -2 * 60 * 60 * 1000 && ageMs <= 48 * 60 * 60 * 1000;
+    })
+    .map(article => {
+      const evaluation = evaluateRecentInclusion(article, recentInclusions);
+      return { ...article, isUpdate: evaluation.status === "update", updateExplanation: evaluation.updateExplanation || null };
     })
     .sort((left, right) => {
       const score = (article: GroupedSourceArticle) => {
@@ -213,8 +217,6 @@ export function rankGroupedStories(
           } else if (evalResult.status === "update") {
             // Genuine source-supported updates remain eligible with modest developing boost
             eventHistoryScore = 4;
-            article.isUpdate = true;
-            article.updateExplanation = evalResult.updateExplanation;
           }
         }
 
@@ -228,7 +230,8 @@ export function rankGroupedStories(
 
 function storyWordCount(article: GroupedSourceArticle): number {
   const text = article.briefing || article.snippet || article.description || article.title;
-  return countWords(article.title) + countWords(text) + countWords(article.whyItMatters || "");
+  return countWords(article.title) + countWords(text) + countWords(article.whyItMatters || "") +
+    countWords(article.updateExplanation || "");
 }
 
 function hasInterestOverlap(article: GroupedSourceArticle, topics: Set<string>): boolean {
@@ -355,7 +358,7 @@ export function buildEditionStories(
   return articles.map((article, index) => {
     const excerpt = (article.briefing || article.snippet || article.description || article.title).trim();
     const wordCount = countWords(article.title) + countWords(excerpt) +
-      countWords(article.whyItMatters || "");
+      countWords(article.whyItMatters || "") + countWords(article.updateExplanation || "");
     const category = article.topics?.[0] || article.categories[0] || "general";
     const supportingArticles = article.supportingArticles.length
       ? article.supportingArticles
@@ -369,6 +372,8 @@ export function buildEditionStories(
       title: source.title,
       url: source.url,
       publisher: source.publisher,
+      published_at: source.published_at,
+      source_excerpt: publisherExcerpt(source),
       provider:
         (source.raw_data as { provider?: string } | undefined)?.provider ||
         (source as { provider?: string }).provider ||

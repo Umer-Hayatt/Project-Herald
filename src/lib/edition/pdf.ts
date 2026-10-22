@@ -181,6 +181,14 @@ export async function generateEditionPdf(edition: Edition): Promise<Buffer> {
             align: "justify",
           });
 
+        if (story.update_explanation) {
+          doc.y = doc.y + 4;
+          doc.font("Times-Bold").fontSize(9.5).fillColor("#111827");
+          doc.text("Follow-up: ", leftMargin, doc.y, { continued: true });
+          doc.font("Times-Roman").fontSize(9.5).fillColor("#374151");
+          doc.text(story.update_explanation, { lineGap: 2 });
+        }
+
         if (story.why_it_matters) {
           doc.y = doc.y + 4;
           doc.font("Times-Bold").fontSize(9.5).fillColor("#111827");

@@ -14,7 +14,7 @@ import {
   type TargetedSearchRequest,
 } from "./targeted-search";
 import type { Edition, EditionStory, SourceArticle, ReaderPreferencesRecord, GroupedSourceArticle } from "./types";
-import type { RecentIncludedEvent } from "./events";
+import { restoreStoryUpdate, type RecentIncludedEvent } from "./events";
 
 export type EditionResult =
   | {
@@ -39,16 +39,7 @@ async function loadEditionStories(
     .eq("reader_id", readerId)
     .order("position", { ascending: true });
   if (error || !data) return null;
-  return data.map((story) => {
-    const updateSource = (story.supporting_sources as Array<Record<string, unknown>> | undefined)?.find(
-      (s) => Boolean(s.is_update),
-    );
-    return {
-      ...story,
-      is_update: Boolean(updateSource?.is_update),
-      update_explanation: (updateSource?.update_explanation as string) || null,
-    };
-  }) as EditionStory[];
+  return (data as EditionStory[]).map(restoreStoryUpdate);
 }
 
 async function loadLatestSavedEdition(
@@ -133,6 +124,11 @@ async function loadRecentIncludedEvents(
       ? s.supporting_sources
           .map((src: unknown) => (src as { url?: string })?.url)
           .filter((url): url is string => Boolean(url))
+      : [],
+    sourceReports: Array.isArray(s.supporting_sources)
+      ? s.supporting_sources.flatMap((source: Record<string, unknown>) =>
+          typeof source.url === "string" && typeof source.published_at === "string" && typeof source.source_excerpt === "string"
+            ? [{ url: source.url, publishedAt: source.published_at, text: source.source_excerpt }] : [])
       : [],
   }));
 }
