@@ -1,13 +1,14 @@
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { evaluateArticleQuality } from "../src/lib/edition/content-quality.ts";
 import { extractEventGeography } from "../src/lib/edition/geography.ts";
-import { groupSourceArticles } from "../src/lib/edition/grouping.ts";
+import { canonicalizeSourceUrl, groupSourceArticles } from "../src/lib/edition/grouping.ts";
 
-const env = readFileSync(".env.local", "utf8");
-const token = env.match(/THENEWSAPI_TOKEN=(.+)/)?.[1]?.trim();
+const env = existsSync(".env.local") ? readFileSync(".env.local", "utf8") : "";
+const token = process.env.THENEWSAPI_TOKEN?.trim() || env.match(/^THENEWSAPI_TOKEN=(.+)$/m)?.[1]?.trim();
 
 if (!token) {
-  console.error("Missing THENEWSAPI_TOKEN in .env.local");
+  console.error("Missing THENEWSAPI_TOKEN in the environment or .env.local");
   process.exit(1);
 }
 
@@ -33,17 +34,23 @@ async function queryInterestCoverage(interest) {
     api_token: token,
     language: "en",
     categories: queryCategory,
-    limit: "5",
+    limit: "3",
   }).toString();
 
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
     if (!res.ok) {
-      return { interest, error: `HTTP ${res.status}`, articles: [] };
+      return { interest, error: `HTTP ${res.status}`, httpStatus: res.status, articles: [] };
     }
     const json = await res.json();
-    const rawArticles = Array.isArray(json.data) ? json.data : [];
-    return { interest, articles: rawArticles };
+    if (!json || !Array.isArray(json.data)) {
+      return { interest, error: "invalid_response", httpStatus: res.status, articles: [] };
+    }
+    const rawArticles = json.data;
+    return {
+      interest, articles: rawArticles, httpStatus: res.status,
+      quotaRemaining: res.headers.get("x-ratelimit-remaining"),
+    };
   } catch (err) {
     return { interest, error: err.message, articles: [] };
   }
@@ -55,7 +62,7 @@ async function runDailyCoverageCheck() {
   console.log(`[Coverage Audit] Running daily live coverage check for ${dateStr}...`);
 
   const interestResults = {};
-  const allArticles = [];
+  const allArticles = new Map();
 
   for (const interest of INTERESTS) {
     const res = await queryInterestCoverage(interest);
@@ -73,8 +80,9 @@ async function runDailyCoverageCheck() {
           published_at: item.published_at,
           description: item.description,
           snippet: item.snippet,
+          raw_data: { provider: "thenewsapi", output_use: "evaluation_only" },
         },
-        { now, maxAgeHours: 48 },
+        { now, maxAgeHours: 48, allowEvaluationOnly: true },
       );
 
       return {
@@ -95,47 +103,63 @@ async function runDailyCoverageCheck() {
         geographic_entities: entities,
         quality_eligible: quality.eligible,
         rejection_reason: quality.reason,
+        raw_data: { provider: "thenewsapi", output_use: "evaluation_only" },
       };
     });
 
     const eligible = evaluated.filter((a) => a.quality_eligible);
-    const grouped = groupSourceArticles(eligible);
+    const grouped = groupSourceArticles(eligible, { allowEvaluationOnly: true });
     const distinctPublishers = new Set(eligible.map((a) => a.publisher));
 
-    // Spec Gate: at least 3 eligible distinct relevant Stories from at least 2 publishers
-    const passesGate = grouped.length >= 3 && distinctPublishers.size >= 2;
+    // Counts are candidates for human relevance review, not a public-use pass.
+    const candidateGate = !res.error && grouped.length >= 3 && distinctPublishers.size >= 2;
 
     interestResults[interest] = {
+      httpStatus: res.httpStatus || null,
+      error: res.error || null,
+      quotaRemaining: res.quotaRemaining || null,
       rawCount: raw.length,
       eligibleCount: eligible.length,
       groupedStoryCount: grouped.length,
       publisherCount: distinctPublishers.size,
       publishers: Array.from(distinctPublishers),
-      passesGate,
-      status: passesGate ? "sufficient" : "shortage",
-      shortageDetail: !passesGate
+      candidateGate,
+      verifiedGate: false,
+      status: res.error ? "request_failed" : candidateGate ? "needs_review" : "shortage",
+      candidateLinks: eligible.map((article) => ({
+        id: article.external_id, url: article.url, publisher: article.publisher,
+        publishedAt: article.published_at,
+      })),
+      shortageDetail: !candidateGate && !res.error
         ? `Needed >=3 grouped stories & >=2 publishers; got ${grouped.length} stories from ${distinctPublishers.size} publishers`
         : undefined,
     };
 
-    allArticles.push(...eligible);
+    for (const article of eligible) {
+      const key = canonicalizeSourceUrl(article.url) || article.external_id;
+      if (!allArticles.has(key)) allArticles.set(key, article);
+    }
   }
 
-  // Regional breakdown across all eligible articles
+  const uniqueArticles = [...allArticles.values()];
+  const uniqueStories = groupSourceArticles(uniqueArticles, { allowEvaluationOnly: true });
+  // Regional counts use unique articles and groups, not category-query repeats.
   const regionalCoverage = {};
   for (const region of REGIONS) {
     if (region === "global") {
       regionalCoverage["global"] = {
-        count: allArticles.length,
-        description: "All eligible stories remain eligible for global baseline reading",
+        articleCount: uniqueArticles.length,
+        storyCount: uniqueStories.length,
+        description: "Private evaluation candidates; relevance and public rights are unverified",
       };
     } else {
-      const matchingEvents = allArticles.filter((a) => a.event_geography.includes(region));
-      const matchingPublishers = allArticles.filter((a) => a.locale?.toLowerCase() === region);
+      const matchingEvents = uniqueArticles.filter((a) => a.event_geography.includes(region));
+      const matchingPublishers = uniqueArticles.filter((a) => a.locale?.toLowerCase() === region);
       regionalCoverage[region] = {
-        eventConfirmedCount: matchingEvents.length,
+        candidateArticleCount: matchingEvents.length,
+        candidateStoryCount: groupSourceArticles(matchingEvents, { allowEvaluationOnly: true }).length,
         publisherLocaleCount: matchingPublishers.length,
-        status: matchingEvents.length > 0 ? "available" : "global_fallback_only",
+        status: matchingEvents.length > 0 ? "needs_review" : "none_observed",
       };
     }
   }
@@ -144,22 +168,26 @@ async function runDailyCoverageCheck() {
     sampleDate: dateStr,
     sampledAt: now.toISOString(),
     provider: "TheNewsAPI",
+    outputUse: "evaluation_only",
+    status: "private_evaluation_unreviewed",
     specificationReference: "Issue #11 revision 2 / Issue #13 (R02)",
-    gateRule: "At least 3 eligible distinct relevant Stories from at least 2 publishers per advertised interest",
+    gateRule: "Three relevant distinct Stories from two publishers per interest, after manual review and rights verification",
     interestSummary: {
       totalAdvertised: INTERESTS.length,
-      meetingGate: Object.values(interestResults).filter((i) => i.passesGate).length,
-      shortageCount: Object.values(interestResults).filter((i) => !i.passesGate).length,
+      candidateGateCount: Object.values(interestResults).filter((i) => i.candidateGate).length,
+      verifiedGateCount: 0,
+      shortageCount: Object.values(interestResults).filter((i) => i.status === "shortage").length,
+      requestFailureCount: Object.values(interestResults).filter((i) => i.status === "request_failed").length,
     },
     interests: interestResults,
     regionalCoverage,
   };
 
-  mkdirSync("docs/evidence/daily-coverage", { recursive: true });
-  const filename = `docs/evidence/daily-coverage/${dateStr}.json`;
-  writeFileSync(filename, JSON.stringify(report, null, 2) + "\n");
+  mkdirSync("tmp/daily-coverage", { recursive: true });
+  const filename = `tmp/daily-coverage/${now.toISOString().replace(/[:.]/g, "-")}-${randomUUID()}.json`;
+  writeFileSync(filename, JSON.stringify(report, null, 2) + "\n", { flag: "wx" });
   console.log(`[Coverage Audit] Saved daily coverage sample to ${filename}`);
-  console.log(`[Coverage Audit] Summary: ${report.interestSummary.meetingGate}/${report.interestSummary.totalAdvertised} interests meet gate.`);
+  console.log(`[Coverage Audit] ${report.interestSummary.candidateGateCount}/${report.interestSummary.totalAdvertised} interests have structural candidates; public rights and relevance remain unverified.`);
   return report;
 }
 

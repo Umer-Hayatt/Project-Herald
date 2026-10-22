@@ -1,5 +1,11 @@
 # Retained Provider Combination & Multi-Source Architecture (Recovery R02)
 
+**Historical 18 October evaluation; not current permission or coverage evidence.**
+The public-output assertion for TheNewsAPI below has not been established for
+Herald's account. The 18 October coverage counts predate the current provenance
+policy. See [the current rights and coverage checkpoint](../recovery/provider-rights-and-coverage.md)
+before using this provider combination for a release decision.
+
 **Date:** 2026-10-18  
 **Authorizing Issue:** [#13 (R02: Deliver diverse Stories from the justified provider combination)](https://github.com/Umer-Hayatt/Project-Herald/issues/13)  
 **Parent Specification:** [Recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11)  
@@ -11,8 +17,8 @@
 
 Pursuant to Recovery Ticket R02 (#13) and the comparative findings of R01 (#12), Project Herald has implemented a multi-source provider architecture capable of ingesting from complementary news services into a single normalized, quality-filtered reporting pool.
 
-Based on the legal terms of service, technical quotas, content depth, and commercial permissions evaluated across five candidates:
-1. **TheNewsAPI** is retained as the **production baseline provider**.
+The 18 October comparison proposed these roles; current output permissions and useful coverage remain unverified:
+1. **TheNewsAPI** remains a **candidate baseline**, restricted to evaluation until account-specific output rights are verified.
 2. **GNews** and **NewsData.io** are retained as **evaluation-only complements** (active when optional evaluation keys are supplied, but segregated from commercial production outputs).
 3. **Currents** and **Mediastack** remain **permanently rejected** due to prohibitive licensing terms and infeasible quotas.
 
@@ -22,7 +28,7 @@ Based on the legal terms of service, technical quotas, content depth, and commer
 
 | Provider | Ingestion Role | Permitted Output Surfaces | Free Quota & Latency | Retention Justification |
 |---|---|---|---|---|
-| **TheNewsAPI** | **Primary Baseline** | Public Previews, Editions, Briefings, PDFs, Archives | 15 req/day (3-5 articles/req), Real-time | Fully compliant with attributed customer-facing briefings and private archives. Working live in production. |
+| **TheNewsAPI** | **Candidate baseline** | Public output rights unverified; evaluation only | Check the account's current quota; private collector requests 3 articles/call | Earlier compliance and production-readiness claims were unsupported. Approval and useful live coverage remain release gates. |
 | **GNews** | **Evaluation Complement** | Internal testing / evaluation only | 100 req/day (10 articles/req), 12h delay | Viable secondary supply for breaking events; free tier is restricted to non-commercial/evaluation use. |
 | **NewsData.io** | **Evaluation Complement** | Internal testing / evaluation only | 200 cred/day (10 articles/cred), ~15 min | Viable regional complement; commercial terms conflict between documentation pages. |
 | **Currents** | *Rejected* | None | 250 req/day | **Barred**: Terms explicitly forbid customer-facing AI summaries and archives in self-service tiers. |

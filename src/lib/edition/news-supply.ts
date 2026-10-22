@@ -118,5 +118,6 @@ export async function getReportingSupply(
     now,
     maxAgeHours: 48,
     allowEvaluationOnly,
+    requireCurrentProviderApproval: !allowEvaluationOnly,
   });
 }

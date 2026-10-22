@@ -88,6 +88,7 @@ export function evaluateArticleQuality(
     now?: Date;
     maxAgeHours?: number;
     allowEvaluationOnly?: boolean;
+    requireCurrentProviderApproval?: boolean;
   },
 ): ArticleQualityEvaluation {
   if (!article || typeof article !== "object") {
@@ -107,6 +108,14 @@ export function evaluateArticleQuality(
       detail:
         "Reporting requires explicit provider provenance and permitted output use",
     };
+  }
+  const approvalFlag = ({
+    thenewsapi: "THENEWSAPI_COMMERCIAL_APPROVED",
+    gnews: "GNEWS_COMMERCIAL_APPROVED",
+    newsdata: "NEWSDATA_COMMERCIAL_APPROVED",
+  } as Record<string, string>)[provider];
+  if (options?.requireCurrentProviderApproval && (!approvalFlag || process.env[approvalFlag] !== "true")) {
+    return { eligible: false, reason: "disallowed_output_use", detail: "Current provider output approval is missing" };
   }
 
   // 1. Provenance checks
@@ -259,6 +268,7 @@ export function filterEligibleArticles<T extends {
     now?: Date;
     maxAgeHours?: number;
     allowEvaluationOnly?: boolean;
+    requireCurrentProviderApproval?: boolean;
     onRejected?: (article: T, evalResult: ArticleQualityEvaluation) => void;
   },
 ): T[] {

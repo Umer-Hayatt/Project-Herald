@@ -10,7 +10,9 @@ No schema migration, additional provider call or model request is required.
 Old Editions are not rewritten; ones lacking these snapshots fail closed.
 
 For a repeated event in the last seven completed Editions, the comparison uses
-the latest delivered event and latest same-URL source snapshot. A newer report
+the latest delivered event and the latest same-URL source snapshot across all
+matching Editions in that window. An intervening publisher cannot hide an
+earlier comparable report. A newer report
 can establish these explicit decisions:
 
 - proposed → approved or rejected;

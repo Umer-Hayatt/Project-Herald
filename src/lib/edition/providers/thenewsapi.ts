@@ -46,9 +46,12 @@ function isTheNewsApiArticle(value: unknown): value is TheNewsAPIRawEntry {
 
 export class TheNewsApiAdapter implements NewsProviderAdapter {
   readonly name = "thenewsapi";
-  readonly defaultOutputUse = "commercial" as const;
+  readonly defaultOutputUse = "evaluation_only" as const;
 
-  constructor(private token: string | undefined = process.env.THENEWSAPI_TOKEN) {}
+  constructor(
+    private token: string | undefined = process.env.THENEWSAPI_TOKEN,
+    private commercialUseApproved: boolean = process.env.THENEWSAPI_COMMERCIAL_APPROVED === "true",
+  ) {}
 
   isConfigured(): boolean {
     return Boolean(this.token && this.token.trim().length > 0);
@@ -105,6 +108,7 @@ export class TheNewsApiAdapter implements NewsProviderAdapter {
     );
 
     const candidates: ProviderCandidate[] = [];
+    const outputUse = this.commercialUseApproved ? "commercial" : this.defaultOutputUse;
     const seenIds = new Set<string>();
     let anySuccess = false;
     let lastError: string | undefined;
@@ -138,7 +142,7 @@ export class TheNewsApiAdapter implements NewsProviderAdapter {
             categories: Array.from(normalizedCats),
             locale: item.locale || null,
             provider: this.name,
-            output_use: this.defaultOutputUse,
+            output_use: outputUse,
             event_geography: regions,
           });
         }

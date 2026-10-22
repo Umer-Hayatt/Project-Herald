@@ -10,6 +10,8 @@ Active frontier: repair the audited R01–R07 defects and re-establish their acc
 
 Testing now uses the separate, explicitly approved **Herald Recovery Test** project; Docker is not required. See [isolated test setup](isolated-tests.md). Production remains prohibited for test mutations.
 
+Current news output rights and live coverage remain open; see [provider rights and coverage](provider-rights-and-coverage.md). The older retained-provider report and 18 October daily sample are historical checkpoints, not release evidence under the current policy.
+
 This recovery replaces the expired 17 October 21:00 hackathon schedule for new recovery work. The original issues #1–#10 are historical scope/evidence, even though still open; their state does not establish what is implemented. Use current code and dated checks, not old completion claims. Parent #11 stays open and unchanged.
 
 ## Resume in order

@@ -136,7 +136,7 @@ export function detectEventUpdate(
     (event.sourceReports || []).flatMap(report => decisionClaims(report.text)));
   for (const source of members) {
     const sourceUrl = canonicalizeSourceUrl(source.url);
-    const previous = (past.sourceReports || [])
+    const previous = deliveredHistory.flatMap(event => event.sourceReports || [])
       .filter(report => sourceUrl && canonicalizeSourceUrl(report.url) === sourceUrl)
       .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))[0];
     if (!previous || !(Date.parse(source.published_at) > Date.parse(previous.publishedAt))) continue;

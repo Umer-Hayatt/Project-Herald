@@ -32,6 +32,7 @@ export default async function Home() {
       articles = filterEligibleArticles(data as SourceArticle[], {
         now: new Date(),
         maxAgeHours: 48,
+        requireCurrentProviderApproval: true,
       }).slice(0, 16);
     }
   } catch {

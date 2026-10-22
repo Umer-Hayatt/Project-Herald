@@ -140,6 +140,7 @@ export default async function PaperPage({
       const eligibleTrend = filterEligibleArticles(trendData, {
         now: new Date(),
         maxAgeHours: 48,
+        requireCurrentProviderApproval: true,
       });
       trendingStories = eligibleTrend
         .filter((item) => item.title !== heroStory?.title)

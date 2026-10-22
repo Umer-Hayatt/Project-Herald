@@ -12,6 +12,10 @@ for (const name of ["THENEWSAPI_TOKEN", "GNEWS_API_KEY", "NEWSDATA_API_KEY", "GE
 }
 process.env.GEMINI_PUBLIC_BRIEFINGS_ENABLED = "false";
 process.env.GEMINI_AI_EDITOR_ENABLED = "false";
+// Controlled reporting fixtures represent approved sources; live keys above are cleared.
+process.env.THENEWSAPI_COMMERCIAL_APPROVED = "true";
+process.env.GNEWS_COMMERCIAL_APPROVED = "true";
+process.env.NEWSDATA_COMMERCIAL_APPROVED = "true";
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: false,
