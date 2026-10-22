@@ -14,6 +14,8 @@ Current news output rights and live coverage remain open; see [provider rights a
 
 [Exact production quarantine preparation](production-quarantine.md) records 58 reserved-domain candidates, source-history distinctions and a SELECT-only fingerprint check. It does not authorize or execute production cleanup.
 
+[Production schema reconciliation preparation](production-schema-reconciliation.md) records the ledger SQL differences, read-only privilege inventory and embedded migration rehearsal. The exact baseline procedure and production rollout remain unexecuted.
+
 This recovery replaces the expired 17 October 21:00 hackathon schedule for new recovery work. The original issues #1–#10 are historical scope/evidence, even though still open; their state does not establish what is implemented. Use current code and dated checks, not old completion claims. Parent #11 stays open and unchanged.
 
 ## Resume in order

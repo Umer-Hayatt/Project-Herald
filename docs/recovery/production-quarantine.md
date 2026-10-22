@@ -62,6 +62,8 @@ external IDs, URLs and fingerprints. Preserve all unrelated metadata.
 
 ## Release dependencies and verification
 
+[Schema reconciliation preparation](production-schema-reconciliation.md) now records the exact ledger SQL differences and a passing embedded rehearsal with observed policy/grant variants. This does not complete ledger repair or authorize rollout.
+
 1. Reconcile the actual production schema before choosing migrations. Its
    ledger records only the first four migrations, although later reporting
    functions exist. Do not infer the schema from the test project's combined
