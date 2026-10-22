@@ -3,7 +3,7 @@ import { Header } from "@/components/header";
 import { createClient } from "@/lib/supabase/server";
 import { getStoryImageUrl } from "@/lib/edition/images";
 import type { SourceArticle } from "@/lib/edition/types";
-import { filterEligibleArticles } from "@/lib/edition/content-quality";
+import { readEligiblePublicReporting } from "@/lib/edition/public-reporting";
 
 export const dynamic = "force-dynamic";
 
@@ -22,19 +22,7 @@ export default async function Home() {
   let articles: SourceArticle[] = [];
   try {
     const supabase = await createClient();
-    const { data } = await supabase
-      .from("source_articles")
-      .select("*")
-      .not("publisher", "in", '("Herald Verified Wire","Fake","Probe")')
-      .order("published_at", { ascending: false })
-      .limit(32);
-    if (data && data.length > 0) {
-      articles = filterEligibleArticles(data as SourceArticle[], {
-        now: new Date(),
-        maxAgeHours: 48,
-        requireCurrentProviderApproval: true,
-      }).slice(0, 16);
-    }
+    articles = await readEligiblePublicReporting(supabase, { now: new Date(), limit: 16 });
   } catch {
     // If database is temporarily unreachable, fallback gracefully
   }

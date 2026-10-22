@@ -46,10 +46,12 @@ a recovery reason and manifest identifier. A marker alone is insufficient:
 the existing quality policy rejects `internal_testing` on all new public
 reporting paths. Never rewrite saved Edition content or supporting-source JSON.
 
-Home and Trending currently limit database rows before quality filtering.
-Excluded rows can occupy those result slots and hide eligible reporting. Repair
-that retrieval behavior before release; a metadata quarantine alone does not
-solve the ordering problem.
+Home and Trending now share a paged read that applies eligibility before their
+presentation limits. It excludes non-commercial tags in SQL, then checks current
+approval and quality in 32-row pages, scanning at most 256 fresh rows. A browser
+regression proves an eligible report appears behind 40 excluded rows. This is a
+bounded recovery of usable supply; it does not guarantee discovery beyond the
+256-row scan boundary in a larger future pool.
 
 There is deliberately no executable UPDATE in this checkpoint. Before a real
 cleanup transaction, export the exact original rows and `raw_data` privately,

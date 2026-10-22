@@ -11,7 +11,7 @@ import { regions } from "@/lib/preferences";
 import { EditionStoryCard } from "@/components/edition-story-card";
 import { PdfDownloadButton } from "@/components/pdf-download-button";
 import { getStoryImageUrl } from "@/lib/edition/images";
-import { filterEligibleArticles } from "@/lib/edition/content-quality";
+import { readEligiblePublicReporting } from "@/lib/edition/public-reporting";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -130,21 +130,11 @@ export default async function PaperPage({
   // 5. Sidebar Trending: Fetch fresh diverse stories from reporting supply to prevent duplicating edition stories
   let trendingStories: Array<{ id: string; title: string; publisher: string; published_at: string; word_count: number; position?: number; url?: string }> = [];
   try {
-    const { data: trendData } = await supabase
-      .from("source_articles")
-      .select("id, external_id, title, publisher, published_at, url, description, snippet, raw_data")
-      .not("publisher", "in", '("Herald Verified Wire","Fake","Probe")')
-      .order("published_at", { ascending: false })
-      .limit(16);
-    if (trendData && trendData.length > 0) {
-      const eligibleTrend = filterEligibleArticles(trendData, {
-        now: new Date(),
-        maxAgeHours: 48,
-        requireCurrentProviderApproval: true,
-      });
+    const eligibleTrend = await readEligiblePublicReporting(supabase, {
+      now: new Date(), limit: 4, excludeTitle: heroStory?.title,
+    });
+    if (eligibleTrend.length > 0) {
       trendingStories = eligibleTrend
-        .filter((item) => item.title !== heroStory?.title)
-        .slice(0, 4)
         .map((item) => ({
           id: item.id,
           title: item.title,
