@@ -2,6 +2,12 @@
 
 ## Current state
 
+**Approved model metadata check, 24 October:** The owner explicitly approved the
+previously blocked read-only check. Google's model-list endpoint returned HTTP200;
+configured `gemini-3.8-flash` is listed with generation support. No generation,
+billing or production configuration change occurred. Free quota, regional/data-use
+suitability and useful live Briefings remain unverified; Gemini stays disabled.
+
 **Latest owner decision, 24 October:** Herald's audience changes to **18 and over**,
 superseding the earlier younger-reader direction. A session self-declaration is
 implemented for new and existing readers; it does not verify age or automatically

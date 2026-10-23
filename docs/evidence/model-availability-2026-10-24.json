@@ -1,0 +1,17 @@
+{
+  "sampledAt": "2026-10-23T19:57:29.036Z",
+  "localDate": "2026-10-24",
+  "timeZone": "Asia/Karachi",
+  "operation": "Google Gemini models.list",
+  "httpStatus": 200,
+  "configuredModel": "gemini-3.8-flash",
+  "configuredListed": true,
+  "configuredSupportsGeneration": true,
+  "listedGenerationCapableModels": 46,
+  "generationCalls": 0,
+  "productionChanges": false,
+  "originalCheckoutChanges": false,
+  "freeQuotaVerified": false,
+  "briefingQualityVerified": false,
+  "authorization": "Owner explicitly approved reading the existing Gemini key only for Google's official model-list endpoint."
+}
