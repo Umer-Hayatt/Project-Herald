@@ -8,3 +8,7 @@ playwright-report/
 tests/
 scripts/
 docs/
+playwright*.ts
+*.tsbuildinfo
+supabase/
+tmp/
