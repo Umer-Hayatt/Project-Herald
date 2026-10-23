@@ -1,3 +1,5 @@
+import { parseSourceAttribution, isGlobalVoicesArticleUrl } from "./source-attribution";
+
 export type ArticleRejectionReason =
   | "missing_provenance"
   | "feed_or_index_url"
@@ -113,9 +115,14 @@ export function evaluateArticleQuality(
     thenewsapi: "THENEWSAPI_COMMERCIAL_APPROVED",
     gnews: "GNEWS_COMMERCIAL_APPROVED",
     newsdata: "NEWSDATA_COMMERCIAL_APPROVED",
+    globalvoices: "GLOBALVOICES_PUBLIC_REPORTING_ENABLED",
   } as Record<string, string>)[provider];
   if (options?.requireCurrentProviderApproval && (!approvalFlag || process.env[approvalFlag] !== "true")) {
     return { eligible: false, reason: "disallowed_output_use", detail: "Current provider output approval is missing" };
+  }
+  if (provider === "globalvoices" && (!parseSourceAttribution(article.raw_data?.source_attribution) ||
+    !article.url || !isGlobalVoicesArticleUrl(article.url) || article.publisher !== "Global Voices" || article.raw_data?.output_use !== outputUse)) {
+    return { eligible: false, reason: "disallowed_output_use", detail: "Licensed reporting requires complete explicit attribution and original provenance" };
   }
 
   // 1. Provenance checks

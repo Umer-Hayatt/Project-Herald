@@ -7,7 +7,7 @@ export type ReportingWriter = Pick<SupabaseClient, "rpc">;
 
 /**
  * Retrieves the shared reporting supply.
- * Coordinates multi-provider ingestion (TheNewsAPI baseline, optional GNews / NewsData evaluation complements).
+ * Coordinates configured providers, including the optional licensed Global Voices supplement.
  * Reuses server-cached articles within 60 minutes to protect provider rate limits.
  * All articles pass the common content-quality eligibility policy before ingestion
  * and before selection. Evaluation-only material is segregated from production output.

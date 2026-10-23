@@ -5,6 +5,8 @@ import { getStoryImageUrl } from "@/lib/edition/images";
 import type { SourceArticle } from "@/lib/edition/types";
 import { readEligiblePublicReporting } from "@/lib/edition/public-reporting";
 import { partitionShowcaseArticles } from "@/lib/edition/showcase";
+import { SourceCredit } from "@/components/source-credit";
+import { parseSourceAttribution } from "@/lib/edition/source-attribution";
 
 export const dynamic = "force-dynamic";
 
@@ -110,6 +112,7 @@ export default async function Home() {
                   </div>
 
                   <h2 className="hero-title">{heroArticle.title}</h2>
+                  <SourceCredit source={heroArticle} attribution={heroArticle.raw_data?.source_attribution} displayedTitle={heroArticle.title} />
                   <p className="hero-excerpt">{heroArticle.snippet || heroArticle.description}</p>
 
                   <div className="hero-meta-row">
@@ -136,6 +139,7 @@ export default async function Home() {
                       <span>Featured Perspective</span>
                     </div>
                     <h3 className="spotlight-title">{spotlightArticle.title}</h3>
+                    <SourceCredit source={spotlightArticle} attribution={spotlightArticle.raw_data?.source_attribution} displayedTitle={spotlightArticle.title} />
                     <img
                       src={getStoryImageUrl(spotlightArticle.categories[0], spotlightArticle.image_url)}
                       alt=""
@@ -175,20 +179,26 @@ export default async function Home() {
               <div className="featured-cards-grid">
                 {featuredArticles.map((feat) => {
                   const featImg = getStoryImageUrl(feat.categories[0], feat.image_url);
+                  const licensed = Boolean(parseSourceAttribution(feat.raw_data?.source_attribution));
+                  const Card = licensed ? "article" : "a";
                   return (
-                    <a
+                    <Card
                       key={feat.id || feat.external_id}
-                      href={feat.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={licensed ? undefined : feat.url}
+                      target={licensed ? undefined : "_blank"}
+                      rel={licensed ? undefined : "noopener noreferrer"}
                       className="featured-card"
                       style={{
                         backgroundImage: `linear-gradient(to top, rgba(26, 36, 46, 0.95) 0%, rgba(35, 47, 59, 0.45) 50%, rgba(41, 55, 68, 0.2) 100%), url(${featImg})`,
+                        height: licensed ? "auto" : undefined,
+                        minHeight: licensed ? 250 : undefined,
+                        gap: licensed ? "0.6rem" : undefined,
                       }}
                     >
                       <span className="featured-card-category">{feat.categories[0] || "News"}</span>
-                      <h3 className="featured-card-title">{feat.title}</h3>
-                    </a>
+                      <h3 className="featured-card-title">{licensed ? <a href={feat.url} target="_blank" rel="noopener noreferrer">{feat.title}</a> : feat.title}</h3>
+                      <SourceCredit source={feat} attribution={feat.raw_data?.source_attribution} displayedTitle={feat.title} />
+                    </Card>
                   );
                 })}
               </div>
@@ -230,6 +240,7 @@ export default async function Home() {
                           </div>
 
                           <h3 className="story-title" style={{ fontSize: "1.35rem" }}>{item.title}</h3>
+                          <SourceCredit source={item} attribution={item.raw_data?.source_attribution} displayedTitle={item.title} />
                           <p className="story-excerpt">{item.snippet || item.description}</p>
 
                           <div className="story-actions">
@@ -260,22 +271,25 @@ export default async function Home() {
                   <div className="trending-list">
                     {trendingArticles.map((trend, index) => {
                       const timeAgo = formatRelativeTime(trend.published_at);
+                      const licensed = Boolean(parseSourceAttribution(trend.raw_data?.source_attribution));
+                      const WireItem = licensed ? "div" : "a";
                       return (
-                        <a
+                        <WireItem
                           key={trend.id || trend.external_id}
-                          href={trend.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          href={licensed ? undefined : trend.url}
+                          target={licensed ? undefined : "_blank"}
+                          rel={licensed ? undefined : "noopener noreferrer"}
                           className="trending-item"
                         >
                           <span className="trending-num">#{index + 1}</span>
                           <div className="trending-info">
-                            <h4 className="trending-title">{trend.title}</h4>
+                            <h4 className="trending-title">{licensed ? <a href={trend.url} target="_blank" rel="noopener noreferrer">{trend.title}</a> : trend.title}</h4>
+                            <SourceCredit source={trend} attribution={trend.raw_data?.source_attribution} displayedTitle={trend.title} />
                             <span className="trending-meta">
                               {timeAgo ? `${timeAgo} · ` : ""}{trend.publisher}
                             </span>
                           </div>
-                        </a>
+                        </WireItem>
                       );
                     })}
                   </div>

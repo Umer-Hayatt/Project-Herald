@@ -1,6 +1,6 @@
 # Provider rights and live coverage checkpoint
 
-Checked 22 October 2026. This is a release gate, not a claim that any provider
+Existing-provider checkpoint checked 22 October 2026; supplementary-source evaluation added 23 October 2026. This is a release gate, not a claim that any provider
 has granted Herald customer-facing Briefing, PDF or archive rights.
 The owner confirmed on this date that no such permission is confirmed yet.
 An [unsent permission-request draft](provider-permission-request.md) lists the
@@ -40,3 +40,51 @@ a dedicated permitted sampling budget. Then collect three actual successive
 daily samples, review relevant distinct Stories and publisher diversity across
 all advertised interests and regions, and record failures and shortages. Do not
 simulate elapsed days or promote an unreviewed private sample to public output.
+
+## Global Voices supplementary source — 23 October 2026
+
+The owner approved Global Voices as a **supplement**, with honest coverage shortages.
+Its [republishing policy](https://globalvoices.org/about/global-voices-attribution-policy/)
+permits reuse/adaptation of its content unless otherwise stated under
+[CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Preserve author, title,
+original link, licence link and changes notice; do not imply endorsement. Third-party
+media may carry separate rights. This does not grant rights to other providers.
+
+The optional adapter uses the public English RSS feed, one fixed HTTPS request per
+refresh, a ten-second deadline, a one-MiB response cap and at most fifty feed items /
+ten accepted candidates. It rejects entity/DOCTYPE declarations, unsupported or
+oversized responses, stale/future items, ambiguous generic bylines, non-article or
+non-original-domain links and detected republication/restriction notices. It keeps
+text only, excluding media, captions and quotations. It recognizes only the exact
+feed-inserted Global Voices self-credit whose URL matches the item; notices about
+other publishers remain exclusions. Automated checks are conservative screening,
+not a guarantee that every future item's rights are identical. Review changes to
+source policy and exceptions before continuing public use.
+
+`GLOBALVOICES_ENABLED=false` disables network fetching by default.
+`GLOBALVOICES_PUBLIC_REPORTING_ENABLED=false` separately leaves fetched candidates
+evaluation-only and excludes stored rows from new public output. Public eligibility
+also requires explicit validated creator/licence metadata and original provenance.
+Keep both production settings false until the reviewed database/security rollout,
+server writer configuration and source acceptance are ready. Enabling a feed does
+not bypass trusted ingestion; absence of the writer still means cache-only behavior.
+No production settings were changed. The controlled test runner disables fetching
+while approving its explicitly intercepted fixture output, as it does for other
+fixture providers; it cannot spend a live feed request accidentally.
+
+One read-only live evaluation at **2026-10-23 17:34:50 UTC** accepted **three** recent
+text candidates, 461–476 words in each bounded excerpt. Their original pages returned
+HTTP 200 with matching displayed author and CC BY 3.0 link context. No live article
+was ingested into a database or published. Raw responses stay outside Git; the
+non-content [dated observation](../evidence/daily-coverage/2026-10-23-globalvoices.json)
+records links and limits. An earlier zero-candidate probe exposed the feed's inserted
+self-credit; it is not a separate daily sample. The original restricted author API
+was not bypassed.
+
+This is **one supplementary-source observation**, not a broad-topic coverage pass.
+The accepted items span international civic/political and telecom reporting; they
+do not demonstrate every advertised interest or preferred region, publisher
+diversity, enough reading for every reader, or three successive days. Continue the
+actual daily series and seek complementary permitted sources. No AI request,
+account signup, spend, provider notification, production mutation or deployment
+was included. Existing-provider permission remains unconfirmed by the owner.

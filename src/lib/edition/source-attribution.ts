@@ -2,6 +2,14 @@ import type { EditionStory, SourceAttribution } from "./types";
 
 export const CC_BY_3_LICENSE_URL = "https://creativecommons.org/licenses/by/3.0/";
 
+export function isGlobalVoicesArticleUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === "globalvoices.org" && !url.port &&
+      !url.username && !url.password && !url.search && !url.hash && /^\/\d{4}\/\d{2}\/\d{2}\/[^/]+\/?$/.test(url.pathname);
+  } catch { return false; }
+}
+
 /** Keep only explicit, complete credits; never infer a licence from a publisher name. */
 export function parseSourceAttribution(value: unknown): SourceAttribution | undefined {
   if (!value || typeof value !== "object") return undefined;

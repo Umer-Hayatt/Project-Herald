@@ -4,15 +4,11 @@ import type { EditionStory } from "@/lib/edition/types";
 import { StoryFeedbackControls } from "@/components/story-feedback-controls";
 import { useState } from "react";
 import { getStoryAttributions } from "@/lib/edition/source-attribution";
+import { SourceCredit } from "@/components/source-credit";
 
 function SourceCredits({ story }: { story: EditionStory }) {
   return getStoryAttributions(story).map(source => (
-    <p className="source-attribution" key={source.url}>
-      Excerpted or adapted{source.title !== story.title ? ` from “${source.title}”` : ""} from{" "}
-      <a href={source.url} target="_blank" rel="noopener noreferrer">{source.publisher}</a>{" "}
-      by {source.attribution.authors.join(", ")}.{" "}
-      <a href={source.attribution.license_url} target="_blank" rel="noopener noreferrer">{source.attribution.license}</a>.
-    </p>
+    <SourceCredit key={source.url} source={source} attribution={source.attribution} displayedTitle={story.title} />
   ));
 }
 

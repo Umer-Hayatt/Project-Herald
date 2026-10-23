@@ -12,6 +12,9 @@ for (const name of ["THENEWSAPI_TOKEN", "GNEWS_API_KEY", "NEWSDATA_API_KEY", "GE
 }
 process.env.GEMINI_PUBLIC_BRIEFINGS_ENABLED = "false";
 process.env.GEMINI_AI_EDITOR_ENABLED = "false";
+// Keyless providers must also be disabled; integration cases intercept the feed explicitly.
+process.env.GLOBALVOICES_ENABLED = "false";
+process.env.GLOBALVOICES_PUBLIC_REPORTING_ENABLED = "true";
 // Controlled reporting fixtures represent approved sources; live keys above are cleared.
 process.env.THENEWSAPI_COMMERCIAL_APPROVED = "true";
 process.env.GNEWS_COMMERCIAL_APPROVED = "true";

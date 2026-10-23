@@ -1,0 +1,55 @@
+{
+  "checkedAt": "2026-10-23T17:34:50.059Z",
+  "liveFeedSucceeded": true,
+  "providerCalls": 1,
+  "publicEnabled": false,
+  "acceptedCount": 3,
+  "items": [
+    {
+      "title": "Venezuela faces a deepening energy crisis as protests grow",
+      "url": "https://globalvoices.org/2026/10/22/venezuela-faces-a-deepening-energy-crisis-as-protests-grow/",
+      "authors": [
+        "Gabriela Mesones Rojo"
+      ],
+      "publishedAt": "2026-10-22T20:06:56Z",
+      "words": 462,
+      "categories": [
+        "general"
+      ],
+      "outputUse": "evaluation_only"
+    },
+    {
+      "title": "What telecoms leave behind when they exit a country",
+      "url": "https://globalvoices.org/2026/10/22/what-telecoms-leave-behind-when-they-exit-a-country/",
+      "authors": [
+        "Ranking Digital Rights"
+      ],
+      "publishedAt": "2026-10-22T12:20:06Z",
+      "words": 461,
+      "categories": [
+        "technology"
+      ],
+      "outputUse": "evaluation_only"
+    },
+    {
+      "title": "Protest as a pillar of democracy",
+      "url": "https://globalvoices.org/2026/10/21/protest-as-a-pillar-of-democracy/",
+      "authors": [
+        "Malka Older"
+      ],
+      "publishedAt": "2026-10-21T23:56:56Z",
+      "words": 476,
+      "categories": [
+        "general"
+      ],
+      "outputUse": "evaluation_only"
+    }
+  ],
+  "scope": "Single supplementary-source observation; not a broad-topic or three-successive-day acceptance pass",
+  "coverageGatePassed": false,
+  "databaseWrites": 0,
+  "originalPageContext": "Three original page GETs returned HTTP 200 with matching author and CC BY 3.0 link. Exception screening is conservative; future rights/policy changes require review.",
+  "license": "CC BY 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+  "policyUrl": "https://globalvoices.org/about/global-voices-attribution-policy/"
+}

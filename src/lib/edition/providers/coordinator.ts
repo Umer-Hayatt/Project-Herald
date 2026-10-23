@@ -7,6 +7,7 @@ import type { SourceArticle } from "../types";
 import { TheNewsApiAdapter } from "./thenewsapi";
 import { GNewsAdapter } from "./gnews";
 import { NewsDataAdapter } from "./newsdata";
+import { GlobalVoicesAdapter } from "./globalvoices";
 import { canonicalizeSourceUrl } from "../grouping";
 import { parseSourceAttribution } from "../source-attribution";
 
@@ -26,6 +27,7 @@ export class NewsProviderCoordinator {
       new TheNewsApiAdapter(),
       new GNewsAdapter(),
       new NewsDataAdapter(),
+      new GlobalVoicesAdapter(),
     ];
   }
 
