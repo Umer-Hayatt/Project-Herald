@@ -26,7 +26,7 @@ test("licensed supplementary feed crosses trusted ingestion and retains credits 
   const now = new Date();
   const sourceUrl = "https://globalvoices.org/2026/10/23/controlled-supplementary-library-report/";
   const title = "Local residents publish new plans for community library access";
-  const body = "Local residents published plans for community library access after a public consultation. The report describes longer opening hours and additional study spaces. Council members will review the proposals at their next public meeting.";
+  const body = "Local residents published plans for community library access after a public consultation. The report describes longer opening hours and additional study spaces. Council members will review the proposals at their next public meeting. ".repeat(4).trim();
   const item = (slug: string, author: string, text = body) => `<item><title>${title}</title><link>https://globalvoices.org/2026/10/23/${slug}/</link><dc:creator><![CDATA[${author}]]></dc:creator><pubDate>${now.toUTCString()}</pubDate><category>Education</category><description><![CDATA[${body}]]></description><content:encoded><![CDATA[<p class='originally-published'><small>Originally published on <a href='https://globalvoices.org/2026/10/23/${slug}/'>Global Voices</a></small></p><figure><img src="https://third-party.invalid/photo.jpg"/><figcaption>Third-party photo caption</figcaption></figure><p>${text}</p>]]></content:encoded></item>`;
   const feed = `<?xml version="1.0"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Global Voices</title><language>en-US</language>${item("controlled-supplementary-library-report", "Controlled Author")}${item("controlled-ambiguous-credit", "Guest Contributor")}${item("controlled-restricted-report", "Controlled Author", "Originally published by another publisher. All rights reserved.")}${item("controlled-formatted-restriction", "Controlled Author", `${body} Originally <em>published</em> elsewhere. All&nbsp;rights reserved.`)}${item("controlled-quoted-restriction", "Controlled Author", `<blockquote>This article is copyright its author. All rights reserved.</blockquote>${body}`)}</channel></rss>`;
   const originalFetch = globalThis.fetch;
@@ -55,6 +55,10 @@ test("licensed supplementary feed crosses trusted ingestion and retains credits 
     const publicStory = page.getByRole("article").filter({ has: page.getByRole("heading", { name: title, exact: true }) });
     await expect(publicStory.locator(".source-attribution")).toContainText("Controlled Author");
     await expect(publicStory.getByRole("link", { name: "CC BY 3.0", exact: true })).toHaveAttribute("href", "https://creativecommons.org/licenses/by/3.0/");
+    const excerpt = await publicStory.locator(".hero-excerpt, .story-excerpt, .spotlight-excerpt").innerText();
+    expect(excerpt.length).toBeLessThanOrEqual(281);
+    expect(excerpt).toMatch(/…$/);
+    expect((licensed[0].snippet || licensed[0].description)!.length).toBeGreaterThan(281);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await publicStory.screenshot({ path: testInfo.outputPath("supplementary-public-credit.png") });
     const result = await getOrCreateDailyEdition(reader, readerId, { controlledDate: "2026-08-18", referenceDate: now, reportingWriter: server });

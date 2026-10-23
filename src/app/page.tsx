@@ -10,6 +10,12 @@ import { parseSourceAttribution } from "@/lib/edition/source-attribution";
 
 export const dynamic = "force-dynamic";
 
+function previewExcerpt(article: SourceArticle): string {
+  const text = (article.snippet || article.description || "").replace(/\s+/g, " ").trim();
+  if (text.length <= 280) return text;
+  return text.slice(0, 280).replace(/\s+\S*$/, "").trimEnd() + "…";
+}
+
 function formatRelativeTime(publishedAt: string): string {
   const publishedMs = Date.parse(publishedAt);
   if (!Number.isFinite(publishedMs)) return "";
@@ -113,7 +119,7 @@ export default async function Home() {
 
                   <h2 className="hero-title">{heroArticle.title}</h2>
                   <SourceCredit source={heroArticle} attribution={heroArticle.raw_data?.source_attribution} displayedTitle={heroArticle.title} />
-                  <p className="hero-excerpt">{heroArticle.snippet || heroArticle.description}</p>
+                  <p className="hero-excerpt">{previewExcerpt(heroArticle)}</p>
 
                   <div className="hero-meta-row">
                     <a
@@ -147,7 +153,7 @@ export default async function Home() {
                       loading="lazy"
                     />
                     <p className="spotlight-excerpt">
-                      {spotlightArticle.snippet || spotlightArticle.description}
+                      {previewExcerpt(spotlightArticle)}
                     </p>
                     <div className="spotlight-stats-box">
                       <span>Publisher: {spotlightArticle.publisher}</span>
@@ -241,7 +247,7 @@ export default async function Home() {
 
                           <h3 className="story-title" style={{ fontSize: "1.35rem" }}>{item.title}</h3>
                           <SourceCredit source={item} attribution={item.raw_data?.source_attribution} displayedTitle={item.title} />
-                          <p className="story-excerpt">{item.snippet || item.description}</p>
+                          <p className="story-excerpt">{previewExcerpt(item)}</p>
 
                           <div className="story-actions">
                             <a
