@@ -1,5 +1,14 @@
 # Provider rights and live coverage checkpoint
 
+**24 October follow-through:** The new licensed-source observer records actual
+Karachi dates and metadata without publishing source text or writing the database.
+Today's one-call check found the same three eligible Global Voices articles; this
+short interval does not complete successive-day or broad-coverage acceptance.
+Gemini's [current terms](https://ai.google.dev/gemini-api/terms) exclude API clients
+likely accessed by under-18s, conflicting with the existing younger-reader
+audience. Its flags remain false. See [remaining readiness](remaining-readiness-2026-10-24.md)
+for verified limitations and the missing production reporting credential.
+
 **Later follow-through, 23 October:** Owner-approved supplementary Global Voices
 reporting is enabled for the new production deployment; three live eligible text
 articles were ingested with explicit creator/licence credits. Other provider

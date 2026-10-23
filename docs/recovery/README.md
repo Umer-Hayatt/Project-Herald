@@ -2,6 +2,14 @@
 
 ## Current state
 
+**24 October continuation:** Added a tested, metadata-only Global Voices daily
+observer and recorded three eligible articles (the same supply, not broader
+coverage or a three-day pass). Automatic refresh still needs an owner-held secret;
+a private hidden-input helper is prepared. Gemini's current API terms conflict
+with Herald's younger-reader audience, so AI stays disabled. See [remaining
+readiness and exact results](remaining-readiness-2026-10-24.md). Production remains
+the verified `6f59a8f` release; this continuation makes no production changes.
+
 **Latest execution, 23 October 2026:** The owner explicitly waived the backup
 prerequisite and authorized proceeding. The guarded server-only correction and
 exact 58-row metadata quarantine are now executed in production. Three current
