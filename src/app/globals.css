@@ -1,4 +1,12 @@
 @import "tailwindcss";
+.source-attribution {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin: 0.35rem 0;
+  color: inherit;
+}
+.source-attribution a { text-decoration: underline; }
+
 :root {
   --paper: #f7f5ef;
   --ink: #293744;

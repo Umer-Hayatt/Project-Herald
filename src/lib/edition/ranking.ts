@@ -1,4 +1,5 @@
 import type { GroupedSourceArticle, SourceArticle, EditionStory } from "./types";
+import { parseSourceAttribution } from "./source-attribution";
 
 export interface SelectionPreferences {
   interests: string[];
@@ -374,6 +375,7 @@ export function buildEditionStories(
       publisher: source.publisher,
       published_at: source.published_at,
       source_excerpt: publisherExcerpt(source),
+      attribution: parseSourceAttribution(source.raw_data?.source_attribution),
       provider:
         (source.raw_data as { provider?: string } | undefined)?.provider ||
         (source as { provider?: string }).provider ||

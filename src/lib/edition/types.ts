@@ -27,6 +27,12 @@ export interface GroupedSourceArticle extends SourceArticle {
 
 export type BriefingSource = "gemini" | "publisher_excerpt" | "publisher_headline";
 
+export interface SourceAttribution {
+  authors: string[];
+  license: "CC BY 3.0";
+  license_url: string;
+}
+
 export interface EditionStory {
   id?: string;
   edition_id?: string;
@@ -57,6 +63,7 @@ export interface EditionStory {
     provider?: string;
     published_at?: string;
     source_excerpt?: string;
+    attribution?: SourceAttribution;
     is_update?: boolean;
     update_explanation?: string;
   }[];

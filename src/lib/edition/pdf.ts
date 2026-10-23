@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import type { Edition, EditionStory } from "./types";
+import { getStoryAttributions } from "./source-attribution";
 
 function formatFullDisplayDate(dateStr: string): string {
   try {
@@ -169,6 +170,18 @@ export async function generateEditionPdf(edition: Edition): Promise<Buffer> {
           });
 
         doc.y = doc.y + 3;
+
+        for (const source of getStoryAttributions(story)) {
+          doc.font("Times-Italic").fontSize(8.5).fillColor("#374151");
+          doc.text(`Excerpted or adapted from ${source.title} by ${source.attribution.authors.join(", ")}. `,
+            leftMargin, doc.y, { width: contentWidth, continued: true });
+          doc.fillColor("#1d4ed8").text(source.publisher, { link: source.url, underline: true, continued: true });
+          doc.fillColor("#374151").text(". ", { continued: true });
+          doc.fillColor("#1d4ed8").text(source.attribution.license, {
+            link: source.attribution.license_url, underline: true,
+          });
+          doc.y += 3;
+        }
 
         // Story Briefing / Excerpt
         doc

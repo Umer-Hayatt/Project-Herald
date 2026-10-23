@@ -3,6 +3,18 @@
 import type { EditionStory } from "@/lib/edition/types";
 import { StoryFeedbackControls } from "@/components/story-feedback-controls";
 import { useState } from "react";
+import { getStoryAttributions } from "@/lib/edition/source-attribution";
+
+function SourceCredits({ story }: { story: EditionStory }) {
+  return getStoryAttributions(story).map(source => (
+    <p className="source-attribution" key={source.url}>
+      Excerpted or adapted{source.title !== story.title ? ` from “${source.title}”` : ""} from{" "}
+      <a href={source.url} target="_blank" rel="noopener noreferrer">{source.publisher}</a>{" "}
+      by {source.attribution.authors.join(", ")}.{" "}
+      <a href={source.attribution.license_url} target="_blank" rel="noopener noreferrer">{source.attribution.license}</a>.
+    </p>
+  ));
+}
 
 function formatRelativeTime(publishedAt: string): string {
   const publishedMs = Date.parse(publishedAt);
@@ -57,6 +69,7 @@ export function EditionStoryCard({
           </div>
 
           <h2 className="story-title hero-title">{story.title}</h2>
+          <SourceCredits story={story} />
           <p className="story-excerpt story-briefing hero-excerpt">{story.briefing || story.excerpt}</p>
           {story.update_explanation && (
             <p className="story-update-explanation hero-update-explanation" style={{ color: "#fef08a", background: "rgba(120, 53, 15, 0.4)", padding: "0.35rem 0.65rem", borderRadius: "4px", margin: "0.35rem 0", fontSize: "0.85rem" }}>
@@ -157,6 +170,7 @@ export function EditionStoryCard({
           </div>
 
           <h3 className="story-title">{story.title}</h3>
+          <SourceCredits story={story} />
           <p className="story-excerpt story-briefing">{story.briefing || story.excerpt}</p>
           {story.update_explanation && (
             <p className="story-update-explanation" style={{ fontSize: "0.85rem", color: "#b45309", margin: "0.35rem 0", fontStyle: "italic", background: "#fefce8", padding: "0.35rem 0.65rem", borderRadius: "4px" }}>

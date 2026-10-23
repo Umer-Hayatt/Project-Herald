@@ -8,6 +8,7 @@ import { TheNewsApiAdapter } from "./thenewsapi";
 import { GNewsAdapter } from "./gnews";
 import { NewsDataAdapter } from "./newsdata";
 import { canonicalizeSourceUrl } from "../grouping";
+import { parseSourceAttribution } from "../source-attribution";
 
 export interface CoordinatorFetchResult {
   articles: SourceArticle[];
@@ -148,6 +149,7 @@ export class NewsProviderCoordinator {
           canonical_url: canonicalizeSourceUrl(c.url) || c.url,
           publisher_locale: c.locale,
           event_geography: c.event_geography || [],
+          source_attribution: parseSourceAttribution(c.raw?.source_attribution),
         },
       }),
     );
