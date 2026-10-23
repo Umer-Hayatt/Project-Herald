@@ -1,8 +1,21 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { evaluateArticleQuality } from "../src/lib/edition/content-quality.ts";
-import { extractEventGeography } from "../src/lib/edition/geography.ts";
-import { canonicalizeSourceUrl, groupSourceArticles } from "../src/lib/edition/grouping.ts";
+import { registerHooks } from "node:module";
+
+// Node's native TypeScript loader requires explicit extensions for transitive imports.
+const hook = registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier.startsWith("./") && context.parentURL?.endsWith(".ts") &&
+      !/\.[a-z]+$/i.test(specifier)) {
+      return nextResolve(specifier + ".ts", context);
+    }
+    return nextResolve(specifier, context);
+  },
+});
+const { evaluateArticleQuality } = await import("../src/lib/edition/content-quality.ts");
+const { extractEventGeography } = await import("../src/lib/edition/geography.ts");
+const { canonicalizeSourceUrl, groupSourceArticles } = await import("../src/lib/edition/grouping.ts");
+hook.deregister();
 
 const env = existsSync(".env.local") ? readFileSync(".env.local", "utf8") : "";
 const token = process.env.THENEWSAPI_TOKEN?.trim() || env.match(/^THENEWSAPI_TOKEN=(.+)$/m)?.[1]?.trim();

@@ -1,5 +1,10 @@
 # Exact production reporting quarantine preparation
 
+**Later execution:** The owner waived backup and authorized proceeding. The exact
+58-row metadata quarantine is now complete; no sources or saved papers were
+deleted. See [23 October execution](production-execution-2026-10-23.md). The
+preparation statements and manifest below preserve the original observation.
+
 Prepared 23 October 2026, Asia/Karachi. **No quarantine, deletion, migration or
 deployment has been executed.** This is a reviewed candidate list and a
 read-only verification query, not execution approval.

@@ -1,5 +1,11 @@
 # Provider rights and live coverage checkpoint
 
+**Later follow-through, 23 October:** Owner-approved supplementary Global Voices
+reporting is enabled for the new production deployment; three live eligible text
+articles were ingested with explicit creator/licence credits. Other provider
+approvals remain false. This is one observation and a manual refresh, not broad
+coverage or unattended operation. See [actual execution](production-execution-2026-10-23.md).
+
 Existing-provider checkpoint checked 22 October 2026; supplementary-source evaluation added 23 October 2026. This is a release gate, not a claim that any provider
 has granted Herald customer-facing Briefing, PDF or archive rights.
 The owner confirmed on this date that no such permission is confirmed yet.

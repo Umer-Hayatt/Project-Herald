@@ -2,6 +2,15 @@
 
 ## Current state
 
+**Latest execution, 23 October 2026:** The owner explicitly waived the backup
+prerequisite and authorized proceeding. The guarded server-only correction and
+exact 58-row metadata quarantine are now executed in production. Three current
+Global Voices articles were ingested with explicit credits; all 23 saved Editions
+and 129 Stories are unchanged. See [actual execution and remaining requirements](production-execution-2026-10-23.md)
+and the latest handoff for verification/deployment results. Earlier “not executed”
+checkpoints below describe their dates and are superseded by this execution.
+Automatic trusted refresh and real AI/OAuth/coverage/pilot acceptance remain open.
+
 **Audit correction, updated 23 October 2026:** Earlier R01–R07 completion claims below are superseded. Start with [the audit-fix continuation checkpoint](2026-10-19-audit-fixes-handoff.md). At the owner's explicit request, recovery app commit `34010b3` was pushed to main and [deployed to production](https://project-herald-pink.vercel.app), with 18 read-only desktop/phone checks passed. Google is enabled in production; its real user OAuth journey remains unverified here. The [isolated preview](https://project-herald-recovery-preview-umer-hayatt.vercel.app) remains separate and its Google provider is disabled. No production schema migration or quarantine was performed. Reporting permissions, live coverage/model validation and release/pilot gates remain open. The latest handoff distinguishes the 263-pass/3-failure full controlled run from its successful five-check rerun and 24 focused post-merge checks. Active checkout: `C:/Users/HP/Documents/Codex/2026-10-18/rev/herald-recovery`, branch `codex/herald-audit-fixes`.
 
 Planning checkpoint: 19 October 2026, Asia/Karachi. Active authority: [recovery specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Main baseline: `3e8e437735d3258e5e342c7d1f738a30e8d99f9c`. Planning branch at that checkpoint: `codex/herald-recovery` (superseded by the active checkout above).
@@ -12,9 +21,9 @@ Testing now uses the separate, explicitly approved **Herald Recovery Test** proj
 
 Current news output rights and live coverage remain open; see [provider rights and coverage](provider-rights-and-coverage.md). The older retained-provider report and 18 October daily sample are historical checkpoints, not release evidence under the current policy.
 
-[Exact production quarantine preparation](production-quarantine.md) records 58 reserved-domain candidates, source-history distinctions and a SELECT-only fingerprint check. It does not authorize or execute production cleanup.
+[Exact production quarantine preparation](production-quarantine.md) records the original 58-row manifest and history. The later authorized execution is recorded separately above.
 
-[Production schema reconciliation preparation](production-schema-reconciliation.md) records the ledger SQL differences, read-only privilege inventory and embedded migration rehearsal. The exact baseline procedure and production rollout remain unexecuted.
+[Production schema reconciliation preparation](production-schema-reconciliation.md) records the original ledger differences and rehearsal. The guarded correction is now applied; canonical CLI baseline reconciliation remains incomplete.
 
 This recovery replaces the expired 17 October 21:00 hackathon schedule for new recovery work. The original issues #1–#10 are historical scope/evidence, even though still open; their state does not establish what is implemented. Use current code and dated checks, not old completion claims. Parent #11 stays open and unchanged.
 

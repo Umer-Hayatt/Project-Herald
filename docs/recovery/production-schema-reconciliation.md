@@ -1,5 +1,10 @@
 # Production schema reconciliation preparation
 
+**Later execution:** The guarded correction is now applied as migration
+`20261023183959`, preserving all four historical entries. The owner waived backup.
+Canonical CLI baseline reconciliation remains open. See [actual execution](production-execution-2026-10-23.md);
+the preparation-only statements below describe the earlier checkpoint.
+
 23 October follow-through: the [guarded correction candidate](reporting-rollout-candidate.md)
 now provides a pinned SQL generator, catalog/history drift guards, a four-row
 ledger-preservation/rollback rehearsal and an isolated hosted rollback probe.

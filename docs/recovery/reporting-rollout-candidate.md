@@ -1,5 +1,10 @@
 # Guarded reporting correction candidate
 
+**Later execution:** Applied as production migration `20261023183959` after the
+owner explicitly waived backup. All four prior ledger entries and saved papers
+are preserved. See [actual execution](production-execution-2026-10-23.md).
+The preparation-only statements below remain historical; CLI baseline is open.
+
 Prepared 23 October 2026. **Not executed in production.** The owner confirmed
 there is no verified production backup yet. This packet narrows the corrective
 rollout; it does not complete canonical CLI baseline/history reconciliation.
