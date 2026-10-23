@@ -1,0 +1,80 @@
+{
+  "production_observed_at": "2026-10-23T18:16:26.729147+00:00",
+  "baseline_migrations": [
+    "20261017081109_reader_preferences.sql",
+    "20261017142000_editions_and_stories.sql",
+    "20261017162000_grounded_grouped_stories.sql",
+    "20261017180000_resilient_provider_limits.sql",
+    "20261017200000_story_feedback.sql",
+    "20261017210000_edition_stories_image_url.sql",
+    "20261018113500_trusted_ingestion.sql"
+  ],
+  "corrective_migration": "20261019134923_server_only_reporting.sql",
+  "corrective_sha256": "2fdf738704d98c661ccd1d521b9981cb4d37785df92242ff218e22398a702537",
+  "columns_match": true,
+  "constraints_match": true,
+  "indexes_match": true,
+  "rls_match": true,
+  "function_definitions_match": true,
+  "changed_function_grants": [
+    {
+      "name": "claim_reporting_refresh",
+      "arguments": "p_force_refresh boolean",
+      "anon_execute": false,
+      "reader_execute": true,
+      "server_execute": true
+    },
+    {
+      "name": "claim_reporting_refresh",
+      "arguments": "p_force_refresh boolean, p_provider_calls integer",
+      "anon_execute": true,
+      "reader_execute": true,
+      "server_execute": true
+    },
+    {
+      "name": "finish_reporting_refresh",
+      "arguments": "p_lock_token uuid, p_succeeded boolean",
+      "anon_execute": false,
+      "reader_execute": true,
+      "server_execute": true
+    },
+    {
+      "name": "ingest_source_articles",
+      "arguments": "p_lock_token uuid, p_articles jsonb",
+      "anon_execute": false,
+      "reader_execute": true,
+      "server_execute": true
+    },
+    {
+      "name": "is_valid_time_zone",
+      "arguments": "zone text",
+      "anon_execute": true,
+      "reader_execute": true,
+      "server_execute": true
+    }
+  ],
+  "historical_policy_count": 18,
+  "observed_policy_count": 29,
+  "rehearsal": "passed",
+  "catalog_drift_refused": true,
+  "ledger_drift_refused": true,
+  "ledger_failure_rolls_back_ddl_and_data": true,
+  "four_original_ledger_rows_unchanged": true,
+  "one_new_ledger_row": true,
+  "completed_rollout_replay_refused": true,
+  "saved_sources_editions_stories_unchanged": true,
+  "legacy_cache_hidden": true,
+  "reader_rpcs_and_inserts_denied": true,
+  "server_nonempty_ingestion_and_credits": true,
+  "server_reservation_ingestion_finish": true,
+  "limitations": "Embedded PostgreSQL with observed policy/table-grant/effective-function-grant variants and a simulated atomic migration runner. No production data, managed Auth/PostgREST, actual hosted migration transport, production concurrency, restore or complete CLI-baseline reconciliation. Membership/default-ACL/column-ACL/ownership guards use the local catalogs; their production variants are fingerprinted read-only but not reproduced in this rehearsal.",
+  "hosted_body_error_probe": {
+    "project_ref": "ebvwcsazotyzczrtjfol",
+    "expected_deliberate_error_observed": true,
+    "canary_table_absent_afterward": true,
+    "matching_migration_entries_afterward": 0,
+    "hosted_ledger_insert_failure_tested": false
+  },
+  "production_migration_executed": false,
+  "verified_backup_available": false
+}

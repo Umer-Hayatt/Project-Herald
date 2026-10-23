@@ -1,5 +1,11 @@
 # Production schema reconciliation preparation
 
+23 October follow-through: the [guarded correction candidate](reporting-rollout-candidate.md)
+now provides a pinned SQL generator, catalog/history drift guards, a four-row
+ledger-preservation/rollback rehearsal and an isolated hosted rollback probe.
+The owner confirmed no verified production backup yet. No production migration
+or complete CLI baseline reconciliation has been performed.
+
 Prepared 23 October 2026 (Asia/Karachi), from recovery commit `143f870`.
 This records read-only observations and a local rehearsal. No production
 migration, ledger repair, quarantine, deployment or write probe was performed.
