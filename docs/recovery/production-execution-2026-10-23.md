@@ -65,3 +65,14 @@ stash deletion or original-checkout modification occurred.
 Final full verification: 280/280 controlled checks passed on desktop and phone in
 5.0 minutes, exit 0; zero failures/skips. Embedded quarantine rehearsal and
  targeted lint passed. Independent Standards/Spec reviews: no actionable findings.
+
+## Final publication
+
+Main app commit `6f59a8ff3171d7855d6615bf8e821ec4e4462c2d` is deployed READY as
+`dpl_7cqB8VSVbZaPYMfupr6vkWtgYFeV` at https://project-herald-pink.vercel.app.
+After the final display fix, the fresh controlled suite passed 280/280 and thirty
+read-only production desktop/phone checks passed. Live phone and desktop captures
+were inspected. Google OAuth/authenticated production reading remains unverified.
+See the latest handoff for failed/stopped attempts and exact limitations. No
+production mutation tests ran. Final deployment evidence is committed separately
+on the existing recovery branch; production main remains this verified app SHA.
