@@ -6,7 +6,11 @@ import { Header } from "@/components/header";
 import { SubmitButton } from "@/components/submit-button";
 import { signIn, signOut } from "@/app/auth/actions";
 import { authConfigured, createClient } from "@/lib/supabase/server";
+import { AdultDeclaration } from "@/components/adult-declaration";
+import { cookies } from "next/headers";
+import { ADULT_CONFIRMATION_COOKIE, ADULT_CONFIRMATION_VERSION } from "@/lib/age-policy";
 const messages: Record<string, string> = {
+  age: "Herald is for readers aged 18 and over. Confirm your age to continue.",
   cancelled:
     "Google sign-in was cancelled. You can try again whenever you’re ready.",
   callback: "Google sign-in failed. Please try again in a moment.",
@@ -24,7 +28,7 @@ export default async function Login({
   if (configured && !error) {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
-    if (data.user) redirect("/paper");
+    if (data.user) redirect((await cookies()).get(ADULT_CONFIRMATION_COOKIE)?.value === ADULT_CONFIRMATION_VERSION ? "/paper" : "/age-check");
   }
   return (
     <>
@@ -54,7 +58,7 @@ export default async function Login({
             at home.
           </h2>
           <p>
-            Sign in to set up your personal daily paper. Returning? Your
+            Herald is for readers aged 18 and over. Sign in to set up your personal daily paper. Returning? Your
             preferences will be waiting.
           </p>
           {error && (
@@ -68,6 +72,7 @@ export default async function Login({
             </p>
           )}
           <form action={error === "signout" ? signOut : signIn}>
+            {error !== "signout" && <AdultDeclaration />}
             <SubmitButton
               pendingText={
                 error === "signout" ? "Signing out…" : "Opening Google…"

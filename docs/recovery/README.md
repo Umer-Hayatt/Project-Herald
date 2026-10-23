@@ -2,6 +2,12 @@
 
 ## Current state
 
+**Latest owner decision, 24 October:** Herald's audience changes to **18 and over**,
+superseding the earlier younger-reader direction. A session self-declaration is
+implemented for new and existing readers; it does not verify age or automatically
+enable Gemini. See [18+ scope and verification](adult-audience-2026-10-24.md) and the
+latest handoff for actual deployment results. Reporting-key setup remains pending.
+
 **24 October continuation:** Added a tested, metadata-only Global Voices daily
 observer and recorded three eligible articles (the same supply, not broader
 coverage or a three-day pass). Automatic refresh still needs an owner-held secret;

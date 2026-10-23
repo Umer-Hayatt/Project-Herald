@@ -42,6 +42,8 @@ export async function login(
     "Disposable reader must authenticate against real Supabase",
   ).toBeNull();
   if (context)
+    await context.addCookies([{ name: "herald_adult_confirmation", value: "18-plus-v1", url: baseURL!, httpOnly: true, sameSite: "Lax" }]);
+  if (context)
     await context.addCookies(
       [...values].map(([name, value]) => ({
         name,

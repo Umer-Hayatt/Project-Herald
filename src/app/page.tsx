@@ -318,7 +318,7 @@ export default async function Home() {
       )}
 
       <footer className="site-footer">
-        <span>One daily paper. Room for perspective.</span>
+        <span>For readers aged 18 and over. One daily paper. Room for perspective.</span>
         <span>Herald · A little perspective, daily.</span>
       </footer>
     </>

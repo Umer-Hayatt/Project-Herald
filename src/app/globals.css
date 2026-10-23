@@ -177,6 +177,20 @@ input {
 .secondary-button:hover {
   background: #e7e0ee;
 }
+.adult-declaration {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 0.65rem;
+  margin-block: 1rem;
+  cursor: pointer;
+}
+.adult-declaration input {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  accent-color: var(--orange);
+}
 .small-note {
   color: var(--muted);
   font-size: 0.83rem;

@@ -16,7 +16,7 @@ User-selected: Next.js, TypeScript, Tailwind CSS, Supabase, and Vercel. Google s
 
 ## Users
 
-General readers across age groups who want a finite daily paper relevant to their interests and preferred region. Younger readers are included in this broad audience. Launch content is English-language news spanning several topic categories.
+Adults aged 18 and over who want a finite daily paper relevant to their interests and preferred region. The owner changed the audience to 18+ on 24 October 2026, superseding the earlier younger-reader scope. Readers must explicitly declare adult eligibility before Google sign-in and private reading in each browser session. This is self-declaration, not identity or age verification; no date of birth is collected. Launch content is English-language news spanning several topic categories.
 
 ## Product Purpose
 
