@@ -1,5 +1,14 @@
 # Recovery ticket breakdown — published and authorized
 
+**Current audit correction — 23 October 2026:** The completion statuses and
+unblocked-R08 statement below are historical claims superseded by the
+[audit-fix continuation checkpoint](2026-10-19-audit-fixes-handoff.md).
+Local controlled verification does not close the remaining R01–R07 live
+acceptance gates. R08 remains blocked on those gates and deployed readiness.
+The latest committed CLI checkpoint on resumption is `d370824`; follow its
+schema-reconciliation preparation before choosing further rollout work.
+This correction does not change GitHub issue states or dependency edges.
+
 Parent: [specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). The eight revised tickets were approved and published under specification #11 in dependency order with `ready-for-agent` labels. Native GitHub parent/sub-issue relationships and native `blockedBy` edges were successfully established via the GitHub GraphQL API. The approved testing seam and all 64 acceptance criteria are preserved.
 
 | Slice | Issue | Title | Blocked by | Phase | Status |
