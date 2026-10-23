@@ -62,3 +62,14 @@ The private `connect-herald-reporting.cmd` helper opens that page, prompts with
 hidden input and stores the secret directly in Vercel. Keep existing keys; do not
 paste the new key into chat. No database password or backup details are required.
 Interactive key setup and trusted-refresh verification remain incomplete.
+
+## Final publication
+
+Main commit `fb79ca8e9df551039d0db44e202b952292b13278` is deployed READY as
+`dpl_3enT78hMVkSuNGaLFUFVHmX1r1kz` at https://project-herald-pink.vercel.app.
+Final full isolated suite: 288/288 passed, zero failures/skips,5.9minutes. Four
+focused screenshot cases also passed in19.5seconds; desktop/phone login and
+existing-reader screens were inspected. Thirty-two read-only production checks
+passed,16 per viewport. Actual Google OAuth and authenticated production reader
+acceptance are still open. No production mutation tests or schema changes ran.
+Final documentation is committed separately on the existing recovery branch.
