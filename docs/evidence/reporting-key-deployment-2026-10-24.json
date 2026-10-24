@@ -1,0 +1,22 @@
+{
+  "localDate": "2026-10-24",
+  "timeZone": "Asia/Karachi",
+  "environmentEntry": "SUPABASE_REPORTING_SERVICE_KEY",
+  "environment": "production",
+  "storageType": "sensitive",
+  "secretValueRead": false,
+  "secretValueLogged": false,
+  "commit": "fb79ca8e9df551039d0db44e202b952292b13278",
+  "deploymentId": "dpl_4qs5d173Psi9XTyVtRMBWRnEu9hr",
+  "deploymentUrl": "https://project-herald-ijo5coof4-umer-hayatt.vercel.app",
+  "productionUrl": "https://project-herald-pink.vercel.app",
+  "deploymentState": "READY",
+  "readOnlyProductionChecks": { "desktopPassed": 16, "phonePassed": 16 },
+  "freshLicensedSourceRows": 2,
+  "reportingObservedAt": "2026-10-24T05:14:02.688965Z",
+  "lastSuccessfulReportingRefresh": "2026-10-23T18:50:53.487967Z",
+  "automaticRefreshVerified": false,
+  "productionMutationTests": false,
+  "applicationCodeChanged": false,
+  "geminiEnabled": false
+}

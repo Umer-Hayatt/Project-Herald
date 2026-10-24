@@ -2,6 +2,15 @@
 
 ## Current state
 
+**Reporting key connected, 24 October:** The owner manually added the production
+reporting Secret. Metadata confirms the correct name/environment; its value was
+never retrieved. Redeployed the verified `fb79ca8` app with current settings:
+`dpl_4qs5d173Psi9XTyVtRMBWRnEu9hr`, READY at the stable production URL, with
+32 read-only desktop/phone checks passed. Actual automatic refresh is still
+unverified: last successful ingestion remains the earlier manual operation;
+completed Editions return their preserved content without fetching again. See
+the latest handoff and [deployment evidence](../evidence/reporting-key-deployment-2026-10-24.json).
+
 **Approved model metadata check, 24 October:** The owner explicitly approved the
 previously blocked read-only check. Google's model-list endpoint returned HTTP200;
 configured `gemini-3.8-flash` is listed with generation support. No generation,
@@ -12,7 +21,8 @@ suitability and useful live Briefings remain unverified; Gemini stays disabled.
 superseding the earlier younger-reader direction. A session self-declaration is
 implemented for new and existing readers; it does not verify age or automatically
 enable Gemini. See [18+ scope and verification](adult-audience-2026-10-24.md) and the
-latest handoff for actual deployment results. Reporting-key setup remains pending.
+latest handoff for actual deployment results. The reporting key is now configured
+and deployed; actual automatic-refresh verification remains open.
 
 **24 October continuation:** Added a tested, metadata-only Global Voices daily
 observer and recorded three eligible articles (the same supply, not broader
