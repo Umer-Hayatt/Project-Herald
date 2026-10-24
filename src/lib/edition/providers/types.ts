@@ -46,6 +46,8 @@ export interface FetchCandidatesResult {
 
 export interface NewsProviderAdapter {
   readonly name: string;
+  /** Request reservation for a refresh using the adapter's default categories. */
+  readonly defaultRefreshCalls?: number;
   readonly defaultOutputUse: OutputUse;
   isConfigured(): boolean;
   fetchCandidates(options?: FetchCandidatesOptions): Promise<FetchCandidatesResult>;

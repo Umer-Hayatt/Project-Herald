@@ -129,3 +129,54 @@ test("supplementary fetching stays opt-in and rejects unavailable or unsafe feed
   }
 });
 
+test("public refresh never calls an unapproved provider configured alongside the licensed feed", async ({ context, baseURL }) => {
+  assertIsolatedTestEnvironment(process.env);
+  const reader = await login("A", context, baseURL!);
+  const server = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_REPORTING_SERVICE_KEY!, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const previousMeta = await server.from("reporting_cache_meta").select("*").eq("id", "news_supply").maybeSingle();
+  expect(previousMeta.error).toBeNull();
+  const flags = { GLOBALVOICES_ENABLED: "true", GLOBALVOICES_PUBLIC_REPORTING_ENABLED: "true",
+    THENEWSAPI_TOKEN: "controlled-unapproved-token", THENEWSAPI_COMMERCIAL_APPROVED: "false" };
+  const previousFlags = Object.fromEntries(Object.keys(flags).map(name => [name, process.env[name]]));
+  const originalFetch = globalThis.fetch;
+  const now = new Date();
+  const slug = "controlled-approved-refresh-budget";
+  const externalId = `gv:/2026/10/24/${slug}/`;
+  let feedCalls = 0;
+  let unapprovedCalls = 0;
+  globalThis.fetch = async (input, init) => {
+    if (String(input) === "https://globalvoices.org/feed/") {
+      feedCalls++;
+      return new Response(`<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><language>en</language><item><title>Residents publish new plans for community library access</title><link>https://globalvoices.org/2026/10/24/${slug}/</link><dc:creator>Controlled Author</dc:creator><pubDate>${now.toUTCString()}</pubDate><content:encoded><![CDATA[<p>Residents published new plans for community library access after a public consultation. Council members will review longer opening hours and additional study spaces at their next public meeting.</p>]]></content:encoded></item></channel></rss>`, { headers: { "content-type": "application/rss+xml" } });
+    }
+    if (String(input).startsWith("https://api.thenewsapi.com/")) {
+      unapprovedCalls++;
+      return Response.json({ data: [] });
+    }
+    return originalFetch(input, init);
+  };
+  Object.assign(process.env, flags);
+  try {
+    expect((await server.from("reporting_cache_meta").delete().eq("id", "news_supply")).error).toBeNull();
+    const supply = await getReportingSupply(reader, { referenceDate: now, reportingWriter: server, forceRefresh: true });
+    expect(supply.some(article => article.external_id === externalId)).toBe(true);
+    expect(feedCalls).toBe(1);
+    expect(unapprovedCalls).toBe(0);
+    for (let refresh = 0; refresh < 3; refresh++) {
+      await getReportingSupply(reader, { referenceDate: now, reportingWriter: server, forceRefresh: true });
+    }
+    expect(feedCalls).toBe(4);
+    expect(unapprovedCalls).toBe(0);
+  } finally {
+    globalThis.fetch = originalFetch;
+    for (const [name, value] of Object.entries(previousFlags)) {
+      if (value === undefined) delete process.env[name]; else process.env[name] = value;
+    }
+    expect((await server.from("source_articles").delete().eq("external_id", externalId)).error).toBeNull();
+    expect((await server.from("reporting_cache_meta").delete().eq("id", "news_supply")).error).toBeNull();
+    if (previousMeta.data) expect((await server.from("reporting_cache_meta").insert(previousMeta.data)).error).toBeNull();
+  }
+});
+

@@ -1,5 +1,17 @@
 import { parseSourceAttribution, isGlobalVoicesArticleUrl } from "./source-attribution";
 
+const PUBLIC_APPROVAL_FLAGS: Record<string, string> = {
+  thenewsapi: "THENEWSAPI_COMMERCIAL_APPROVED",
+  gnews: "GNEWS_COMMERCIAL_APPROVED",
+  newsdata: "NEWSDATA_COMMERCIAL_APPROVED",
+  globalvoices: "GLOBALVOICES_PUBLIC_REPORTING_ENABLED",
+};
+
+export function hasCurrentProviderApproval(provider: string): boolean {
+  const flag = PUBLIC_APPROVAL_FLAGS[provider];
+  return Boolean(flag && process.env[flag] === "true");
+}
+
 export type ArticleRejectionReason =
   | "missing_provenance"
   | "feed_or_index_url"
@@ -111,13 +123,7 @@ export function evaluateArticleQuality(
         "Reporting requires explicit provider provenance and permitted output use",
     };
   }
-  const approvalFlag = ({
-    thenewsapi: "THENEWSAPI_COMMERCIAL_APPROVED",
-    gnews: "GNEWS_COMMERCIAL_APPROVED",
-    newsdata: "NEWSDATA_COMMERCIAL_APPROVED",
-    globalvoices: "GLOBALVOICES_PUBLIC_REPORTING_ENABLED",
-  } as Record<string, string>)[provider];
-  if (options?.requireCurrentProviderApproval && (!approvalFlag || process.env[approvalFlag] !== "true")) {
+  if (options?.requireCurrentProviderApproval && !hasCurrentProviderApproval(provider)) {
     return { eligible: false, reason: "disallowed_output_use", detail: "Current provider output approval is missing" };
   }
   if (provider === "globalvoices" && (!parseSourceAttribution(article.raw_data?.source_attribution) ||

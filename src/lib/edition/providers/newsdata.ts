@@ -23,6 +23,7 @@ interface NewsDataArticle {
 
 export class NewsDataAdapter implements NewsProviderAdapter {
   readonly name = "newsdata";
+  readonly defaultRefreshCalls = 4;
   readonly defaultOutputUse = "evaluation_only" as const;
 
   constructor(

@@ -55,6 +55,7 @@ async function readBoundedFeed(response: Response): Promise<string> {
 
 export class GlobalVoicesAdapter implements NewsProviderAdapter {
   readonly name = "globalvoices";
+  readonly defaultRefreshCalls = 1;
   readonly defaultOutputUse = "evaluation_only" as const;
 
   isConfigured(): boolean { return process.env.GLOBALVOICES_ENABLED === "true"; }

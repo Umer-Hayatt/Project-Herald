@@ -10,6 +10,7 @@ import { NewsDataAdapter } from "./newsdata";
 import { GlobalVoicesAdapter } from "./globalvoices";
 import { canonicalizeSourceUrl } from "../grouping";
 import { parseSourceAttribution } from "../source-attribution";
+import { hasCurrentProviderApproval } from "../content-quality";
 
 export interface CoordinatorFetchResult {
   articles: SourceArticle[];
@@ -35,8 +36,9 @@ export class NewsProviderCoordinator {
     return [...this.adapters];
   }
 
-  getConfiguredAdapters(): NewsProviderAdapter[] {
-    return this.adapters.filter((a) => a.isConfigured());
+  getConfiguredAdapters(options?: { publicOnly?: boolean }): NewsProviderAdapter[] {
+    return this.adapters.filter((a) => a.isConfigured() &&
+      (!options?.publicOnly || hasCurrentProviderApproval(a.name)));
   }
 
   registerAdapter(adapter: NewsProviderAdapter) {
@@ -46,8 +48,9 @@ export class NewsProviderCoordinator {
 
   async fetchAll(options?: FetchCandidatesOptions & {
     allowEvaluationOnly?: boolean;
+    publicOnly?: boolean;
   }): Promise<CoordinatorFetchResult> {
-    const active = this.getConfiguredAdapters();
+    const active = this.getConfiguredAdapters(options);
     if (active.length === 0) {
       return {
         articles: [],

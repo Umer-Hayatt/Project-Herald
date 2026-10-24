@@ -41,14 +41,14 @@ export async function getReportingSupply(
 
   const maxAgeIso = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString();
   const coordinator = options?.coordinator || new NewsProviderCoordinator();
-  const configuredAdapters = coordinator.getConfiguredAdapters();
+  const configuredAdapters = coordinator.getConfiguredAdapters({ publicOnly: true });
 
   const writer = options?.reportingWriter;
   if (writer && configuredAdapters.length > 0) {
     // The database reserves provider calls against its fixed daily budget.
     const { data: lockToken } = await writer.rpc("claim_reporting_refresh", {
       p_force_refresh: options?.forceRefresh || false,
-      p_provider_calls: configuredAdapters.length * 5,
+      p_provider_calls: configuredAdapters.reduce((calls, adapter) => calls + (adapter.defaultRefreshCalls ?? 5), 0),
     });
 
     // A null token means a fresh cache, another active refresh, or an exhausted budget.
@@ -58,6 +58,7 @@ export async function getReportingSupply(
         const fetchRes = await coordinator.fetchAll({
           now,
           allowEvaluationOnly: false,
+          publicOnly: true,
         });
 
         if (fetchRes.success && fetchRes.articles.length > 0) {
@@ -66,6 +67,7 @@ export async function getReportingSupply(
             now,
             maxAgeHours: 48,
             allowEvaluationOnly: false,
+            requireCurrentProviderApproval: true,
           });
 
           if (eligibleArticles.length > 0) {

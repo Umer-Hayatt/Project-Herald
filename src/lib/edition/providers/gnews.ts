@@ -22,6 +22,7 @@ interface GNewsArticle {
 
 export class GNewsAdapter implements NewsProviderAdapter {
   readonly name = "gnews";
+  readonly defaultRefreshCalls = 4;
   readonly defaultOutputUse = "evaluation_only" as const;
 
   constructor(

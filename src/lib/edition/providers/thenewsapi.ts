@@ -46,6 +46,7 @@ function isTheNewsApiArticle(value: unknown): value is TheNewsAPIRawEntry {
 
 export class TheNewsApiAdapter implements NewsProviderAdapter {
   readonly name = "thenewsapi";
+  readonly defaultRefreshCalls = 5;
   readonly defaultOutputUse = "evaluation_only" as const;
 
   constructor(
