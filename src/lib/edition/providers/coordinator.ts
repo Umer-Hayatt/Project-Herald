@@ -8,6 +8,7 @@ import { TheNewsApiAdapter } from "./thenewsapi";
 import { GNewsAdapter } from "./gnews";
 import { NewsDataAdapter } from "./newsdata";
 import { GlobalVoicesAdapter } from "./globalvoices";
+import { NasaEarthAdapter } from "./nasa-earth";
 import { canonicalizeSourceUrl } from "../grouping";
 import { parseSourceAttribution } from "../source-attribution";
 import { hasCurrentProviderApproval } from "../content-quality";
@@ -29,6 +30,7 @@ export class NewsProviderCoordinator {
       new GNewsAdapter(),
       new NewsDataAdapter(),
       new GlobalVoicesAdapter(),
+      new NasaEarthAdapter(),
     ];
   }
 

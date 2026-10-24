@@ -29,7 +29,7 @@ export type BriefingSource = "gemini" | "publisher_excerpt" | "publisher_headlin
 
 export interface SourceAttribution {
   authors: string[];
-  license: "CC BY 3.0";
+  license: "CC BY 3.0" | "NASA Earth reuse policy";
   license_url: string;
 }
 

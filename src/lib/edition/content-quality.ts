@@ -1,13 +1,16 @@
-import { parseSourceAttribution, isGlobalVoicesArticleUrl } from "./source-attribution";
+import { parseSourceAttribution, isGlobalVoicesArticleUrl, isNasaEarthArticleUrl } from "./source-attribution";
 
 const PUBLIC_APPROVAL_FLAGS: Record<string, string> = {
   thenewsapi: "THENEWSAPI_COMMERCIAL_APPROVED",
   gnews: "GNEWS_COMMERCIAL_APPROVED",
   newsdata: "NEWSDATA_COMMERCIAL_APPROVED",
   globalvoices: "GLOBALVOICES_PUBLIC_REPORTING_ENABLED",
+  "nasa-earth": "NASA_EARTH_PUBLIC_REPORTING_ENABLED",
 };
 
 export function hasCurrentProviderApproval(provider: string): boolean {
+  // NASA's AI-specific attribution is not implemented. Keep its text outside all model inputs.
+  if (provider === "nasa-earth" && (process.env.GEMINI_AI_EDITOR_ENABLED === "true" || process.env.GEMINI_PUBLIC_BRIEFINGS_ENABLED === "true")) return false;
   const flag = PUBLIC_APPROVAL_FLAGS[provider];
   return Boolean(flag && process.env[flag] === "true");
 }
@@ -126,9 +129,14 @@ export function evaluateArticleQuality(
   if (options?.requireCurrentProviderApproval && !hasCurrentProviderApproval(provider)) {
     return { eligible: false, reason: "disallowed_output_use", detail: "Current provider output approval is missing" };
   }
-  if (provider === "globalvoices" && (!parseSourceAttribution(article.raw_data?.source_attribution) ||
+  if (provider === "globalvoices" && (parseSourceAttribution(article.raw_data?.source_attribution)?.license !== "CC BY 3.0" ||
     !article.url || !isGlobalVoicesArticleUrl(article.url) || article.publisher !== "Global Voices" || article.raw_data?.output_use !== outputUse)) {
     return { eligible: false, reason: "disallowed_output_use", detail: "Licensed reporting requires complete explicit attribution and original provenance" };
+  }
+  if (provider === "nasa-earth" && (parseSourceAttribution(article.raw_data?.source_attribution)?.license !== "NASA Earth reuse policy" ||
+    !article.url || !isNasaEarthArticleUrl(article.url) || article.publisher !== "NASA Earth Observatory" || article.raw_data?.output_use !== outputUse ||
+    process.env.GEMINI_AI_EDITOR_ENABLED === "true" || process.env.GEMINI_PUBLIC_BRIEFINGS_ENABLED === "true")) {
+    return { eligible: false, reason: "disallowed_output_use", detail: "NASA Earth requires original credited text and non-AI processing" };
   }
 
   // 1. Provenance checks

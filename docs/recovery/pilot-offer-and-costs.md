@@ -1,77 +1,76 @@
-# Herald: Pilot-Ready Offer & Operating Cost Worksheet
+# Herald pilot offer and operating-cost worksheet
 
-## 1. Concrete Recurring-Price Value Offer
+Updated 24 October 2026. Preparation only: Stage A readiness is open and the
+seven-day pilot has not begun. This replaces unsupported historical price,
+quota, model, capacity and margin claims; it does not record owner decisions.
 
-### The Proposition: Herald Finite Morning Paper
-Herald is a calm, finite daily newspaper delivered once each morning, designed to replace endless algorithmic doomscrolling with purposeful reading.
+## Offer awaiting owner decisions
 
-- **Curated to Declared Interests:** Articles matched to reader-selected topics, subtopics, and target reading lengths (5, 10, 15, or 20 minutes).
-- **Perspective Beyond the Bubble:** Every edition includes verified, source-grounded reporting outside the reader's usual scope.
-- **Finite Completion Ritual:** A clear `#edition-end` finish with no infinite scrolling, autoplay, or attention traps.
-- **Multiple Reading Formats:** Full responsive web edition, historical archive, and printable newspaper-styled PDF export.
-- **Complete Provenance:** Every story provides an executive briefing, why-it-matters contextual analysis, and direct source attribution links to original reporting.
+Herald offers adults aged 18 and over one preserved daily Edition, source links,
+explicit feedback, an archive and a matching newspaper PDF. Reading lengths are
+5, 10 or 15 minutes; suitable reporting can produce a shorter paper. Global Voices
+is supplementary supply, not proof of broad coverage. Gemini remains disabled.
 
-### Commercial Pricing Structure
-- **Proposed Price Point:** **$5.00 / month** (or **$49.00 / year** paid annually).
-- **Free Trial Window:** 7-day initial pilot reading period.
-- **Paid Feature Inclusions:** Unlimited daily editions, cross-device synchronization, next-day adaptive learning from feedback, 30-day searchable archive, and daily high-resolution newspaper PDF generation.
+| Decision | Current evidence / required action |
+| --- | --- |
+| Exact recurring price and currency | Not selected. Owner must record before recruitment. Earlier $5/month and $49/year were not approved. |
+| Included offer | Confirm the supported interests/regions and actual content depth after live coverage acceptance. No unlimited Editions, searchable archive or paid entitlement is promised. |
+| Launch countries | Awaiting owner decision; assess model availability and regional data-use restrictions before enabling AI. |
+| Participants | No five consenting participants recorded. Recruit five real adults with contrasting interests after Stage A passes. Outreach remains owner-led. |
+| Pilot capacity | Five participants proposed by #11; sustainable operating capacity is not established. |
+| Start/end | Not scheduled. Seven actual days begin only after Stage A and these prerequisites pass. |
 
----
+## Verified operation versus estimates
 
-## 2. Conservative Operating Cost & Request Capacity
+| Component | Verified fact | Still to establish |
+| --- | --- | --- |
+| Reporting | Global Voices enabled as a supplement; default refresh uses one call. Shared database reservation caps ordinary reporting at 15 requests per UTC day. | Genuine automatic refresh, broader eligible supply, daily content depth and observed demand. The cap is an application limit, not provider entitlement. |
+| Other news adapters | Public approvals remain disabled. | Account-specific public Briefing, PDF and archive permissions; matched live comparison with two candidates. |
+| Gemini | Model-list GET succeeded; generation evaluation is separate. Production AI remains disabled. | Free project quota, validated generation/selection, privacy and regional suitability, actual tokens per reader-day. |
+| Vercel / Supabase | Existing recovery deployments; no paid upgrade authorized. | Current account plan eligibility, measured storage/bandwidth/function usage and commercial eligibility before a priced pilot offer becomes a launch. |
 
-### News Provider APIs
+Do not infer cost or capacity from a successful request. Keep billing disabled.
+Record measured input/output tokens, provider requests, active reader-days,
+function/bandwidth/storage consumption and account allowances. Estimate:
 
-| Provider | Free Tier Allocation | Ingestion Usage Strategy | Operating Cost (Pilot) | Scaling Cost (Paid) |
-|---|---|---|---|---|
-| **TheNewsAPI** | 100 requests / day | Atomic database refresh lock + 48-hour shared caching window coalesces concurrent readers. Shared pool requires $\le 10$ requests / UTC day across all readers. | $0.00 / mo | $19.00 / mo (Starter, 10k req) |
-| **NewsData** | 200 requests / day | Complementary secondary pool queried during shared cache refresh only. Consumes $\le 10$ calls / UTC day. | $0.00 / mo | $39.99 / mo (Basic) |
+- Shared retrieval cost / actual active reader-days, plus measured per-Edition model cost.
+- Allocated infrastructure and storage/export cost per reader-month.
+- Conservative retry/traffic contingency, then contribution at the owner-selected price.
 
-### AI Model (Google Gemini)
+Unknown inputs remain unknown. The former 50-reader capacity, negligible costs,
+12-customer break-even and >95% margin claims have no verified basis.
 
-| Dimension | Specification | Usage & Budget Constraints |
-|---|---|---|
-| **Selected Model** | Google Gemini 2.5 Flash / 1.5 Flash (`gemini-2.5-flash`) | Enabled via server-side API key with automatic deterministic fallback. |
-| **Free Tier Quota** | 15 RPM, 1,500 RPD, 1,000,000 TPM | Enforced server-side. |
-| **Token Usage per Edition** | ~2,000 input tokens (candidate shortlist) + ~300 output tokens | Minimal outbound brief (zero PII, emails, or credentials sent). |
-| **Cost per Edition** | $0.00 on free tier ($0.0003/edition at standard pay-as-you-go rates) | Negligible operating cost (<$0.01/reader/month). |
+## Readiness gate and reader acceptance
 
-### Infrastructure & Database
+Record commit, stable URL, UTC timestamp/local date, device and each outcome
+as passed, failed, blocked or not run. Controlled tests are separate evidence.
+A real adult reader must complete Google consent/callback, onboarding when new,
+paper reading, source opening, explicit feedback, settings, archive, matching PDF,
+sign-out and sign-in with persisted state. Preserve completed Editions. Reopening
+today's paper verifies stability, not a provider refresh or new-reader onboarding.
+Do not provision production fixtures or perform production mutation tests.
 
-| Component | Platform | Resource Allocation & Limits | Monthly Cost |
-|---|---|---|---|
-| **Postgres Database** | Supabase | 500 MB storage, Row Level Security (RLS), 50,000 Monthly Active Users. Daily storage growth is $\approx 50\text{ KB/day}$ ($\approx 1.5\text{ MB/month}$). | $0.00 / mo |
-| **Application Hosting** | Vercel | Next.js Serverless Functions, Edge Middleware, Static Asset CDN. | $0.00 / mo |
+## Seven-day evidence protocol
 
-### Capacity Summary
-- **Free Recovery Operating Capacity:** Supports up to **50 active daily readers** with zero infrastructure spend.
-- **Commercial Break-Even Unit Economics:** At $5.00/month/reader, fixed provider costs ($58.99/mo) are fully covered by just **12 paying subscribers**, yielding $>95\%$ gross margins at scale.
+Before day 1 record five consented participant codes, contrasting interests,
+supported regions, exact price/currency and offer, capacity, consent scope and
+start date. Keep identities and attributable commitments private; publish only
+sanitized aggregates. Do not create participant identities or quotes.
 
----
+Use minimum consented observations: core-task completion and help needed, actual
+reading/return dates, feedback saved, PDF/source use, failures, specific learning,
+content depth and the participant's explicit response to the stated price.
+Skip remains neutral. No new tracking infrastructure is implied.
 
-## 3. Stage B Seven-Day Pilot Protocol
+| Gate from #11 | Required actual evidence | Current result |
+| --- | --- | --- |
+| Core tasks | At least 4/5 complete without coaching | Not run |
+| Return use | At least 3/5 return on three distinct dates | Not run |
+| Useful learning/relevance | At least 3/5 give specific examples | Not run |
+| Price commitment | At least 2/5 give an attributable commitment at the recorded price | Not run |
+| Duration | Seven elapsed pilot days after readiness | Not started |
+| Content/capacity | Actual reader-days meet declared depth within verified access and costs | Blocked |
 
-### Participant Cohort
-Five consenting target participants with contrasting reading preferences:
-1. **Participant 1:** Technology & Artificial Intelligence (Engineering / Product focus).
-2. **Participant 2:** Global Politics & Environmental Policy (Public policy / International relations).
-3. **Participant 3:** Financial Markets & Economics (Business / Macroeconomics focus).
-4. **Participant 4:** Arts, Architecture & Culture (Design / Cultural commentary focus).
-5. **Participant 5:** Science, Astronomy & Health (Medical / Research focus).
-
-### Consented Telemetry & Measurements
-Measurements collected strictly with reader consent:
-- Daily paper access timestamp and reading completion to `#edition-end`.
-- Use of Story actions (`More like this`, `Less like this`, `Skip to next story`).
-- Downloads of daily newspaper PDF.
-- Click-throughs to original reporting source links.
-- Qualitative feedback submitted via settings or direct feedback.
-
-### Directional Acceptance Gates
-Stage B will evaluate the four recovery criteria across seven elapsed days:
-1. **Usability:** At least 4 of 5 complete core reading tasks without intervention or coaching.
-2. **Ritual Retention:** At least 3 of 5 return on 3 or more distinct calendar days.
-3. **Relevance & Learning:** At least 3 of 5 describe specific useful learning or perspective outside their bubble.
-4. **Attributable Commercial Intent:** At least 2 of 5 make an explicit attributable commitment to pay $5.00/month for the daily service.
-
-*Note: In accordance with recovery rules, Skip actions are treated as neutral navigation and never recorded as dislike. Stage B remains open until seven actual days of participant evidence have elapsed.*
+Record negative results and reasons. Publish a go/no-go assessment only after
+observations exist; small-sample interest is directional, not proven sales.
+Live billing is separately scoped and remains unauthorized.
