@@ -32,7 +32,10 @@ No production mutation test or real provider request is involved.
    blocked isolated Auth; these are infrastructure failures, not additional red
    behavior evidence. The explicit isolated-network run reproduced the budget bug.
 4. Independent Standards and Spec review: no actionable findings on either axis.
-   Final build, complete suite and publication results are recorded in the handoff.
+   Fresh build/TypeScript and targeted lint passed. Complete suite:290/290 passed,
+   zero failures/skips,7.0 minutes. Main `92d7093` is deployed READY;32 read-only
+   production desktop/phone checks passed. Exact deployment identity and runtime
+   limitations are recorded in the handoff and deployment evidence.
 
 ## Remaining acceptance
 

@@ -4,11 +4,13 @@
 
 **Public refresh correction, 24 October:** The isolated regression reproduced
 unapproved-provider requests and Global Voices' incorrect five-call reservation.
-Both are corrected and desktop/phone regressions pass; independent Standards and
-Spec reviews found no actionable findings. See [behavior and remaining acceptance](public-refresh-budget-2026-10-24.md)
-and the latest handoff for final suite/publication outcomes. Genuine automatic
-production refresh still requires a normal new-Edition request; reopening a saved
-paper does not exercise it.
+Both are corrected and deployed from main `92d7093`:290/290 isolated tests passed,
+fresh build/TypeScript/lint passed, and independent Standards/Spec reviews found no
+actionable findings. Deployment `dpl_BwLzPEPfv56UJHa4Dwyz9asEVmdB` is READY at
+[Herald](https://project-herald-pink.vercel.app);32 read-only desktop/phone checks
+passed. See [behavior and remaining acceptance](public-refresh-budget-2026-10-24.md).
+Genuine automatic production refresh still requires a normal new-Edition request;
+reopening a saved paper does not exercise it.
 
 **Reporting key connected, 24 October:** The owner manually added the production
 reporting Secret. Metadata confirms the correct name/environment; its value was

@@ -1,0 +1,20 @@
+{
+  "origin": "https://project-herald-pink.vercel.app",
+  "deploymentId": "dpl_BwLzPEPfv56UJHa4Dwyz9asEVmdB",
+  "commit": "92d7093f395b57fa78a77b49f2d6a71821c5fa6d",
+  "recordedAt": "2026-10-24T05:41:28.139Z",
+  "results": [
+    {
+      "device": "desktop",
+      "checks": 16,
+      "passed": true
+    },
+    {
+      "device": "phone",
+      "checks": 16,
+      "passed": true
+    }
+  ],
+  "productionMutationTests": false,
+  "actualGoogleOAuth": "not run"
+}
