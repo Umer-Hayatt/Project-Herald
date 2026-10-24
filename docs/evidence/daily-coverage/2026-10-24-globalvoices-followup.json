@@ -1,0 +1,40 @@
+{
+  "sampleDate": "2026-10-24",
+  "timeZone": "Asia/Karachi",
+  "sampledAt": "2026-10-24T01:38:15.885Z",
+  "provider": "Global Voices",
+  "publicApproval": true,
+  "providerCalls": 1,
+  "acceptedCandidates": 2,
+  "eligiblePublicCandidates": 2,
+  "uniqueStories": 2,
+  "topicCounts": {
+    "general": 1,
+    "technology": 1
+  },
+  "providerFailures": [],
+  "status": "supplementary_observation_unreviewed",
+  "threeDayAcceptance": "not_established",
+  "databaseWrites": false,
+  "modelCalls": 0,
+  "sources": [
+    {
+      "url": "https://globalvoices.org/2026/10/22/venezuela-faces-a-deepening-energy-crisis-as-protests-grow/",
+      "publishedAt": "2026-10-22T20:06:56.000Z",
+      "license": "CC BY 3.0",
+      "authors": [
+        "Gabriela Mesones Rojo"
+      ],
+      "words": 462
+    },
+    {
+      "url": "https://globalvoices.org/2026/10/22/what-telecoms-leave-behind-when-they-exit-a-country/",
+      "publishedAt": "2026-10-22T12:20:06.000Z",
+      "license": "CC BY 3.0",
+      "authors": [
+        "Ranking Digital Rights"
+      ],
+      "words": 461
+    }
+  ]
+}
