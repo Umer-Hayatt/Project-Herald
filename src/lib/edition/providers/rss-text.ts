@@ -24,6 +24,13 @@ export function withoutMedia(html: string): string {
     .replace(/<img\b[^>]*>/gi, " ");
 }
 
+/** Removes only caption blocks that hold an image, so a photo's own credit is not read as the article's notice. */
+export function withoutImageCaptions(html: string): string {
+  const onlyWithImage = (block: string) => /<img\b/i.test(block) ? " " : block;
+  return html.replace(/<figure\b[^>]*>[\s\S]*?<\/figure\s*>/gi, onlyWithImage)
+    .replace(/<div\b[^>]*class=["'][^"']*\bwp-caption\b[^"']*["'][^>]*>[\s\S]*?<\/div\s*>/gi, onlyWithImage);
+}
+
 export function plainText(html: string): string {
   return decodeEntities(html.replace(/<[^>]*>/g, " ")).replace(/[<>\x00-\x1f]/g, " ").replace(/\s+/g, " ").trim();
 }

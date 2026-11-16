@@ -72,7 +72,10 @@ oversized responses, stale/future items, ambiguous generic bylines, non-article 
 non-original-domain links and detected republication/restriction notices. It keeps
 text only, excluding media, captions and quotations. It recognizes only the exact
 feed-inserted Global Voices self-credit whose URL matches the item; notices about
-other publishers remain exclusions. Automated checks are conservative screening,
+other publishers remain exclusions. Owner decision, 16 November 2026: a notice
+inside a caption block that holds an image (a photo credit or photo licence) no
+longer excludes the article, because those images and captions are never kept;
+notices in article text, quotations or image-less captions still exclude it. Automated checks are conservative screening,
 not a guarantee that every future item's rights are identical. Review changes to
 source policy and exceptions before continuing public use.
 

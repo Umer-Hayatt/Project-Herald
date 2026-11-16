@@ -1156,6 +1156,47 @@ main, section, article, .archive-card, .account-panel {
   border-radius: 8px;
 }
 
+.spotlight-image-wrap {
+  position: relative;
+  line-height: 0;
+}
+
+/* Category stock photos are marked so they are not read as pictures of the reported event. */
+.illustrative-image-label {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 3;
+  background: rgba(26, 36, 46, 0.78);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.story-card-hero > .illustrative-image-label {
+  top: 0.75rem;
+  right: 0.75rem;
+  bottom: auto;
+}
+
+/* Narrow cards: sit beside the category and wrap under it instead of covering it. */
+.featured-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.featured-card-top .illustrative-image-label {
+  position: static;
+}
+
 .spotlight-title {
   font-family: var(--font-editorial), serif;
   font-size: 1.35rem;

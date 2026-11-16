@@ -11,6 +11,7 @@ import { regions } from "@/lib/preferences";
 import { EditionStoryCard } from "@/components/edition-story-card";
 import { PdfDownloadButton } from "@/components/pdf-download-button";
 import { getStoryImageUrl } from "@/lib/edition/images";
+import { IllustrativeImageLabel } from "@/components/illustrative-image-label";
 import { readEligiblePublicReporting } from "@/lib/edition/public-reporting";
 
 function formatDisplayDate(dateStr: string): string {
@@ -216,12 +217,15 @@ export default async function PaperPage({
                     <span>{spotlightStory.section === "beyond_bubble" ? "Beyond Your Bubble" : "Spotlight Feature"}</span>
                   </div>
                   <h3 className="spotlight-title">{spotlightStory.title}</h3>
-                  <img
-                    src={getStoryImageUrl(spotlightStory.category, spotlightStory.image_url)}
-                    alt=""
-                    className="spotlight-image"
-                    loading="lazy"
-                  />
+                  <div className="spotlight-image-wrap">
+                    <img
+                      src={getStoryImageUrl(spotlightStory.category, spotlightStory.image_url)}
+                      alt=""
+                      className="spotlight-image"
+                      loading="lazy"
+                    />
+                    <IllustrativeImageLabel imageUrl={spotlightStory.image_url} />
+                  </div>
                   <p className="spotlight-excerpt">
                     {spotlightStory.why_it_matters || spotlightStory.briefing || spotlightStory.excerpt}
                   </p>

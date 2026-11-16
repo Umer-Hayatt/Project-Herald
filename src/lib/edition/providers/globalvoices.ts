@@ -3,7 +3,7 @@ import { CC_BY_3_LICENSE_URL, parseSourceAttribution, isGlobalVoicesArticleUrl }
 import { extractEventGeography } from "../geography";
 
 const FEED_URL = "https://globalvoices.org/feed/";
-import { decodeEntities, field, withoutMedia, plainText, readBoundedFeed } from "./rss-text";
+import { decodeEntities, field, withoutMedia, withoutImageCaptions, plainText, readBoundedFeed } from "./rss-text";
 
 export class GlobalVoicesAdapter implements NewsProviderAdapter {
   readonly name = "globalvoices";
@@ -41,8 +41,11 @@ export class GlobalVoicesAdapter implements NewsProviderAdapter {
         const reporting = content.replace(/<p class=['"]originally-published['"]><small>Originally published on <a href=['"]([^'"]+)['"]>Global Voices<\/a><\/small><\/p>/g,
           (markup, originalUrl: string) => originalUrl === url ? " " : markup);
         // Conservative exclusion: never infer that republication/exception notices grant the same rights.
-        // Check all visible notices before removing media/quotations; formatting must not hide restrictions.
-        if (/all rights reserved|originally published|republish|reproduc(?:ed|tion) with|used with permission|copyright|licensed under|creativecommons\.org\/licenses|\bCC[ -]BY[ -](?:NC|ND|SA)\b/i.test(`${plainText(reporting)} ${reporting}`)) continue;
+        // Check all visible notices before removing quotations; formatting must not hide restrictions.
+        // Owner decision 16 Nov 2026: a credit inside an image caption describes that image, which Herald never
+        // stores or shows, so it does not exclude the article. Notices anywhere else still do.
+        const noticeScope = withoutImageCaptions(reporting);
+        if (/all rights reserved|originally published|republish|reproduc(?:ed|tion) with|used with permission|copyright|licensed under|creativecommons\.org\/licenses|\bCC[ -]BY[ -](?:NC|ND|SA)\b/i.test(`${plainText(noticeScope)} ${noticeScope}`)) continue;
         const fullText = plainText(withoutMedia(reporting));
         const description = fullText.length > 3000 ? fullText.slice(0, 3000).replace(/\s+\S*$/, "") : fullText;
         if (description.length < 120) continue;

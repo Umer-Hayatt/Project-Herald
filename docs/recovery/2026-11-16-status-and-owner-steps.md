@@ -4,7 +4,7 @@ Start here when resuming. This supersedes older "complete" claims; the detailed
 history stays in [the long handoff](2026-10-19-audit-fixes-handoff.md).
 
 Working clone: `E:\Project herald i`, branch `fix/sample-page-and-status-docs`
-(one commit ahead of `main` at `87a2708`). **Not pushed and not deployed.**
+(one commit ahead of `main` at `87a2708`). **Pushed to GitHub as a branch; not merged and not deployed.**
 Pushing to `main` deploys to production, so only do it when the owner says so.
 
 ## Plain-language verdict
@@ -43,6 +43,33 @@ was verified with a local production build and a headless browser, red before
 and green after. Run the full suite once the test database is back.
 
 Also corrected: root `README.md` status and `docs/evidence/architecture-overview.md`.
+
+## Later on 16 November: Global Voices photo-credit rule
+
+The branch is pushed to GitHub (the note above is out of date). Nothing is merged or deployed.
+
+The one-request Global Voices check returned 15 feed items, 3 inside 48 hours and 0 accepted.
+All three were excluded because a photo caption carried a credit ("Used with permission", a
+photo licence). The owner approved a narrow change: a notice inside a caption block that holds
+an image no longer excludes the article, because Herald never stores or shows those images or
+captions. A notice in the article text, in a quotation, or in a caption block without an image
+still excludes it. Regression test: `tests/offline/globalvoices-coverage.spec.ts`, third case,
+red before and green after. `npm run test:offline` 55 passed; typecheck and lint pass. The same
+live check then accepted 3 articles. Not yet run in the full suite, not merged, not deployed.
+
+Provider keys: the owner holds TheNewsAPI, GNews and NewsData keys. They belong in Vercel as
+`THENEWSAPI_TOKEN`, `GNEWS_API_KEY`, `NEWSDATA_API_KEY`. The `*_COMMERCIAL_APPROVED` flags stay
+`false` until a provider confirms permitted use in writing.
+
+Honest labels, same day: the homepage "Editor's Choice" badge now reads "Lead story", and every
+category stock photo on the homepage and the paper spotlight carries an "Illustrative image" label
+(`src/components/illustrative-image-label.tsx`). Test: `tests/offline/honest-labels.spec.ts`; offline
+suite 57 passed; build passes. Label placement was checked on desktop and phone with a scratch page
+using the real stylesheet, not on a page with real Stories. "Featured Perspective", "Featured
+Stories" and "Trending" headings on the homepage were not reviewed.
+
+Vercel Production, read 16 Nov (names only): the three provider keys and both NASA Earth switches
+exist; all three `*_COMMERCIAL_APPROVED` flags are `false`; no deploy has happened since they were added.
 
 ## Still open (from spec #11)
 

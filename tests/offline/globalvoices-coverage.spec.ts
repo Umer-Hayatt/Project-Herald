@@ -59,3 +59,30 @@ test("coverage distinguishes an unavailable feed from a successful feed with no 
     expect(reports.every(report => report.eligiblePublicCandidates === 0 && report.threeDayAcceptance === "not_established")).toBe(true);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
+
+test("an image credit line does not exclude an article, while a rights notice in the article text still does", () => {
+  const directory = mkdtempSync(join(tmpdir(), "herald-coverage-captions-"));
+  const mock = join(directory, "feed.mjs");
+  writeFileSync(mock, `
+const text = "Local residents published new plans for community library access after a public consultation. Council members will review longer opening hours and additional study spaces at their next public meeting.";
+const item = (slug, content) => '<item><title>Residents publish new community library access plans '+slug+'</title><link>https://globalvoices.org/2026/11/16/'+slug+'/</link><dc:creator>Controlled Author</dc:creator><pubDate>'+new Date().toUTCString()+'</pubDate><category>Education</category><content:encoded><![CDATA['+content+']]></content:encoded></item>';
+const items = [
+  item('wp-caption-photo-credit', '<div id="attachment_1" style="width: 800px" class="wp-caption aligncenter"><img src="https://globalvoices.org/photo.jpg" /><p class="wp-caption-text">Library entrance. Photo by Controlled Photographer. Used with permission.</p></div><p>'+text+'</p>'),
+  item('figure-photo-licence', '<figure><img src="https://globalvoices.org/photo.jpg" /><figcaption>This file is licensed under the <a href="https://creativecommons.org/licenses/by/2.0/deed.en">Attribution 2.0 Generic</a> license.</figcaption></figure><p>'+text+'</p>'),
+  item('notice-in-article-text', '<p>'+text+' This article is used with permission.</p>'),
+  item('notice-in-caption-without-image', '<div class="wp-caption"><p class="wp-caption-text">This article is copyright its author. All rights reserved.</p></div><p>'+text+'</p>'),
+  item('notice-in-quotation', '<blockquote>Reproduced with permission of the publisher.</blockquote><p>'+text+'</p>'),
+];
+globalThis.fetch = async () => new Response('<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><language>en</language>'+items.join('')+'</channel></rss>', { headers: {'content-type':'application/rss+xml'} });
+`);
+  try {
+    execFileSync(process.execPath, ["--import", pathToFileURL(mock).href, resolve("scripts/record-globalvoices-coverage.mjs")],
+      { cwd: directory, encoding: "utf8", env: { ...process.env, GLOBALVOICES_ENABLED: "true", GLOBALVOICES_PUBLIC_REPORTING_ENABLED: "true" } });
+    const [name] = readdirSync(join(directory, "tmp/daily-coverage"));
+    const report = JSON.parse(readFileSync(join(directory, "tmp/daily-coverage", name), "utf8"));
+    expect(report.sources.map((source: { url: string }) => source.url.split("/").at(-2)).sort())
+      .toEqual(["figure-photo-licence", "wp-caption-photo-credit"]);
+    // The credit line itself is never part of the reporting Herald keeps: only the two body sentences are counted.
+    expect(report.sources.every((source: { words: number }) => source.words === 29)).toBe(true);
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});

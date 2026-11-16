@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Header } from "@/components/header";
 import { createClient } from "@/lib/supabase/server";
 import { getStoryImageUrl } from "@/lib/edition/images";
+import { IllustrativeImageLabel } from "@/components/illustrative-image-label";
 import type { SourceArticle } from "@/lib/edition/types";
 import { readEligiblePublicReporting } from "@/lib/edition/public-reporting";
 import { partitionShowcaseArticles } from "@/lib/edition/showcase";
@@ -111,9 +112,10 @@ export default async function Home() {
                   backgroundImage: `linear-gradient(to top, rgba(26, 36, 46, 0.96) 0%, rgba(35, 47, 59, 0.75) 45%, rgba(41, 55, 68, 0.35) 100%), url(${getStoryImageUrl(heroArticle.categories[0], heroArticle.image_url)})`,
                 }}
               >
+                <IllustrativeImageLabel imageUrl={heroArticle.image_url} />
                 <div className="hero-content">
                   <div className="hero-badges">
-                    <span className="hero-pill-badge">Editor’s Choice</span>
+                    <span className="hero-pill-badge">Lead story</span>
                     <span className="hero-pill-badge secondary">{heroArticle.categories[0] || "Featured"}</span>
                   </div>
 
@@ -146,12 +148,15 @@ export default async function Home() {
                     </div>
                     <h3 className="spotlight-title">{spotlightArticle.title}</h3>
                     <SourceCredit source={spotlightArticle} attribution={spotlightArticle.raw_data?.source_attribution} displayedTitle={spotlightArticle.title} />
-                    <img
-                      src={getStoryImageUrl(spotlightArticle.categories[0], spotlightArticle.image_url)}
-                      alt=""
-                      className="spotlight-image"
-                      loading="lazy"
-                    />
+                    <div className="spotlight-image-wrap">
+                      <img
+                        src={getStoryImageUrl(spotlightArticle.categories[0], spotlightArticle.image_url)}
+                        alt=""
+                        className="spotlight-image"
+                        loading="lazy"
+                      />
+                      <IllustrativeImageLabel imageUrl={spotlightArticle.image_url} />
+                    </div>
                     <p className="spotlight-excerpt">
                       {previewExcerpt(spotlightArticle)}
                     </p>
@@ -201,7 +206,10 @@ export default async function Home() {
                         gap: licensed ? "0.6rem" : undefined,
                       }}
                     >
-                      <span className="featured-card-category">{feat.categories[0] || "News"}</span>
+                      <div className="featured-card-top">
+                        <span className="featured-card-category">{feat.categories[0] || "News"}</span>
+                        <IllustrativeImageLabel imageUrl={feat.image_url} />
+                      </div>
                       <h3 className="featured-card-title">{licensed ? <a href={feat.url} target="_blank" rel="noopener noreferrer">{feat.title}</a> : feat.title}</h3>
                       <SourceCredit source={feat} attribution={feat.raw_data?.source_attribution} displayedTitle={feat.title} />
                     </Card>
@@ -234,6 +242,7 @@ export default async function Home() {
                             className="story-thumbnail"
                           />
                           <span className="story-image-category-pill">{item.categories[0] || "News"}</span>
+                          <IllustrativeImageLabel imageUrl={item.image_url} />
                         </div>
 
                         <div className="story-details">

@@ -26,3 +26,8 @@ export function getStoryImageUrl(category?: string, explicitUrl?: string | null)
   const normalized = (category || "").toLowerCase().trim();
   return CATEGORY_EDITORIAL_IMAGES[normalized] || CATEGORY_EDITORIAL_IMAGES.general;
 }
+
+/** True when getStoryImageUrl would fall back to a category stock photo instead of a publisher's own image. */
+export function isIllustrativeImage(explicitUrl?: string | null): boolean {
+  return !(explicitUrl && /^https?:\/\//i.test(explicitUrl));
+}
