@@ -1,5 +1,7 @@
 # Herald architecture outline
 
+Updated 16 November 2026. In production today only Global Voices is enabled; NASA Earth is built with its flags off; TheNewsAPI, GNews and NewsData adapters exist but are not approved for public output; the Gemini editor is disabled, so selection is deterministic.
+
 ## Request path
 
 ```mermaid
@@ -15,13 +17,13 @@ flowchart TD
   Edition --> Supply[News Supply Coordinator]
   Supply --> Cache[(Shared 48h Reporting Cache)]
   Supply --> Claim[Atomic Refresh Lock & Budget RPC]
-  Claim --> Providers[Complementary Providers: TheNewsAPI + NewsData]
+  Claim --> Providers[Approved providers only: Global Voices; NASA Earth optional]
   Providers --> Quality[Strict Content Quality Gate]
   Quality --> Grouping[Event Canonicalization & Geography Resolution]
   Grouping --> Cache
 
   Edition --> History[7-Day Event Lineage & Update Check]
-  Edition --> AIEditor[Gemini AI Editor with Deterministic Fallback]
+  Edition --> AIEditor[Deterministic selection; Gemini editor disabled]
   AIEditor --> Targeted[Bounded Targeted Search for Undercovered Interests]
   Targeted --> Cache
 
@@ -44,5 +46,5 @@ flowchart TD
 ## Operational dependencies
 
 - **Database:** Supabase Postgres with applied migrations in `supabase/migrations/` (`source_articles`, `editions`, `edition_stories`, `reader_preferences`, `story_feedback`, and ingestion RPCs).
-- **Environment:** Production credentials (`SUPABASE_SERVICE_ROLE_KEY`, `THENEWSAPI_API_KEY`, `NEWSDATA_API_KEY`, `GEMINI_API_KEY`) remain strictly server-side.
+- **Environment:** Production credentials (`SUPABASE_REPORTING_SERVICE_KEY`, `THENEWSAPI_TOKEN`, `GEMINI_API_KEY`; see `.env.example`) remain strictly server-side.
 - **Offline / Degradation Continuity:** Saved editions, archive views, and PDF exports are entirely provider-independent once stored in Postgres. Provider outages serve preserved saved-date fallbacks or honest shortages without corrupting data.

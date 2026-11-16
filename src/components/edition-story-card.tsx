@@ -23,6 +23,13 @@ function formatRelativeTime(publishedAt: string): string {
   return days === 1 ? "Yesterday" : `${days} days ago`;
 }
 
+function formatFixedDate(publishedAt: string): string {
+  const publishedMs = Date.parse(publishedAt);
+  if (!Number.isFinite(publishedMs)) return "";
+  // Fixed locale and time zone so the server and every browser render identical text.
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(publishedMs);
+}
+
 export function EditionStoryCard({
   story,
   totalStories,
@@ -37,7 +44,11 @@ export function EditionStoryCard({
   const hasNextStory = nextStoryPos <= totalStories;
   const skipHref = hasNextStory ? `#story-${nextStoryPos}` : "#edition-end";
   const skipLabel = hasNextStory ? `Skip to story ${nextStoryPos}` : "Finish reading";
-  const relativeTime = formatRelativeTime(story.published_at);
+  // The public sample is prerendered at build time, so a "days ago" label would be
+  // frozen in the HTML and disagree with the browser later. Show its fixed date instead.
+  const relativeTime = story.id?.startsWith("sample-")
+    ? formatFixedDate(story.published_at)
+    : formatRelativeTime(story.published_at);
   const sources = story.supporting_sources?.length
     ? story.supporting_sources
     : [{ title: story.title, url: story.source_url, publisher: story.publisher }];

@@ -9,7 +9,8 @@ export function StoryFeedbackControls({ storyId }: { storyId: string }) {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    if (!storyId) return;
+    // Public sample stories have no saved feedback; never call the private API for them.
+    if (!storyId || storyId.startsWith("sample-")) return;
     let current = true;
     void fetch(`/api/feedback?story_id=${encodeURIComponent(storyId)}`)
       .then(async (response) => response.ok ? response.json() : null)

@@ -2,6 +2,8 @@
 
 ## Current state
 
+**16 November 2026:** read [status and owner steps](2026-11-16-status-and-owner-steps.md) first. It records a fresh check, two sample-page fixes awaiting deployment, and what only the owner can do.
+
 **Public refresh correction, 24 October:** The isolated regression reproduced
 unapproved-provider requests and Global Voices' incorrect five-call reservation.
 Both are corrected and deployed from main `92d7093`:290/290 isolated tests passed,

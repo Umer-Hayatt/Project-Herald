@@ -2,22 +2,15 @@
 
 A personal daily paper that combines relevant reporting with important Stories beyond a reader's usual interests.
 
-## Active Recovery Status
+## Recovery Status (updated 16 November 2026)
 
-The recovery program is governed by [specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11). Slices R01 through R07 are complete and verified across both desktop and mobile viewports. Slice R08 Stage A (Deployed Reader Readiness) is verified.
+**Not finished.** The code builds and passes its offline checks, and the site is deployed, but recovery [specification #11, revision 2](https://github.com/Umer-Hayatt/Project-Herald/issues/11) is not met yet. Earlier "R01–R07 complete" claims in this file were superseded by the 19–23 October audit.
 
-See the [recovery index](docs/recovery/TICKET-REVIEW.md), [detailed recovery handoff](docs/recovery/README.md), and [architecture overview](docs/evidence/architecture-overview.md).
+Read [the current status and owner steps](docs/recovery/2026-11-16-status-and-owner-steps.md) first, then the [recovery handoff](docs/recovery/README.md) and [architecture overview](docs/evidence/architecture-overview.md).
 
-### Implemented Recovery Slices
-
-- **R01 ([#12](https://github.com/Umer-Hayatt/Project-Herald/issues/12)):** Direct public shared-write denial, content quality gate (48-hour freshness, substantive text criteria, non-article index rejection), atomic ingestion claim RPC, and two-reader RLS ownership isolation.
-- **R02 ([#13](https://github.com/Umer-Hayatt/Project-Herald/issues/13)):** Complementary multi-provider supply coordinator (TheNewsAPI + NewsData) with shared caching, event grouping, publisher vs event geography resolution, and provider fault-tolerance.
-- **R03 ([#14](https://github.com/Umer-Hayatt/Project-Herald/issues/14)):** Canonical Story contract (`title`, `excerpt`, `briefing`, `why_it_matters`, `publisher`, `source_url`, `supporting_sources`), web and PDF parity, negative feedback non-promotion, subtopic affinity scoring, and immutable past editions.
-- **R04 ([#15](https://github.com/Umer-Hayatt/Project-Herald/issues/15)):** Cross-provider event lineage and 7-day past inclusion deduplication. Down-ranks repeated unchanged events while preserving materially new updates with explicit update explanations.
-- **R05 ([#16](https://github.com/Umer-Hayatt/Project-Herald/issues/16)):** Bounded AI Editor powered by Google Gemini (Flash) with automatic deterministic fallback. Sends minimal outbound brief (zero reader PII, credentials, or histories) and validates shortlisted candidates against declared preferences.
-- **R06 ([#17](https://github.com/Umer-Hayatt/Project-Herald/issues/17)):** Bounded targeted search filling undercovered reader interests. Enforces max 2 provider calls, 1-hour cache coalescing across concurrent readers, prompt injection rejection, and one refinement cycle.
-- **R07 ([#18](https://github.com/Umer-Hayatt/Project-Herald/issues/18)):** Calm finished reading experience and public samples before login. Prominent unauthenticated sample edition at `/sample` and matching PDF at `/api/editions/sample/pdf`. Signed-in paper displays actual reading duration vs budget (`~X min read (Y min plan)`), removed duplicate teasers and hype labels, and offers clear `#edition-end` finish.
-- **R08 ([#19](https://github.com/Umer-Hayatt/Project-Herald/issues/19)):** Stage A Deployed Reader Readiness verified. Ready for owner-led Stage B 7-day pilot.
+- **Working:** Google sign-in screen with an 18+ declaration, onboarding, preserved daily Editions, feedback, archive, matching PDF, public sample, server-only shared reporting. Verified in isolated tests (292/292 on 24 October); the anonymous live pages were rechecked on 16 November.
+- **Open:** fresh broad permitted news supply (only Global Voices is enabled), live AI (Gemini is disabled), a real signed-in reader journey on the live site, migration baseline, and the seven-day pilot.
+- **Tracker:** only [#12](https://github.com/Umer-Hayatt/Project-Herald/issues/12) is closed; #13–#19 remain open.
 
 ## Run Locally
 

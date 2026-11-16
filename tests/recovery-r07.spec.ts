@@ -77,6 +77,27 @@ test.describe("Recovery R07: Calm Finished Reading & Public Samples Before Login
     await expect(editionEnd.locator("a[href='/login']")).toBeVisible();
   });
 
+  test("2b. Public sample page stays error-free days after it was built and never calls the feedback API", async ({
+    page,
+  }) => {
+    // The sample page is prerendered at build time; visitors arrive days later.
+    await page.clock.install({ time: Date.now() + 3 * 24 * 60 * 60 * 1000 });
+    const pageErrors: string[] = [];
+    const feedbackRequests: string[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+    page.on("request", (request) => {
+      if (new URL(request.url()).pathname === "/api/feedback") feedbackRequests.push(request.url());
+    });
+
+    await page.goto("/sample", { waitUntil: "load" });
+    await expect(page.locator(".story-card")).toHaveCount(2);
+    await page.waitForLoadState("networkidle");
+
+    expect(pageErrors).toEqual([]);
+    expect(feedbackRequests).toEqual([]);
+    await expect(page.locator(".story-card").first()).toContainText("11 Oct 2022");
+  });
+
   test("3. Public sample PDF endpoint: returns 200 PDF without authentication header or cookie", async ({
     request,
   }) => {
